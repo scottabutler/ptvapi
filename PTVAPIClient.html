@@ -4,11 +4,10 @@
 	<script type="text/javascript">
 		var PTV = {
 			//Fields
-			//NOTE: Use of this developer ID and secret key is subject to the Terms of Use
-			//of the PTV API. Unauthorised use of these credentials is prohibited.
-			//You can request your own key from PTV via email.
-			_devId: "1000277",
-			_secret: "d6eae3f8-3c8f-11e4-8bed-0263a9d0b8a0",
+			//NOTE: Use of the developer ID and secret key contained in this site 
+			//is subject to the Terms of Use of the PTV API. Unauthorised use of 
+			//these credentials is prohibited. You can request your own key from 
+			//PTV via email.
 			
 			//Methods
 			generateSignature: function(request) {
@@ -137,9 +136,28 @@
 			document.getElementById("endpoint").value = input;
 			PTV.makeRequest();
 		}
+		function init() {
+			PTV._devId = getQueryVariable('d');
+			PTV._secret = getQueryVariable('s');
+			if (PTV._devId == null || PTV._devId == '' || PTV._secret == null || PTV._secret == '') {
+				return;
+			}
+			prefill('/v3/route_types', null, null);
+		}
+		//https://css-tricks.com/snippets/javascript/get-url-variables/
+		function getQueryVariable(variable)
+		{
+		   var query = window.location.search.substring(1);
+		   var vars = query.split("&");
+		   for (var i=0;i<vars.length;i++) {
+			   var pair = vars[i].split("=");
+			   if(pair[0] == variable){return pair[1];}
+		   }
+		   return(false);
+		}
 	</script>
 </head>
-<body onload="prefill('/v3/route_types', null, null)">
+<body onload="init()">
 	<input type="button" onclick="previous()" value="< Back" />
 	<label for="endpoint">Endpoint: </label>
 	<input type="text" id="endpoint" style="width: 500px;" value="/v3/route_types" />
