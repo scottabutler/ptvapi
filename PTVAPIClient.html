@@ -1,0 +1,151 @@
+<html>
+<head>
+	<script src="ptv-hmac-sha1.js"></script>
+	<script type="text/javascript">
+		var PTV = {
+			//Fields
+			//NOTE: Use of this developer ID and secret key is subject to the Terms of Use
+			//of the PTV API. Unauthorised use of these credentials is prohibited.
+			//You can request your own key from PTV via email.
+			_devId: "1000277",
+			_secret: "d6eae3f8-3c8f-11e4-8bed-0263a9d0b8a0",
+			
+			//Methods
+			generateSignature: function(request) {
+				var hash = CryptoJS.HmacSHA1(request, this._secret);
+				return hash;
+			},
+			
+			//Creates and sends an AJAX request to the specified endpoint. Internally, this
+			//handles the API authentication and signing.
+			//Upon success, the specified callback function is invoked, with the response
+			//data passed as a parameter.
+			sendRequestInner: function(endpoint, callBackFunc, base, useCorsBypass) {
+				var xmlhttp = new XMLHttpRequest();
+				xmlhttp.onreadystatechange=function() {
+  					if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+  						document.getElementById("loader").style.display = "none";
+  						callBackFunc(JSON.parse(xmlhttp.responseText));
+  					}
+  				}
+
+  				var qs = endpoint.indexOf("?") == -1 ? "?" : "&";
+  				endpoint = endpoint.indexOf("devId=") == -1 ? endpoint + qs + "devid=" + this._devId : endpoint;
+  				var sig = this.generateSignature(endpoint);
+  				var url = base + endpoint + "&signature=" + sig;
+  				
+  				if (useCorsBypass == true) {
+  					url = 'https://cors-anywhere.herokuapp.com/' + url;
+  				}
+
+				xmlhttp.open("GET", url, true);
+				xmlhttp.send();
+			},
+						
+			makeRequest: function() {
+				var base = "http://timetableapi.ptv.vic.gov.au";
+				var useCorsBypass = true;
+				var endpoint = document.getElementById("endpoint").value;	
+				document.getElementById("loader").style.display = "inline-block";		
+				this.sendRequestInner(endpoint, this.printOutput, base, useCorsBypass);
+				state['current'] = endpoint;
+			},			
+					
+			printOutput: function(data) {
+				var outputStr = JSON.stringify(data, null, 2) + "";
+				var textRegex = '"[a-zA-Z0-9\\s\\(\\)\&#/-]+"';
+				
+				//Route types
+				outputStr = replaceValue("route_types", outputStr, "route_type_name", textRegex, replaceBold);
+				outputStr = replaceValue("route_types", outputStr, "route_type", '\\d+', getRoutesLink);
+				
+				//Routes
+				outputStr = replaceValue("routes", outputStr, "route_name", textRegex, replaceBold);
+				outputStr = replaceValue("routes", outputStr, "route_id", '\\d+', getRouteStopsLink);
+				
+				//Stops
+				outputStr = replaceValue("stops", outputStr, "stop_name", textRegex, replaceBold);
+				outputStr = replaceValue("stops", outputStr, "stop_id", '\\d+', getRouteDirectionsLink);
+				
+				//Directions
+				outputStr = replaceValue("directions", outputStr, "direction_name", textRegex, replaceBold);
+				outputStr = replaceValue("directions", outputStr, "direction_id", '\\d+', getStopDeparturesLink);
+				
+				//Departures
+				outputStr = replaceValue("departures", outputStr, "scheduled_departure_utc", '\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z', replaceDate);
+				outputStr = replaceValue("departures", outputStr, "estimated_departure_utc", '\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z', replaceDate);
+				outputStr = replaceValue("departures", outputStr, "at_platform", 'true|false', replaceBool);
+				document.getElementById("output").innerHTML = outputStr;
+			}
+		};
+		
+		var state = new Array();
+		var stateHistory = new Array();
+		
+		function replaceValue(dataSet, input, fieldName, valuePattern, replacementValue) {
+			if ( new RegExp('\{\\s+"' + dataSet + '":').test(input) == false) {
+				return input;
+			}			
+			var regex = new RegExp('("' + fieldName + '":\\s+"?)(' + valuePattern + ')', 'gi');
+			return input.replace(regex, replacementValue);
+		}
+		function getRoutesLink(match, p1, p2, offset, string) {			
+			return p1 + p2 + ' ' + buildLink('/v3/routes/?route_types=' + p2, 'route_type', p2, 'Get routes');
+		}		
+		function getRouteStopsLink(match, p1, p2, offset, string) {	
+			var route = '/v3/stops/route/' + p2 + '/route_type/' + state['route_type'];
+			return p1 + p2 + ' ' + buildLink(route, 'route_id', p2, 'Get stops');
+		}
+		function getRouteDirectionsLink(match, p1, p2, offset, string) {
+			var route = '/v3/directions/route/' + state['route_id'];
+			return p1 + p2 + ' ' + buildLink(route, 'stop_id', p2, 'Get directions');
+		}
+		function getStopDeparturesLink(match, p1, p2, offset, string) {
+			var route = '/v3/departures/route_type/' + state['route_type'] + '/stop/' + state['stop_id'] + '/?direction_id=' + p2 + '&max_results=3&date_utc=' + new Date().toISOString();
+			return p1 + p2 + ' ' + buildLink(route, 'direction_id', p2, 'Get departures');
+		}
+		function replaceDate(match, p1, p2, offset, string) {
+			var date = new Date(p2);
+			var hrs = date.getHours() < 10 ? '0' + date.getHours() : date.getHours();
+			var mins = date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes();
+			var result = hrs + ":" + mins;
+			return p1 + '<strong>' + result + '</strong>';
+		}		
+		function replaceBool(match, p1, p2, offset, string) {
+			return p1 + (p2 == true ? 'Yes' : 'No');
+		}				
+		function replaceBold(match, p1, p2, offset, string) {
+			return p1 + '<strong>' + p2 + '</strong>';
+		}
+		function buildLink(route, key, value, text) {
+			return '<a href="#" onclick="prefill(\'' + route + '\', \'' + key + '\', ' + value + ')">' + text + '</a>';
+		}
+		function prefill(input, key, value) {
+			if (key != '' && key != null) {
+				state[key] = value;
+			}
+			
+			stateHistory.push(document.getElementById("endpoint").value);
+			document.getElementById("endpoint").value = input;
+			PTV.makeRequest();
+		}
+		function previous() {
+			if (stateHistory.length == 0) {
+				return;
+			}
+			var input = stateHistory.pop();
+			document.getElementById("endpoint").value = input;
+			PTV.makeRequest();
+		}
+	</script>
+</head>
+<body onload="prefill('/v3/route_types', null, null)">
+	<input type="button" onclick="previous()" value="< Back" />
+	<label for="endpoint">Endpoint: </label>
+	<input type="text" id="endpoint" style="width: 500px;" value="/v3/route_types" />
+	<input type="button" onclick="PTV.makeRequest()" value="Send" />
+	<span id="loader" style="display:none; color: red;">Loading...</span>
+	<br />
+	<pre id="output" style="border: 1px solid black; height: 90%; overflow: scroll;"></pre>
+</body>
+</html>
