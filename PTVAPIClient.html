@@ -24,7 +24,7 @@
 				xmlhttp.onreadystatechange=function() {
   					if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
   						document.getElementById("loader").style.display = "none";
-  						callBackFunc(JSON.parse(xmlhttp.responseText));
+  						callBackFunc(endpoint, JSON.parse(xmlhttp.responseText));
   					}
   				}
 
@@ -48,9 +48,24 @@
 				document.getElementById("loader").style.display = "inline-block";		
 				this.sendRequestInner(endpoint, this.printOutput, base, useCorsBypass);
 				state['current'] = endpoint;
-			},			
+			},
+			
+			stops: new Array(),
+			extractStops: function(data) {
+				if (data.stops == null) return;
+				
+				PTV.stops = new Array();
+				for (var i = 0; i < data.stops.length; i++) {
+					PTV.stops[data.stops[i].stop_id] = data.stops[i].stop_name;
+				}
+			},	
 					
-			printOutput: function(data) {
+			printOutput: function(endpoint, data) {
+				if (new RegExp('\\/v3\\/stops\\/route\\/\\d+\\/route_type\\/\\d+').test(endpoint) == true) {
+					PTV.extractStops(data);
+					console.log('Extracted stops');
+				}
+			
 				var outputStr = JSON.stringify(data, null, 2) + "";
 				var textRegex = '"[a-zA-Z0-9\\s\\(\\)\&#/-]+"';
 				
@@ -74,6 +89,9 @@
 				outputStr = replaceValue("departures", outputStr, "scheduled_departure_utc", '\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z', replaceDate);
 				outputStr = replaceValue("departures", outputStr, "estimated_departure_utc", '\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z', replaceDate);
 				outputStr = replaceValue("departures", outputStr, "at_platform", 'true|false', replaceBool);
+				outputStr = replaceValue("departures", outputStr, "run_id", '\\d+', getStoppingPatternLink);
+				outputStr = replaceValue("departures", outputStr, "stop_id", '\\d+', getStopName);
+				
 				document.getElementById("output").innerHTML = outputStr;
 			}
 		};
@@ -81,10 +99,14 @@
 		var state = new Array();
 		var stateHistory = new Array();
 		
+		function reset() {
+			state = new Array();
+			init();
+		}
 		function replaceValue(dataSet, input, fieldName, valuePattern, replacementValue) {
-			if ( new RegExp('\{\\s+"' + dataSet + '":').test(input) == false) {
+			if (new RegExp('\{\\s+"' + dataSet + '":').test(input) == false) {
 				return input;
-			}			
+			}
 			var regex = new RegExp('("' + fieldName + '":\\s+"?)(' + valuePattern + ')', 'gi');
 			return input.replace(regex, replacementValue);
 		}
@@ -102,6 +124,17 @@
 		function getStopDeparturesLink(match, p1, p2, offset, string) {
 			var route = '/v3/departures/route_type/' + state['route_type'] + '/stop/' + state['stop_id'] + '/?direction_id=' + p2 + '&max_results=3&date_utc=' + new Date().toISOString();
 			return p1 + p2 + ' ' + buildLink(route, 'direction_id', p2, 'Get departures');
+		}		
+		function getStoppingPatternLink(match, p1, p2, offset, string) {
+			if (state['current'].indexOf('/v3/departures/route_type/' + state['route_type'] + '/stop/' + state['stop_id'] + '/?') == -1) {
+				return p1 + p2;
+			}
+			var route = '/v3/pattern/run/' + p2 + '/route_type/' + state['route_type'] + '/?stop_id=' + state['stop_id'] + '&date_utc=' + new Date().toISOString();
+			return p1 + p2 + ' ' + buildLink(route, 'run_id', p2, 'Get stopping pattern');
+		}		
+		function getStopName(match, p1, p2, offset, string) {
+			if (PTV.stops[p2] == undefined) return p1 + p2;
+			return p1 + p2 + ' <strong>' + PTV.stops[p2] + '</strong>';
 		}
 		function replaceDate(match, p1, p2, offset, string) {
 			var date = new Date(p2);
@@ -111,7 +144,7 @@
 			return p1 + '<strong>' + result + '</strong>';
 		}		
 		function replaceBool(match, p1, p2, offset, string) {
-			return p1 + (p2 == true ? 'Yes' : 'No');
+			return p1 + '<strong>' + (p2 == true ? 'Yes' : 'No') + ' (' + p2 + ')</strong>';			
 		}				
 		function replaceBold(match, p1, p2, offset, string) {
 			return p1 + '<strong>' + p2 + '</strong>';
@@ -124,9 +157,19 @@
 				state[key] = value;
 			}
 			
+			updateStateOutput();
+			
 			stateHistory.push(document.getElementById("endpoint").value);
 			document.getElementById("endpoint").value = input;
 			PTV.makeRequest();
+		}
+		function updateStateOutput() {
+			document.getElementById("stateOutput").innerHTML = "";
+			var stateOutput = "";
+			for (var key in state) {
+				stateOutput += "<strong>" + key + ":</strong> " + state[key] + "&nbsp;&nbsp;";
+			}
+			document.getElementById("stateOutput").innerHTML = stateOutput;
 		}
 		function previous() {
 			if (stateHistory.length == 0) {
@@ -156,14 +199,33 @@
 		   return(false);
 		}
 	</script>
+	<style>
+		pre {
+			//border: 1px solid black;
+			height: 75%;
+			width: 100%;
+			overflow: scroll;
+		}
+		input[type=button] {
+			width: 100px;
+			margin-right: 10px;
+		}
+		input[type=text] {
+			width: 100%;
+			margin-right: 10px;
+		}
+	</style>
 </head>
 <body onload="init()">
+	<label for="endpoint">Endpoint: </label><br />
+	<input type="text" id="endpoint" value="/v3/route_types" /><br /><br />
 	<input type="button" onclick="previous()" value="< Back" />
-	<label for="endpoint">Endpoint: </label>
-	<input type="text" id="endpoint" style="width: 500px;" value="/v3/route_types" />
+	<input type="button" onclick="reset()" value="Reset" />
 	<input type="button" onclick="PTV.makeRequest()" value="Send" />
 	<span id="loader" style="display:none; color: red;">Loading...</span>
+	<br />	
+	<pre id="output"></pre>
+	<div id="stateOutput"></div>
 	<br />
-	<pre id="output" style="border: 1px solid black; height: 90%; overflow: scroll;"></pre>
 </body>
 </html>
