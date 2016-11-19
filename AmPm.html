@@ -201,6 +201,16 @@
 			color: red;
 			display:none;
 		}
+		#refresh {
+			width: 93%;
+			height: 5%;
+			background-color: #555;
+			color: #fff;
+			margin: 1%;
+			text-align: center;
+			border-radius: 3px;
+			padding-top: 10px;
+		}
 	</style>
 </head>
 <body onload="init()">
@@ -221,5 +231,6 @@
 		</div>
 		<span id="outbound-loader" style="">Loading...</span>
 	</div>
+	<div id="refresh" onclick="init()">REFRESH</div>
 </body>
 </html>
