@@ -122,11 +122,11 @@
 			return p1 + p2 + ' ' + buildLink(route, 'stop_id', p2, 'Get directions');
 		}
 		function getStopDeparturesLink(match, p1, p2, offset, string) {
-			var route = '/v3/departures/route_type/' + state['route_type'] + '/stop/' + state['stop_id'] + '/?direction_id=' + p2 + '&max_results=3&date_utc=' + new Date().toISOString();
+			var route = '/v3/departures/route_type/' + state['route_type'] + '/stop/' + state['stop_id'] + '/route/' + state['route_id'] + '/?direction_id=' + p2 + '&max_results=3&date_utc=' + new Date().toISOString();
 			return p1 + p2 + ' ' + buildLink(route, 'direction_id', p2, 'Get departures');
 		}		
 		function getStoppingPatternLink(match, p1, p2, offset, string) {
-			if (state['current'].indexOf('/v3/departures/route_type/' + state['route_type'] + '/stop/' + state['stop_id'] + '/?') == -1) {
+			if (state['current'].indexOf('/v3/departures/route_type/' + state['route_type'] + '/stop/' + state['stop_id'] + '/route/' + state['route_id'] + '/?') == -1) {
 				return p1 + p2;
 			}
 			var route = '/v3/pattern/run/' + p2 + '/route_type/' + state['route_type'] + '/?stop_id=' + state['stop_id'] + '&date_utc=' + new Date().toISOString();
@@ -144,7 +144,7 @@
 			return p1 + '<strong>' + result + '</strong>';
 		}		
 		function replaceBool(match, p1, p2, offset, string) {
-			return p1 + '<strong>' + (p2 == true ? 'Yes' : 'No') + ' (' + p2 + ')</strong>';			
+			return p1 + '<strong>' + (p2 == 'true' ? 'Yes' : 'No') + ' (' + p2 + ')</strong>';			
 		}				
 		function replaceBold(match, p1, p2, offset, string) {
 			return p1 + '<strong>' + p2 + '</strong>';

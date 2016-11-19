@@ -1,0 +1,221 @@
+<html>
+<head>
+	<script src="ptv-hmac-sha1.js"></script>
+	<script type="text/javascript">
+		var PTV = {
+			//Fields
+			//NOTE: Use of the developer ID and secret key contained in this site 
+			//is subject to the Terms of Use of the PTV API. Unauthorised use of 
+			//these credentials is prohibited. You can request your own key from 
+			//PTV via email.
+			
+			//Methods
+			generateSignature: function(request) {
+				var hash = CryptoJS.HmacSHA1(request, this._secret);
+				return hash;
+			},
+			
+			//Creates and sends an AJAX request to the specified endpoint. Internally, this
+			//handles the API authentication and signing.
+			//Upon success, the specified callback function is invoked, with the response
+			//data passed as a parameter.
+			sendRequestInner: function(endpoint, callBackFunc, base, useCorsBypass, params) {
+				var xmlhttp = new XMLHttpRequest();
+				xmlhttp.onreadystatechange=function() {
+  					if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+  						document.getElementById(params.name + "-loader").style.display = "none";
+  						document.getElementById(params.name + "-wrapper").style.display = "inline-block";
+  						callBackFunc(endpoint, JSON.parse(xmlhttp.responseText), params);
+  					}
+  				}
+
+  				var qs = endpoint.indexOf("?") == -1 ? "?" : "&";
+  				endpoint = endpoint.indexOf("devId=") == -1 ? endpoint + qs + "devid=" + this._devId : endpoint;
+  				var sig = this.generateSignature(endpoint);
+  				var url = base + endpoint + "&signature=" + sig;
+  				
+  				if (useCorsBypass == true) {
+  					url = 'https://cors-anywhere.herokuapp.com/' + url;
+  				}
+
+				xmlhttp.open("GET", url, true);
+				xmlhttp.send();
+			},
+						
+			makeRequest: function(params) {
+				var base = "http://timetableapi.ptv.vic.gov.au";
+				var useCorsBypass = true;
+				var endpoint = this.buildEndpoint(params);	
+				document.getElementById(params.name + "-loader").style.display = "inline-block";
+				document.getElementById(params.name + "-wrapper").style.display = "none";
+				this.sendRequestInner(endpoint, this.printOutput, base, useCorsBypass, params);
+			},
+			
+			buildEndpoint: function(params) {
+				var date_utc = new Date().toISOString();
+				var template = '/v3/departures/route_type/{route_type}/stop/{stop_id}/route/{route_id}/?direction_id={direction_id}' +
+						'&max_results=1&date_utc={date_utc}&expand=stops';
+				var endpoint = template
+									.replace('{route_type}', params.route_type)
+									.replace('{stop_id}', params.stop_id)
+									.replace('{route_id}', params.route_id)
+									.replace('{direction_id}', params.direction_id)									
+									.replace('{date_utc}', date_utc)
+				return endpoint;
+			},
+			
+			printOutput: function(endpoint, data, params) {
+				var time = formatTime(data.departures[0].estimated_departure_utc, data.departures[0].scheduled_departure_utc); 
+				document.getElementById(params.name + '-time').innerHTML = time;
+				var diff = getDifferenceFromNow(data.departures[0].estimated_departure_utc, data.departures[0].scheduled_departure_utc); 
+				document.getElementById(params.name + '-mins').innerHTML = diff + ' mins';
+				document.getElementById(params.name + '-mins').style.color = getColour(diff);
+				document.getElementById(params.name + '-label').innerHTML = data.stops[params.stop_id].stop_name;
+				/*console.log(data);
+				console.log(name);
+				console.log(endpoint);*/
+			}
+		};
+		
+		function formatTime(estimated, scheduled) {
+			var date = estimated == null
+				? new Date(scheduled)
+				: new Date(estimated);
+			
+			var hrs = date.getHours() < 10 ? '0' + date.getHours() : date.getHours();
+			var mins = date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes();
+			var result = hrs + ":" + mins;
+			return result;
+		}
+		
+		function getDifferenceFromNow(estimated, scheduled) {
+			var date = estimated == null
+				? new Date(scheduled)
+				: new Date(estimated);
+			
+			var now = new Date();
+			
+			return Math.ceil(((date.getTime() - now.getTime()) / 1000) / 60);
+		}
+		
+		function getColour(difference) {
+			if (difference > 9) {
+				return 'green';
+			}
+			if (difference > 4) {
+				return 'orange';
+			}
+			if (difference > -1) {
+				return 'red';
+			}
+			if (difference < 0) {
+				return 'gray';
+			}
+		}
+		
+		/*
+			
+			am_route_type=0&am_route_id=7&am_stop_id=1137&am_direction_id=1&pm_route_type=0&pm_route_id=7&pm_stop_id=1068&pm_direction_id=7
+			
+		*/
+		var am = {
+			route_type: 0,
+			route_id: 7,
+			stop_id: 1137,
+			direction_id: 1,
+			name: 'inbound'
+		};
+		var pm = {
+			route_type: 0,
+			route_id: 7,
+			stop_id: 1068,
+			direction_id: 7,
+			name: 'outbound'
+		};
+		function init() {
+			PTV._devId = getQueryVariable('d');
+			PTV._secret = getQueryVariable('s');
+			
+			am.route_type = getQueryVariable('am_route_type');
+			am.route_id = getQueryVariable('am_route_id');
+			am.stop_id = getQueryVariable('am_stop_id');
+			am.direction_id = getQueryVariable('am_direction_id');
+			
+			pm.route_type = getQueryVariable('pm_route_type');
+			pm.route_id = getQueryVariable('pm_route_id');
+			pm.stop_id = getQueryVariable('pm_stop_id');
+			pm.direction_id = getQueryVariable('pm_direction_id');
+			
+			if (PTV._devId == null || PTV._devId == '' || PTV._secret == null || PTV._secret == '') {
+				return;
+			}
+			PTV.makeRequest(am);
+			PTV.makeRequest(pm);
+			document.getElementById("now").innerHTML = formatTime(new Date(), null);
+		}
+		//https://css-tricks.com/snippets/javascript/get-url-variables/
+		function getQueryVariable(variable)
+		{
+		   var query = window.location.search.substring(1);
+		   var vars = query.split("&");
+		   for (var i=0;i<vars.length;i++) {
+			   var pair = vars[i].split("=");
+			   if(pair[0] == variable){return pair[1];}
+		   }
+		   return(false);
+		}
+	</script>
+	<style>
+		body {
+			font-family: arial;
+			background-color: #222;
+		}
+		#inbound, #outbound {
+			width: 15%;
+			padding: 1%;
+		}
+		#now {
+			width: 10%;
+			padding: 1%;
+		}
+		#inbound, #outbound, #now {
+			display: inline-block;
+			text-align: center;			
+			min-height: 27%;
+			vertical-align: top;
+			border-radius: 3px;			
+			background-color: #eee;
+			margin: 1%;
+		}
+		.mins, #now {
+			font-size: 28px;
+		}
+		.time {
+			margin: 15px 0 5px 0;
+		}
+		#inbound-loader, #outbound-loader {
+			color: red;
+			display:none;
+		}
+	</style>
+</head>
+<body onload="init()">
+	<div id="inbound">
+		<div id="inbound-wrapper">
+			<div id="inbound-mins" class="mins"></div>
+			<div id="inbound-time" class="time"></div>
+			<div id="inbound-label" class="label"></div>
+		</div>
+		<span id="inbound-loader" style="">Loading...</span>
+	</div>
+	<div id="now"></div>
+	<div id="outbound">
+		<div id="outbound-wrapper">
+			<div id="outbound-mins" class="mins"></div>
+			<div id="outbound-time" class="time"></div>
+			<div id="outbound-label" class="label"></div>
+		</div>
+		<span id="outbound-loader" style="">Loading...</span>
+	</div>
+</body>
+</html>
