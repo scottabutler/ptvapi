@@ -1,0 +1,195 @@
+<html>
+<head>
+	<script src="ptv-hmac-sha1.js"></script>
+	<script type="text/javascript">
+		var PTV = {
+			//Fields
+			//NOTE: Use of the developer ID and secret key contained in this site 
+			//is subject to the Terms of Use of the PTV API. Unauthorised use of 
+			//these credentials is prohibited. You can request your own key from 
+			//PTV via email.
+			
+			//Methods
+			generateSignature: function(request) {
+				var hash = CryptoJS.HmacSHA1(request, this._secret);
+				return hash;
+			},
+			
+			//Creates and sends an AJAX request to the specified endpoint. Internally, this
+			//handles the API authentication and signing.
+			//Upon success, the specified callback function is invoked, with the response
+			//data passed as a parameter.
+			sendRequestInner: function(endpoint, callBackFunc, base, useCorsBypass, params) {
+				var xmlhttp = new XMLHttpRequest();
+				xmlhttp.onreadystatechange=function() {
+  					if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+  						callBackFunc(endpoint, JSON.parse(xmlhttp.responseText), params);
+  					}
+  				}
+
+  				var qs = endpoint.indexOf("?") == -1 ? "?" : "&";
+  				endpoint = endpoint.indexOf("devId=") == -1 ? endpoint + qs + "devid=" + this._devId : endpoint;
+  				var sig = this.generateSignature(endpoint);
+  				var url = base + endpoint + "&signature=" + sig;
+  				
+  				if (useCorsBypass == true) {
+  					url = 'https://cors-anywhere.herokuapp.com/' + url;
+  				}
+
+				xmlhttp.open("GET", url, true);
+				xmlhttp.send();
+			},
+						
+			makeRequest: function(params) {
+				var base = "http://timetableapi.ptv.vic.gov.au";
+				var useCorsBypass = true;
+				var endpoint = this.buildEndpoint(params);				
+				this.sendRequestInner(endpoint, this.printOutput, base, useCorsBypass, params);
+			},
+			
+			buildEndpoint: function(params) {
+				var date_utc = new Date().toISOString();
+				var template = '/v3/departures/route_type/{route_type}/stop/{stop_id}' +
+						'?max_results=4&date_utc={date_utc}&platform_numbers={platform_number}&expand=stop&expand=run';
+				var endpoint = template
+									.replace('{route_type}', params.route_type)
+									.replace('{stop_id}', params.stop_id)
+									.replace('{platform_number}', params.platform_number)					
+									.replace('{date_utc}', date_utc);
+				return endpoint;
+			},
+			
+			printOutput: function(endpoint, data, params) {
+				if (data.departures.length == 0) {
+					return;
+				}
+			
+				var time = formatTime(data.departures[0].estimated_departure_utc, data.departures[0].scheduled_departure_utc); 
+				var diff = getDifferenceFromNow(data.departures[0].estimated_departure_utc, data.departures[0].scheduled_departure_utc); 
+				var stop_name = data.stops[params.stop_id].stop_name;
+				document.getElementById('stop').innerHTML = stop_name;
+				document.getElementById('platform').innerHTML = 'Platform ' + data.departures[0].platform_number;
+				document.getElementById('next-dest').innerHTML = data.runs[data.departures[0].run_id].destination_name;
+				document.getElementById('next-time').innerHTML = time;
+				document.getElementById('next-diff').innerHTML = diff + 'mins';
+				
+				clearFollowingDepartures();
+				for (var i = 1; i < data.departures.length; i++) {
+					addFollowingDeparture(data, i);
+				}
+			}
+		};
+		
+		function addFollowingDeparture(data, index) {
+			var time = formatTime(data.departures[index].estimated_departure_utc, data.departures[index].scheduled_departure_utc); 
+			var diff = getDifferenceFromNow(data.departures[index].estimated_departure_utc, data.departures[index].scheduled_departure_utc); 
+			var dest = data.runs[data.departures[index].run_id].destination_name;
+		
+			var wrapper = document.createElement('div');
+			wrapper.innerHTML = time + ' ' + dest + ' ' + diff + 'mins';
+			document.getElementById('following-departures').appendChild(wrapper);
+		}
+		
+		function clearFollowingDepartures() {
+			document.getElementById('following-departures').innerHTML = '';
+		}
+		
+		function formatTime(estimated, scheduled) {
+			var date = estimated == null
+				? new Date(scheduled)
+				: new Date(estimated);
+			
+			var hrs = date.getHours() < 10 ? '0' + date.getHours() : date.getHours();
+			var mins = date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes();
+			var result = hrs + ":" + mins;
+			return result;
+		}
+		
+		function getDifferenceFromNow(estimated, scheduled) {
+			var date = estimated == null
+				? new Date(scheduled)
+				: new Date(estimated);
+			
+			var now = new Date();
+			
+			return Math.ceil(((date.getTime() - now.getTime()) / 1000) / 60);
+		}
+		
+		function init() {
+			PTV._devId = getQueryVariable('d');
+			PTV._secret = getQueryVariable('s');
+			
+			if (PTV._devId == null || PTV._devId == '' || PTV._secret == null || PTV._secret == '') {
+				return;
+			}
+			
+			updateView();
+		}
+		
+		function updateView() {
+			var stop_id = getQueryVariable('stop_id');
+			var route_type = getQueryVariable('route_type');
+			var e = document.getElementById("platform-select");
+			var platform_number = e.options[e.selectedIndex].value;
+			
+			var params = {
+				route_type: route_type,
+				stop_id: stop_id,
+				platform_number: platform_number
+			};
+			
+			PTV.makeRequest(params);
+		}
+		
+		//https://css-tricks.com/snippets/javascript/get-url-variables/
+		function getQueryVariable(variable)
+		{
+		   var query = window.location.search.substring(1);
+		   var vars = query.split("&");
+		   for (var i=0;i<vars.length;i++) {
+			   var pair = vars[i].split("=");
+			   if(pair[0] == variable){return pair[1];}
+		   }
+		   return(false);
+		}
+	</script>
+	<style>
+		body {
+			font-family: arial;
+			background-color: #222;
+			color: #FFF;
+		}
+		
+	</style>
+</head>
+<body onload="init()">
+	<span id="stop"></span> - <span id="platform"></span>&nbsp;
+	<span id="platform-select-wrapper">
+		<select id="platform-select" onchange="updateView()">
+			<option value="1">1</option>
+			<option value="2">2</option>
+			<option value="3">3</option>
+			<option value="4">4</option>
+			<option value="5">5</option>
+			<option value="6">6</option>
+			<option value="7">7</option>
+			<option value="8">8</option>
+			<option value="9">9</option>
+			<option value="10">10</option>
+			<option value="11">11</option>
+			<option value="12">12</option>
+			<option value="13">13</option>
+			<option value="14">14</option>
+		</select>
+	</span>
+	<br />
+	<div>Next departure:</div>
+	<span id="next-time"></span>	
+	<span id="next-dest"></span>
+	<span id="next-diff"></span>
+	<div id="next-stops"></div>
+	<br />
+	<div>Following departure(s):</div>
+	<div id="following-departures"></div>
+</body>
+</html>

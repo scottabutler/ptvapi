@@ -79,7 +79,7 @@
 				
 				//Stops
 				outputStr = replaceValue("stops", outputStr, "stop_name", textRegex, replaceBold);
-				outputStr = replaceValue("stops", outputStr, "stop_id", '\\d+', getRouteDirectionsLink);
+				outputStr = replaceValue("stops", outputStr, "stop_id", '\\d+', getRouteDirectionsAndPlatformViewLinks);
 				
 				//Directions
 				outputStr = replaceValue("directions", outputStr, "direction_name", textRegex, replaceBold);
@@ -120,6 +120,13 @@
 		function getRouteDirectionsLink(match, p1, p2, offset, string) {
 			var route = '/v3/directions/route/' + state['route_id'];
 			return p1 + p2 + ' ' + buildLink(route, 'stop_id', p2, 'Get directions');
+		}
+		function getRouteDirectionsAndPlatformViewLinks(match, p1, p2, offset, string) {
+			var devId = getQueryVariable('d');
+			var secret = getQueryVariable('s');
+			var qs = '?s=' + secret + '&d=' + devId + '&stop_id=' + p2 + '&route_type=' + state['route_type'];
+			var platformViewLink = '<a href="PlatformView.html' + qs + '">Platform view</a>'
+			return getRouteDirectionsLink(match, p1, p2, offset, string) + ' ' + platformViewLink;
 		}
 		function getStopDeparturesLink(match, p1, p2, offset, string) {
 			var route = '/v3/departures/route_type/' + state['route_type'] + '/stop/' + state['stop_id'] + '/route/' + state['route_id'] + '/?direction_id=' + p2 + '&max_results=3&date_utc=' + new Date().toISOString();
