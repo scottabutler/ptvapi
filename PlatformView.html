@@ -64,7 +64,9 @@
 					return;
 				}
 			
-				var time = formatTime(data.departures[0].estimated_departure_utc, data.departures[0].scheduled_departure_utc); 
+				//var time = formatTime(data.departures[0].estimated_departure_utc, data.departures[0].scheduled_departure_utc); 
+				
+				var time = formatSingleTime(data.departures[0].scheduled_departure_utc);
 				var diff = getDifferenceFromNow(data.departures[0].estimated_departure_utc, data.departures[0].scheduled_departure_utc); 
 				var stop_name = data.stops[params.stop_id].stop_name;
 				document.getElementById('stop').innerHTML = stop_name;
@@ -81,12 +83,14 @@
 		};
 		
 		function addFollowingDeparture(data, index) {
-			var time = formatTime(data.departures[index].estimated_departure_utc, data.departures[index].scheduled_departure_utc); 
+			//var time = formatTime(data.departures[index].estimated_departure_utc, data.departures[index].scheduled_departure_utc); 
+			
+			var time = formatSingleTime(data.departures[index].scheduled_departure_utc);
 			var diff = getDifferenceFromNow(data.departures[index].estimated_departure_utc, data.departures[index].scheduled_departure_utc); 
 			var dest = data.runs[data.departures[index].run_id].destination_name;
 		
 			var wrapper = document.createElement('div');
-			wrapper.innerHTML = time + ' ' + dest + ' ' + diff + 'mins';
+			wrapper.innerHTML = time + '&nbsp;&nbsp;&nbsp;' + dest + '&nbsp;&nbsp;&nbsp;' + diff + 'mins';
 			document.getElementById('following-departures').appendChild(wrapper);
 		}
 		
@@ -98,6 +102,15 @@
 			var date = estimated == null
 				? new Date(scheduled)
 				: new Date(estimated);
+			
+			var hrs = date.getHours() < 10 ? '0' + date.getHours() : date.getHours();
+			var mins = date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes();
+			var result = hrs + ":" + mins;
+			return result;
+		}
+		
+		function formatSingleTime(time) {
+			var date = new Date(time);
 			
 			var hrs = date.getHours() < 10 ? '0' + date.getHours() : date.getHours();
 			var mins = date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes();
@@ -118,6 +131,9 @@
 		function init() {
 			PTV._devId = getQueryVariable('d');
 			PTV._secret = getQueryVariable('s');
+			var platform_number = getQueryVariable('p');
+			var e = document.getElementById("platform-select");
+			e.value = platform_number;
 			
 			if (PTV._devId == null || PTV._devId == '' || PTV._secret == null || PTV._secret == '') {
 				return;
@@ -132,6 +148,9 @@
 			var e = document.getElementById("platform-select");
 			var platform_number = e.options[e.selectedIndex].value;
 			
+			var new_url = window.location.pathname + updateQueryVariable('p', platform_number);
+			window.history.replaceState( {} , 'Platform View', new_url );
+			
 			var params = {
 				route_type: route_type,
 				stop_id: stop_id,
@@ -142,8 +161,7 @@
 		}
 		
 		//https://css-tricks.com/snippets/javascript/get-url-variables/
-		function getQueryVariable(variable)
-		{
+		function getQueryVariable(variable) {
 		   var query = window.location.search.substring(1);
 		   var vars = query.split("&");
 		   for (var i=0;i<vars.length;i++) {
@@ -152,14 +170,33 @@
 		   }
 		   return(false);
 		}
+		
+		function updateQueryVariable(key, value) {
+			var query = window.location.search.substring(1);
+			var vars = query.split("&");
+			var result = "";
+			for (var i=0;i<vars.length;i++) {
+				var pair = vars[i].split("=");
+				if(pair[0] == key){
+					result = result + "&" + pair[0] + "=" + value;
+				} else {
+					result = result + "&" + pair[0] + "=" + pair[1];
+				}
+			}
+			return "?" + result.substring(1);
+		}
 	</script>
 	<style>
 		body {
 			font-family: arial;
 			background-color: #222;
 			color: #FFF;
+			font-size: 20px;
 		}
-		
+		select {
+			font-size: 20px;
+			width: 100px;
+		}
 	</style>
 </head>
 <body onload="init()">
@@ -184,9 +221,9 @@
 	</span>
 	<br />
 	<div>Next departure:</div>
-	<span id="next-time"></span>	
-	<span id="next-dest"></span>
-	<span id="next-diff"></span>
+	<span id="next-time"></span>&nbsp;&nbsp;&nbsp;	
+	<span id="next-dest"></span>&nbsp;&nbsp;&nbsp;
+	<span id="next-diff"></span>&nbsp;&nbsp;&nbsp;
 	<div id="next-stops"></div>
 	<br />
 	<div>Following departure(s):</div>

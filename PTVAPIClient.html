@@ -124,7 +124,7 @@
 		function getRouteDirectionsAndPlatformViewLinks(match, p1, p2, offset, string) {
 			var devId = getQueryVariable('d');
 			var secret = getQueryVariable('s');
-			var qs = '?s=' + secret + '&d=' + devId + '&stop_id=' + p2 + '&route_type=' + state['route_type'];
+			var qs = '?p=1&s=' + secret + '&d=' + devId + '&stop_id=' + p2 + '&route_type=' + state['route_type'];
 			var platformViewLink = '<a href="PlatformView.html' + qs + '">Platform view</a>'
 			return getRouteDirectionsLink(match, p1, p2, offset, string) + ' ' + platformViewLink;
 		}
