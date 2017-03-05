@@ -19,7 +19,9 @@
 			//handles the API authentication and signing.
 			//Upon success, the specified callback function is invoked, with the response
 			//data passed as a parameter.
-			sendRequestInner: function(endpoint, callBackFunc, base, useCorsBypass, params) {
+			sendRequestInner: function(endpoint, callBackFunc, params) {
+				var settings = this.getGlobalSettings();
+				
 				var xmlhttp = new XMLHttpRequest();
 				xmlhttp.onreadystatechange=function() {
   					if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
@@ -30,25 +32,39 @@
   				var qs = endpoint.indexOf("?") == -1 ? "?" : "&";
   				endpoint = endpoint.indexOf("devId=") == -1 ? endpoint + qs + "devid=" + this._devId : endpoint;
   				var sig = this.generateSignature(endpoint);
-  				var url = base + endpoint + "&signature=" + sig;
+  				var url = settings.baseUrl + endpoint + "&signature=" + sig;
   				
-  				if (useCorsBypass == true) {
+  				if (settings.useCorsBypass == true) {
   					url = 'https://cors-anywhere.herokuapp.com/' + url;
   				}
 
 				xmlhttp.open("GET", url, true);
 				xmlhttp.send();
 			},
-						
-			makeRequest: function(params) {
-				var base = "http://timetableapi.ptv.vic.gov.au";
-				var useCorsBypass = true;
-				var endpoint = this.buildEndpoint(params);				
-				this.sendRequestInner(endpoint, this.printOutput, base, useCorsBypass, params);
+			
+			/* Util functions */
+			
+			getIsoDate: function() {
+				return new Date().toISOString();
 			},
 			
-			buildEndpoint: function(params) {
-				var date_utc = new Date().toISOString();
+			getGlobalSettings: function() {
+				return {
+					baseUrl: 'http://timetableapi.ptv.vic.gov.au',
+					useCorsBypass: true
+				}
+			},
+			
+			/* Request functions */
+			
+			//Departures
+			makeDeparturesRequest: function(params) {
+				var endpoint = this.buildDeparturesEndpoint(params);				
+				this.sendRequestInner(endpoint, this.printDeparturesOutput, params);
+			},
+			
+			buildDeparturesEndpoint: function(params) {
+				var date_utc = this.getIsoDate();
 				var template = '/v3/departures/route_type/{route_type}/stop/{stop_id}' +
 						'?max_results=4&date_utc={date_utc}&platform_numbers={platform_number}&expand=stop&expand=run';
 				var endpoint = template
@@ -59,7 +75,7 @@
 				return endpoint;
 			},
 			
-			printOutput: function(endpoint, data, params) {
+			printDeparturesOutput: function(endpoint, data, params) {
 				if (data.departures.length == 0) {
 					return;
 				}
@@ -79,7 +95,48 @@
 				for (var i = 1; i < data.departures.length; i++) {
 					addFollowingDeparture(data, i);
 				}
+				
+				//Display stopping pattern
+				var run_id = data.departures[0].run_id;
+				
+				var stopping_pattern_params = {
+					route_type: params.route_type,
+					stop_id: params.stop_id,
+					run_id: run_id
+				};
+			
+				PTV.makeStoppingPatternRequest(stopping_pattern_params);
+			},
+			
+			//Stopping pattern
+			makeStoppingPatternRequest: function(params) {
+				var endpoint = this.buildStoppingPatternEndpoint(params);				
+				this.sendRequestInner(endpoint, this.printStoppingPatternOutput, params);
+			},
+			
+			buildStoppingPatternEndpoint: function(params) {
+				var date_utc = this.getIsoDate();
+				var template = '/v3/pattern/run/{run_id}/route_type/{route_type}' +
+						'?date_utc={date_utc}';
+				var endpoint = template
+									.replace('{route_type}', params.route_type)
+									.replace('{run_id}', params.run_id)					
+									.replace('{date_utc}', date_utc);
+				return endpoint;
+			},
+			
+			printStoppingPatternOutput: function(endpoint, data, params) {
+				if (data.departures.length == 0) {
+					document.getElementById('next-stops').innerHTML = 'Could not load stopping pattern.';
+					return;
+				}
+				
+				clearStoppingPattern();
+				for (var i = 1; i < data.departures.length; i++) {
+					addStoppingPatternItem(data, i);
+				}
 			}
+			
 		};
 		
 		function addFollowingDeparture(data, index) {
@@ -96,6 +153,16 @@
 		
 		function clearFollowingDepartures() {
 			document.getElementById('following-departures').innerHTML = '';
+		}
+		
+		function addStoppingPatternItem(data, index) {
+			var wrapper = document.createElement('div');
+			wrapper.innerHTML = data.departures[index].stop_id;
+			document.getElementById('next-stops').appendChild(wrapper);
+		}
+		
+		function clearStoppingPattern() {
+			document.getElementById('next-stops').innerHTML = '';
 		}
 		
 		function formatTime(estimated, scheduled) {
@@ -157,7 +224,7 @@
 				platform_number: platform_number
 			};
 			
-			PTV.makeRequest(params);
+			PTV.makeDeparturesRequest(params);
 		}
 		
 		//https://css-tricks.com/snippets/javascript/get-url-variables/
@@ -196,6 +263,9 @@
 		select {
 			font-size: 20px;
 			width: 100px;
+		}
+		#next-stops {
+			font-size: 16px;
 		}
 	</style>
 </head>
