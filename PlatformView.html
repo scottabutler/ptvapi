@@ -42,6 +42,91 @@
 				xmlhttp.send();
 			},
 			
+			/*
+			
+			send departures request and return data as promise
+			send stops on route request and return data as promise
+			send stopping pattern request and return data as promise
+			display departures and return promise
+			display stopping pattern
+			
+			*/
+			
+			sendRequest: function(endpoint, state) {				
+				return new Promise(function(resolve, reject) {
+					var xmlhttp = new XMLHttpRequest();
+					xmlhttp.onreadystatechange = function() {					
+						if (xmlhttp.readyState === XMLHttpRequest.DONE) {
+							if (xmlhttp.status === 200) {
+								state.data = JSON.parse(xmlhttp.responseText);
+								resolve(state);
+							} else {
+								reject('Something went wrong.');
+							}
+						}
+					};
+					
+					var settings = PTV.getGlobalSettings();
+				
+					var qs = endpoint.indexOf("?") == -1 ? "?" : "&";
+					endpoint = endpoint.indexOf("devId=") == -1 ? endpoint + qs + "devid=" + PTV._devId : endpoint;
+					var sig = PTV.generateSignature(endpoint);
+					var url = settings.baseUrl + endpoint + "&signature=" + sig;
+				
+					if (settings.useCorsBypass == true) {
+						url = 'https://cors-anywhere.herokuapp.com/' + url;
+					}
+
+					xmlhttp.open("GET", url, true);
+					xmlhttp.send();
+				});
+			},
+			
+			doStuff: function(params) {			
+				Promise.resolve(params)
+					.then(this.requestDepartures)
+					.then(this.requestStopsOnRoute)
+					.then(this.requestStoppingPattern)
+					.then(this.updatePage)
+			},
+			
+			requestDepartures: function(params) {
+				var endpoint = PTV.buildDeparturesEndpoint(params);
+				return PTV.sendRequest(endpoint, { data: null, params: params });
+			},
+			
+			requestStopsOnRoute: function(state) {								
+				state.departures = state.data;
+				state.data = null;
+				console.log(state.departures);
+				state.params.route_id = state.departures.departures[0].route_id; //TODO handle empty departures
+				state.params.run_id = state.departures.departures[0].run_id; //TODO handle empty departures
+				
+				var endpoint = PTV.buildStopsOnRouteEndpoint(state.params);
+				
+				return PTV.sendRequest(endpoint, state);
+			},
+			
+			requestStoppingPattern: function(state) {
+				state.stopsOnRoute = state.data;
+				state.data = null;
+				
+				var endpoint = PTV.buildStoppingPatternEndpoint(state.params);
+				
+				return PTV.sendRequest(endpoint, state);
+			},
+			
+			updatePage: function(state) {
+								
+				state.pattern = state.data;
+				state.data = null;
+				
+				
+				
+				//TODO update view and return something
+				//return sendRequest(endpoint, state);
+			},
+			
 			/* Util functions */
 			
 			getIsoDate: function() {
@@ -58,13 +143,13 @@
 			/* Request functions */
 			
 			//Departures
-			makeDeparturesRequest: function(params) {
+			/*makeDeparturesRequest: function(params) {
 				var endpoint = this.buildDeparturesEndpoint(params);				
 				this.sendRequestInner(endpoint, this.printDeparturesOutput, params);
 			},
-			
+			*/
 			buildDeparturesEndpoint: function(params) {
-				var date_utc = this.getIsoDate();
+				var date_utc = PTV.getIsoDate();
 				var template = '/v3/departures/route_type/{route_type}/stop/{stop_id}' +
 						'?max_results=4&date_utc={date_utc}&platform_numbers={platform_number}&expand=stop&expand=run';
 				var endpoint = template
@@ -75,7 +160,7 @@
 				return endpoint;
 			},
 			
-			printDeparturesOutput: function(endpoint, data, params) {
+			/*printDeparturesOutput: function(endpoint, data, params) {
 				if (data.departures.length == 0) {
 					return;
 				}
@@ -106,16 +191,28 @@
 				};
 			
 				PTV.makeStoppingPatternRequest(stopping_pattern_params);
+			},*/
+			
+			//Stops on route
+			buildStopsOnRouteEndpoint: function(params) {
+				var date_utc = PTV.getIsoDate();
+				var template = '/v3/stops/route/{route_id}/route_type/{route_type}' +
+						'?date_utc={date_utc}';
+				var endpoint = template
+									.replace('{route_type}', params.route_type)
+									.replace('{route_id}', params.route_id)					
+									.replace('{date_utc}', date_utc);
+				return endpoint;
 			},
 			
 			//Stopping pattern
-			makeStoppingPatternRequest: function(params) {
+			/*makeStoppingPatternRequest: function(params) {
 				var endpoint = this.buildStoppingPatternEndpoint(params);				
 				this.sendRequestInner(endpoint, this.printStoppingPatternOutput, params);
-			},
+			},*/
 			
 			buildStoppingPatternEndpoint: function(params) {
-				var date_utc = this.getIsoDate();
+				var date_utc = PTV.getIsoDate();
 				var template = '/v3/pattern/run/{run_id}/route_type/{route_type}' +
 						'?date_utc={date_utc}';
 				var endpoint = template
@@ -125,7 +222,7 @@
 				return endpoint;
 			},
 			
-			printStoppingPatternOutput: function(endpoint, data, params) {
+			/*printStoppingPatternOutput: function(endpoint, data, params) {
 				if (data.departures.length == 0) {
 					document.getElementById('next-stops').innerHTML = 'Could not load stopping pattern.';
 					return;
@@ -135,11 +232,11 @@
 				for (var i = 1; i < data.departures.length; i++) {
 					addStoppingPatternItem(data, i);
 				}
-			}
+			}*/
 			
 		};
 		
-		function addFollowingDeparture(data, index) {
+		/*function addFollowingDeparture(data, index) {
 			//var time = formatTime(data.departures[index].estimated_departure_utc, data.departures[index].scheduled_departure_utc); 
 			
 			var time = formatSingleTime(data.departures[index].scheduled_departure_utc);
@@ -149,21 +246,21 @@
 			var wrapper = document.createElement('div');
 			wrapper.innerHTML = time + '&nbsp;&nbsp;&nbsp;' + dest + '&nbsp;&nbsp;&nbsp;' + diff + 'mins';
 			document.getElementById('following-departures').appendChild(wrapper);
-		}
+		}*/
 		
-		function clearFollowingDepartures() {
+		/*function clearFollowingDepartures() {
 			document.getElementById('following-departures').innerHTML = '';
-		}
+		}*/
 		
-		function addStoppingPatternItem(data, index) {
+		/*function addStoppingPatternItem(data, index) {
 			var wrapper = document.createElement('div');
 			wrapper.innerHTML = data.departures[index].stop_id;
 			document.getElementById('next-stops').appendChild(wrapper);
-		}
+		}*/
 		
-		function clearStoppingPattern() {
+		/*function clearStoppingPattern() {
 			document.getElementById('next-stops').innerHTML = '';
-		}
+		}*/
 		
 		function formatTime(estimated, scheduled) {
 			var date = estimated == null
@@ -224,7 +321,8 @@
 				platform_number: platform_number
 			};
 			
-			PTV.makeDeparturesRequest(params);
+			//PTV.makeDeparturesRequest(params);
+			PTV.doStuff(params);
 		}
 		
 		//https://css-tricks.com/snippets/javascript/get-url-variables/
