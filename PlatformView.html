@@ -88,43 +88,92 @@
 					.then(this.requestStopsOnRoute)
 					.then(this.requestStoppingPattern)
 					.then(this.updatePage)
+					.catch(function(e) {
+						document.getElementById('error').innerHTML = 'Error: ' + e;
+					})
 			},
 			
 			requestDepartures: function(params) {
-				var endpoint = PTV.buildDeparturesEndpoint(params);
-				return PTV.sendRequest(endpoint, { data: null, params: params });
+				return new Promise(function(resolve, reject) {
+					var endpoint = PTV.buildDeparturesEndpoint(params);
+					resolve(PTV.sendRequest(endpoint, { data: null, params: params }));
+				});
 			},
 			
 			requestStopsOnRoute: function(state) {								
-				state.departures = state.data;
-				state.data = null;
-				console.log(state.departures);
-				state.params.route_id = state.departures.departures[0].route_id; //TODO handle empty departures
-				state.params.run_id = state.departures.departures[0].run_id; //TODO handle empty departures
+				return new Promise(function(resolve, reject) {
+					state.departures = state.data;
+					state.data = null;
 				
-				var endpoint = PTV.buildStopsOnRouteEndpoint(state.params);
+					if (state.departures == null || state.departures.departures.length == 0) {
+						reject('No departures found');
+					}
 				
-				return PTV.sendRequest(endpoint, state);
+					state.params.route_id = state.departures.departures[0].route_id; //TODO handle empty departures
+					state.params.run_id = state.departures.departures[0].run_id; //TODO handle empty departures
+				
+					var endpoint = PTV.buildStopsOnRouteEndpoint(state.params);
+				
+					resolve(PTV.sendRequest(endpoint, state));
+				});
 			},
 			
 			requestStoppingPattern: function(state) {
-				state.stopsOnRoute = state.data;
-				state.data = null;
+				return new Promise(function(resolve, reject) {
+					state.stopsOnRoute = state.data;
+					state.data = null;
 				
-				var endpoint = PTV.buildStoppingPatternEndpoint(state.params);
+					var endpoint = PTV.buildStoppingPatternEndpoint(state.params);
 				
-				return PTV.sendRequest(endpoint, state);
+					resolve(PTV.sendRequest(endpoint, state));
+				});
 			},
 			
 			updatePage: function(state) {
-								
-				state.pattern = state.data;
-				state.data = null;
+				return new Promise(function(resolve, reject) {		
+					state.pattern = state.data;
+					state.data = null;
+					var next_departure = state.departures.departures[0];
 				
+					//Reset some elements
+					document.getElementById('error').innerHTML = '';
 				
+					//Set stop name
+					var stop_name = '';
+					var selected_stop_index = 0;
+					for (var i = 0; i < state.stopsOnRoute.stops.length; i++) {
+						if (state.stopsOnRoute.stops[i].stop_id == state.params.stop_id) {
+							stop_name = state.stopsOnRoute.stops[i].stop_name;
+							selected_stop_index = i;
+							break;
+						}
+					}
+					document.getElementById('stop').innerHTML = stop_name;
 				
-				//TODO update view and return something
-				//return sendRequest(endpoint, state);
+					//Set platform number
+					document.getElementById('platform').innerHTML = 'Platform ' + next_departure.platform_number;
+				
+					//Set next departure
+					var next_departure_name = state.departures.runs[next_departure.run_id].destination_name;				
+					document.getElementById('next-dest').innerHTML = next_departure_name;
+				
+					var time = formatSingleTime(next_departure.scheduled_departure_utc);				
+					document.getElementById('next-time').innerHTML = time;
+				
+					var diff = getDifferenceFromNow(next_departure.estimated_departure_utc, next_departure.scheduled_departure_utc);
+					document.getElementById('next-diff').innerHTML = diff + 'mins';
+				
+					//Set stopping pattern
+				
+					//Set following departures
+					clearFollowingDepartures();
+					for (var i = 1; i < state.departures.departures.length; i++) {
+						addFollowingDeparture(state, i);
+					}
+				
+					//TODO update view and return something
+					//return sendRequest(endpoint, state);
+				});
 			},
 			
 			/* Util functions */
@@ -236,21 +285,21 @@
 			
 		};
 		
-		/*function addFollowingDeparture(data, index) {
+		function addFollowingDeparture(state, index) {
 			//var time = formatTime(data.departures[index].estimated_departure_utc, data.departures[index].scheduled_departure_utc); 
 			
-			var time = formatSingleTime(data.departures[index].scheduled_departure_utc);
-			var diff = getDifferenceFromNow(data.departures[index].estimated_departure_utc, data.departures[index].scheduled_departure_utc); 
-			var dest = data.runs[data.departures[index].run_id].destination_name;
+			var time = formatSingleTime(state.departures.departures[index].scheduled_departure_utc);
+			var diff = getDifferenceFromNow(state.departures.departures[index].estimated_departure_utc, state.departures.departures[index].scheduled_departure_utc); 
+			var dest = state.departures.runs[state.departures.departures[index].run_id].destination_name;
 		
 			var wrapper = document.createElement('div');
 			wrapper.innerHTML = time + '&nbsp;&nbsp;&nbsp;' + dest + '&nbsp;&nbsp;&nbsp;' + diff + 'mins';
 			document.getElementById('following-departures').appendChild(wrapper);
-		}*/
+		}
 		
-		/*function clearFollowingDepartures() {
+		function clearFollowingDepartures() {
 			document.getElementById('following-departures').innerHTML = '';
-		}*/
+		}
 		
 		/*function addStoppingPatternItem(data, index) {
 			var wrapper = document.createElement('div');
@@ -365,6 +414,7 @@
 		#next-stops {
 			font-size: 16px;
 		}
+		#error { color: #f55; }
 	</style>
 </head>
 <body onload="init()">
@@ -396,5 +446,6 @@
 	<br />
 	<div>Following departure(s):</div>
 	<div id="following-departures"></div>
+	<div id="error"></div>
 </body>
 </html>
