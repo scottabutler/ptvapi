@@ -133,7 +133,8 @@
 			
 			updatePage: function(state) {
 				return new Promise(function(resolve, reject) {
-					document.getElementById('loading').style.visibility = 'hidden';		
+					document.getElementById('loading').style.display = 'none';
+					document.getElementById('wrapper').style.display = 'block';
 					state.pattern = state.data;
 					state.data = null;
 					var next_departure = state.departures.departures[0];
@@ -359,8 +360,9 @@
 		}
 		
 		function updateView() {
+			document.getElementById('wrapper').style.display = 'none';
 			var loading = document.getElementById('loading');
-			loading.style.visibility = 'visible';
+			loading.style.display = 'block';
 			loading.innerHTML = 'Loading: ';
 			var stop_id = getQueryVariable('stop_id');
 			var route_type = getQueryVariable('route_type');
@@ -420,39 +422,41 @@
 			font-size: 16px;
 		}
 		#error { color: #f55; }
-		#loading { font-size: 12px; }
+		#loading { font-size: 12px; margin-bottom: 5px; }
 	</style>
 </head>
-<body onload="init()">
+<body onload="init()">	
+	<div id="wrapper">
+		<span id="stop"></span> - <span id="platform"></span>&nbsp;
+		<span id="platform-select-wrapper">
+			<select id="platform-select" onchange="updateView()">
+				<option value="1">1</option>
+				<option value="2">2</option>
+				<option value="3">3</option>
+				<option value="4">4</option>
+				<option value="5">5</option>
+				<option value="6">6</option>
+				<option value="7">7</option>
+				<option value="8">8</option>
+				<option value="9">9</option>
+				<option value="10">10</option>
+				<option value="11">11</option>
+				<option value="12">12</option>
+				<option value="13">13</option>
+				<option value="14">14</option>
+			</select>
+		</span>
+		<br />
+		<div>Next departure:</div>
+		<span id="next-time"></span>&nbsp;&nbsp;&nbsp;	
+		<span id="next-dest"></span>&nbsp;&nbsp;&nbsp;
+		<span id="next-diff"></span>&nbsp;&nbsp;&nbsp;
+		<div id="next-stops"></div>
+		<br />
+		<div>Following departure(s):</div>
+		<div id="following-departures"></div>
+		<div id="error"></div>
+	</div>
 	<div id="loading">Loading: </div>
-	<span id="stop"></span> - <span id="platform"></span>&nbsp;
-	<span id="platform-select-wrapper">
-		<select id="platform-select" onchange="updateView()">
-			<option value="1">1</option>
-			<option value="2">2</option>
-			<option value="3">3</option>
-			<option value="4">4</option>
-			<option value="5">5</option>
-			<option value="6">6</option>
-			<option value="7">7</option>
-			<option value="8">8</option>
-			<option value="9">9</option>
-			<option value="10">10</option>
-			<option value="11">11</option>
-			<option value="12">12</option>
-			<option value="13">13</option>
-			<option value="14">14</option>
-		</select>
-	</span>
-	<br />
-	<div>Next departure:</div>
-	<span id="next-time"></span>&nbsp;&nbsp;&nbsp;	
-	<span id="next-dest"></span>&nbsp;&nbsp;&nbsp;
-	<span id="next-diff"></span>&nbsp;&nbsp;&nbsp;
-	<div id="next-stops"></div>
-	<br />
-	<div>Following departure(s):</div>
-	<div id="following-departures"></div>
-	<div id="error"></div>
 </body>
 </html>
