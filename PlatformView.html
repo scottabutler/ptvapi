@@ -84,6 +84,7 @@
 						document.getElementById('loading').style.display = 'none';
 						document.getElementById('wrapper').style.display = 'block';
 						document.getElementById('error').innerHTML = 'Error: ' + e;
+						this.clearPage();						
 					})
 			},
 			
@@ -121,6 +122,15 @@
 				
 					resolve(PTV.sendRequest(endpoint, 'Stopping pattern', state));
 				});
+			},
+			
+			clearPage: function() {
+				document.getElementById('platform').innerHTML = '';
+				document.getElementById('next-dest').innerHTML = '';
+				document.getElementById('next-time').innerHTML = '';
+				document.getElementById('next-diff').innerHTML = '';
+				clearStoppingPattern();
+				clearFollowingDepartures();
 			},
 			
 			updatePage: function(state) {
