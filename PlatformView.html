@@ -177,18 +177,29 @@
 					}
 					
 					var found_current_stop = false;
+					var stopping_pattern_count = 0;
 					for (var j = 0; j < state.pattern.departures.length; j++) {
 						var stop_id = state.pattern.departures[j].stop_id;
 												
-						if (found_current_stop) {
+						if (found_current_stop) {							
 							var name = stops.get(stop_id).replace(' Station', '');
 							addStoppingPatternItem(name);
-						}	
+						}
 						
 						if (stop_id == state.params.stop_id) {
+							stopping_pattern_count = state.pattern.departures.length - j;
 							found_current_stop = true;
-						}			
+						}
 					}				
+					
+					var list_element = document.getElementById('next-stops-list');
+					if (stopping_pattern_count > 7) {
+						if (list_element.className.indexOf('two-columns') == -1) {
+							list_element.className += 'two-columns';
+						}
+					} else {
+						list_element.className = list_element.className.replace('two-columns', '');
+					}
 					
 					//Set following departures
 					clearFollowingDepartures();
@@ -219,7 +230,7 @@
 			buildDeparturesEndpoint: function(params) {
 				var date_utc = PTV.getIsoDate();
 				var template = '/v3/departures/route_type/{route_type}/stop/{stop_id}' +
-						'?max_results=4&date_utc={date_utc}&platform_numbers={platform_number}&expand=stop&expand=run';
+						'?max_results=6&date_utc={date_utc}&platform_numbers={platform_number}&expand=stop&expand=run';
 				var endpoint = template
 									.replace('{route_type}', params.route_type)
 									.replace('{stop_id}', params.stop_id)
@@ -257,9 +268,16 @@
 			var time = formatSingleTime(state.departures.departures[index].scheduled_departure_utc);
 			var diff = getDifferenceFromNow(state.departures.departures[index].estimated_departure_utc, state.departures.departures[index].scheduled_departure_utc); 
 			var dest = state.departures.runs[state.departures.departures[index].run_id].destination_name;
+			var status = state.departures.runs[state.departures.departures[index].run_id].status;
+			var disruptions = state.departures.runs[state.departures.departures[index].run_id].disruption_ids;
+			var disruption_marker = disruptions != undefined && disruptions.length > 0 ? '!&nbsp;' : '';
+			
+			if (diff >= 60) {
+				return;
+			}
 		
 			var wrapper = document.createElement('div');
-			wrapper.innerHTML = time + '&nbsp;&nbsp;&nbsp;' + dest + '&nbsp;&nbsp;&nbsp;' + diff + 'mins';
+			wrapper.innerHTML = disruption_marker + time + '&nbsp;&nbsp;&nbsp;' + dest + '&nbsp;&nbsp;&nbsp;' + diff + 'mins&nbsp;&nbsp;&nbsp;(' + status + ')';
 			document.getElementById('following-departures').appendChild(wrapper);
 		}
 		
@@ -391,6 +409,10 @@
 		#error { color: #f55; }
 		#loading { font-size: 18px; margin-bottom: 5px; }
 		#next-stops-list {
+			list-style-type: none;
+			padding-left: 5px;
+		}
+		.two-columns {
 			-moz-column-count: 2;
 			-moz-column-gap: 20px;
 			-webkit-column-count: 2;
