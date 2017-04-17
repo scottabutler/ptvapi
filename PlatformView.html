@@ -14,35 +14,7 @@
 				var hash = CryptoJS.HmacSHA1(request, this._secret);
 				return hash;
 			},
-			
-			//Creates and sends an AJAX request to the specified endpoint. Internally, this
-			//handles the API authentication and signing.
-			//Upon success, the specified callback function is invoked, with the response
-			//data passed as a parameter.
-			sendRequestInner: function(endpoint, callBackFunc, params) {
-				var settings = this.getGlobalSettings();
-				
-				var xmlhttp = new XMLHttpRequest();
-				xmlhttp.onreadystatechange=function() {
-  					if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-  						callBackFunc(endpoint, JSON.parse(xmlhttp.responseText), params);
-  					}
-  				}
-
-  				var qs = endpoint.indexOf("?") == -1 ? "?" : "&";
-  				endpoint = endpoint.indexOf("devId=") == -1 ? endpoint + qs + "devid=" + this._devId : endpoint;
-  				var sig = this.generateSignature(endpoint);
-  				var url = settings.baseUrl + endpoint + "&signature=" + sig;
-  				
-  				if (settings.useCorsBypass == true) {
-  					//url = 'https://cors-anywhere.herokuapp.com/' + url;
-  					url = 'http://ptvproxy20170416075948.azurewebsites.net/api/proxy?url=' + encodeURIComponent(url);
-  				}
-
-				xmlhttp.open("GET", url, true);
-				xmlhttp.send();
-			},
-			
+						
 			sendRequest: function(endpoint, name, state) {				
 				return new Promise(function(resolve, reject) {
 					document.getElementById('loading').innerHTML += '.';

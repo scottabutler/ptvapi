@@ -34,7 +34,8 @@
   				var url = base + endpoint + "&signature=" + sig;
   				
   				if (useCorsBypass == true) {
-  					url = 'https://cors-anywhere.herokuapp.com/' + url;
+  					//url = 'https://cors-anywhere.herokuapp.com/' + url;
+  					url = 'https://ptvproxy20170416075948.azurewebsites.net/api/proxy?url=' + encodeURIComponent(url);
   				}
 
 				xmlhttp.open("GET", url, true);
