@@ -35,7 +35,8 @@
   				var url = settings.baseUrl + endpoint + "&signature=" + sig;
   				
   				if (settings.useCorsBypass == true) {
-  					url = 'https://cors-anywhere.herokuapp.com/' + url;
+  					//url = 'https://cors-anywhere.herokuapp.com/' + url;
+  					url = 'http://ptvproxy20170416075948.azurewebsites.net/api/proxy?url=' + encodeURIComponent(url);
   				}
 
 				xmlhttp.open("GET", url, true);
@@ -67,7 +68,8 @@
 					var url = settings.baseUrl + endpoint + "&signature=" + sig;
 				
 					if (settings.useCorsBypass == true) {
-						url = 'https://cors-anywhere.herokuapp.com/' + url;
+						//url = 'https://cors-anywhere.herokuapp.com/' + url;
+						url = 'http://ptvproxy20170416075948.azurewebsites.net/api/proxy?url=' + encodeURIComponent(url);
 					}
 
 					xmlhttp.open("GET", url, true);
