@@ -132,7 +132,9 @@
 							break;
 						}
 					}
-					document.getElementById('stop').innerHTML = stop_name.replace(' Station', '');
+					
+					var short_stop_name = stop_name.replace(' Station', '');
+					document.getElementById('stop').innerHTML = short_stop_name;
 				
 					//Set platform number
 					document.getElementById('platform').innerHTML = 'Platform ' + next_departure.platform_number;
@@ -146,6 +148,9 @@
 				
 					var diff = getDifferenceFromNow(next_departure.estimated_departure_utc, next_departure.scheduled_departure_utc);
 					document.getElementById('next-diff').innerHTML = diff + 'mins';
+				
+					//Set title
+					document.title = diff + 'mins' + ' ' + short_stop_name + ' to ' +  next_departure_name;
 				
 					//Set stopping pattern
 					clearStoppingPattern();
