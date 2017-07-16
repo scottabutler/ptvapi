@@ -217,10 +217,17 @@
 					document.getElementById('next-time').innerHTML = time;
 				
 					var diff = getDifferenceFromNow(next_departure.estimated_departure_utc, next_departure.scheduled_departure_utc);
+					var mins_text = "min";
+					if (diff == 0) {
+						diff = "Now";
+						mins_text = "";
+					}
+					
 					document.getElementById('next-diff').innerHTML = diff;
+					document.getElementById('next-diff-mins').innerHTML = mins_text;
 				
 					//Set title
-					document.title = diff + 'mins' + ' ' + short_stop_name + ' to ' +  next_departure_name;
+					document.title = diff + ' ' + mins_text + ' ' + short_stop_name + ' to ' +  next_departure_name;
 				
 					//Set stopping pattern
 					clearStoppingPattern();
@@ -384,7 +391,10 @@
 		function formatSingleTime(time) {
 			var date = new Date(time);
 			
-			var hrs = ensureTwoDigits(date.getHours());
+			var hrs = date.getHours();
+			if (hrs > 12) {
+				hrs -= 12;
+			}
 			var mins = ensureTwoDigits(date.getMinutes());
 			var result = hrs + ":" + mins;
 			return result;
@@ -503,7 +513,6 @@
 		}
 		
 		.next-item-wrapper .label {
-			padding-left: 5px;
 			font-size: 12px;
 			width: 100%;
 			display: inline-block;
@@ -531,9 +540,9 @@
 		}	
 		
 		#header {
-			color: #555;
+			color: #777;
 		}
-		#header, #wrapper { max-width: 700px; }
+		
 		
 		#next-stops {
 			font-size: 16px;
@@ -557,6 +566,7 @@
 		#next-stops-list {
 			list-style-type: none;
 			padding-left: 0px;
+			font-size: 16px;
 		}
 		.two-columns {
 			-moz-column-count: 2;
@@ -592,6 +602,17 @@
 		}
 		#following-departures .dest {
 			width: 58%;
+		}
+		
+		@media only screen and (min-width: 981px) {
+			#header, #wrapper { max-width: 700px; }
+		}
+		@media only screen and (max-width: 360px) {
+			/* For mobile phones:
+			window 980w 1394h
+			screen 360w 640h
+			 */
+			
 		}
 	</style>
 </head>
@@ -634,7 +655,7 @@
 		
 			<div class="next-item-wrapper">
 				<span class="label">Departing</span>
-				<span id="next-diff">&nbsp;</span>&nbsp;<span class="mins">min</span>
+				<span id="next-diff">&nbsp;</span>&nbsp;<span id="next-diff-mins" class="mins"></span>
 			</div>
 		</div>
 		
