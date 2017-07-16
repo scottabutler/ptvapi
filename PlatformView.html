@@ -14,7 +14,7 @@
 				var hash = CryptoJS.HmacSHA1(request, this._secret);
 				return hash;
 			},
-						
+					
 			sendRequest: function(endpoint, name, state) {				
 				return new Promise(function(resolve, reject) {
 					document.getElementById('loading').innerHTML += '.';
@@ -24,10 +24,11 @@
 						if (xmlhttp.readyState === XMLHttpRequest.DONE) {
 							if (xmlhttp.status === 200) {
 								//document.getElementById('loading').innerHTML += 'done. ';
+								debug('sendRequest end ' + name);
 								state.data = JSON.parse(xmlhttp.responseText);
 								resolve(state);
 							} else {
-								reject('Something went wrong.');
+								reject('Something went wrong: ' + xmlhttp.status);
 							}
 						}
 					};
@@ -43,7 +44,8 @@
 						//url = 'https://cors-anywhere.herokuapp.com/' + url;
 						url = 'https://ptvproxy20170416075948.azurewebsites.net/api/proxy?url=' + encodeURIComponent(url);
 					}
-
+					
+					debug('sendRequest start ' + name);
 					xmlhttp.open("GET", url, true);
 					xmlhttp.send();
 				});
@@ -51,25 +53,73 @@
 			
 			doStuff: function(params) {			
 				Promise.resolve(params)
+					.then(this.prepareStopsOnRouteCache)
 					.then(this.requestDepartures)
 					.then(this.requestStopsOnRoute)
 					.then(this.requestStoppingPattern)
 					.then(this.updatePage)
 					.catch(function(e) {
 						document.getElementById('error').innerHTML = 'Error: ' + e;
-						this.clearPage();					
+						console.log(e);
+						PTV.clearPage();					
 					})
 			},
 			
 			requestDepartures: function(params) {
 				return new Promise(function(resolve, reject) {
+					debug('requestDepartures');
 					var endpoint = PTV.buildDeparturesEndpoint(params);
 					resolve(PTV.sendRequest(endpoint, 'Departures', { data: null, params: params }));
 				});
 			},
 			
-			requestStopsOnRoute: function(state) {								
+			prepareStopsOnRouteCache: function(params) {
 				return new Promise(function(resolve, reject) {
+					debug('prepareStopsOnRouteCache');
+					
+					var expiryDate = new Date();
+					expiryDate.setDate(expiryDate.getDate() + 1);
+					expiryDate = expiryDate.getTime();
+					
+					PTV.stopsOnRouteCache = {
+						date: expiryDate
+					};
+					
+					//Try and load the cache from local storage
+					if (hasLocalStorage()) {						
+						var cache = JSON.parse(localStorage.getItem(PTV.localStorageCacheKey));
+						
+						if (cache) {						
+							//Check if the cache has expired
+							if (new Date(cache.date) <= new Date().getTime()) {
+								localStorage.removeItem(PTV.localStorageCacheKey);
+								cache = {
+									date: expiryDate
+								};
+							}
+						
+							PTV.stopsOnRouteCache = cache;
+						}
+					} else {
+						// Sorry! No Web Storage support..
+					}
+				
+					//Pass the params through to the next function
+					resolve(params);
+				});
+			},
+			
+			stopsOnRouteCache: {},
+			
+			localStorageCacheKey: "PTVAPI.stopsOnRouteCache",
+			
+			getStopsOnRouteCacheKey: function(state) {
+				return state.params.route_type + '_' + state.params.sor_route_id;
+			},
+					
+			requestStopsOnRoute: function(state) {							
+				return new Promise(function(resolve, reject) {
+					debug('requestStopsOnRoute');
 					state.departures = state.data;
 					state.data = null;
 				
@@ -77,18 +127,37 @@
 						reject('No departures found.');
 					}
 				
-					state.params.route_id = state.departures.departures[0].route_id;
+					state.params.sor_route_id = state.departures.departures[0].route_id;
 					state.params.run_id = state.departures.departures[0].run_id;
-				
+					
 					var endpoint = PTV.buildStopsOnRouteEndpoint(state.params);
-				
-					resolve(PTV.sendRequest(endpoint, 'Stops on route', state));
+															
+					var key = PTV.getStopsOnRouteCacheKey(state);
+					if (PTV.stopsOnRouteCache[key]) {
+						state.data = PTV.stopsOnRouteCache[key];
+						resolve(state);
+					} else {
+						resolve(PTV.sendRequest(endpoint, 'Stops on route', state));
+					}
 				});
 			},
 			
 			requestStoppingPattern: function(state) {
 				return new Promise(function(resolve, reject) {
+					debug('requestStoppingPattern');
 					state.stopsOnRoute = state.data;
+					var key = PTV.getStopsOnRouteCacheKey(state);
+					
+					//Only modify the cache if the key is not already in there
+					//otherwise we'd just be overwriting with the same data
+					if (!PTV.stopsOnRouteCache[key]) {
+						PTV.stopsOnRouteCache[key] = state.stopsOnRoute;
+						
+						if (hasLocalStorage) {
+							localStorage.setItem(PTV.localStorageCacheKey, JSON.stringify(PTV.stopsOnRouteCache));
+						}
+					}
+					
 					state.data = null;
 				
 					var endpoint = PTV.buildStoppingPatternEndpoint(state.params);
@@ -98,6 +167,7 @@
 			},
 			
 			clearPage: function() {
+				debug('clearPage');
 				document.getElementById('platform').innerHTML = '';
 				document.getElementById('next-dest').innerHTML = '';
 				document.getElementById('next-time').innerHTML = '';
@@ -108,12 +178,12 @@
 			
 			updatePage: function(state) {
 				return new Promise(function(resolve, reject) {
-								
+					debug('updatePage');
 					//Update the loading indicator and display the current time
 					document.getElementById('loading').innerHTML += 'done.';					
 					var refresh_date = new Date();
-					document.getElementById('refresh-time').innerHTML = refresh_date.getHours() + 
-						':' + refresh_date.getMinutes() + ':' + refresh_date.getSeconds();					
+					document.getElementById('refresh-time').innerHTML = ensureTwoDigits(refresh_date.getHours()) + 
+						':' + ensureTwoDigits(refresh_date.getMinutes()) + ':' + ensureTwoDigits(refresh_date.getSeconds());					
 					
 					state.pattern = state.data;
 					state.data = null;
@@ -147,7 +217,7 @@
 					document.getElementById('next-time').innerHTML = time;
 				
 					var diff = getDifferenceFromNow(next_departure.estimated_departure_utc, next_departure.scheduled_departure_utc);
-					document.getElementById('next-diff').innerHTML = diff + 'mins';
+					document.getElementById('next-diff').innerHTML = diff;
 				
 					//Set title
 					document.title = diff + 'mins' + ' ' + short_stop_name + ' to ' +  next_departure_name;
@@ -164,7 +234,7 @@
 					for (var j = 0; j < state.pattern.departures.length; j++) {
 						var stop_id = state.pattern.departures[j].stop_id;
 												
-						if (found_current_stop) {							
+						if (found_current_stop) {						
 							var name = stops.get(stop_id).replace(' Station', '');
 							addStoppingPatternItem(name);
 						}
@@ -189,6 +259,7 @@
 					for (var i = 1; i < state.departures.departures.length; i++) {
 						addFollowingDeparture(state, i);
 					}
+					debug('End updatePage ---');
 					resolve();
 				});
 			},
@@ -229,7 +300,7 @@
 						'?date_utc={date_utc}';
 				var endpoint = template
 									.replace('{route_type}', params.route_type)
-									.replace('{route_id}', params.route_id)					
+									.replace('{route_id}', params.sor_route_id)					
 									.replace('{date_utc}', date_utc);
 				return endpoint;
 			},
@@ -247,20 +318,41 @@
 			}			
 		};
 		
+		var debug_mode = false;
+		var previous_milliseconds = new Date().getTime();
+		function debug(message) {
+			if (!debug_mode) return;
+			
+			var date = new Date().getTime();
+			var elapsed = date - previous_milliseconds;
+			previous_milliseconds = date;
+			console.log('DEBUG: (' + elapsed + 'ms) ' + message);
+		}
+		
 		function addFollowingDeparture(state, index) {
+			var template = '<span class="disruption">{disruption}</span><span class="time">{time}</span><span class="dest">{dest}</span><span class="diff">{diff} mins</span>';
+			
 			var time = formatSingleTime(state.departures.departures[index].scheduled_departure_utc);
 			var diff = getDifferenceFromNow(state.departures.departures[index].estimated_departure_utc, state.departures.departures[index].scheduled_departure_utc); 
 			var dest = state.departures.runs[state.departures.departures[index].run_id].destination_name;
 			var status = state.departures.runs[state.departures.departures[index].run_id].status;
 			var disruptions = state.departures.runs[state.departures.departures[index].run_id].disruption_ids;
 			var disruption_marker = disruptions != undefined && disruptions.length > 0 ? '!&nbsp;' : '';
+			var route_id = state.departures.departures[index].route_id;
+			var is_selected_route = route_id == state.params.route_id;
 			
 			if (diff >= 60) {
 				return;
 			}
 		
 			var wrapper = document.createElement('div');
-			wrapper.innerHTML = disruption_marker + time + '&nbsp;&nbsp;&nbsp;' + dest + '&nbsp;&nbsp;&nbsp;' + diff + 'mins&nbsp;&nbsp;&nbsp;(' + status + ')';
+			wrapper.setAttribute('class', 'fd' + (is_selected_route ? ' selected' : ''));
+			
+			wrapper.innerHTML = template.replace('{disruption}', disruption_marker)
+										.replace('{time}', time)
+										.replace('{dest}', dest)
+										.replace('{diff}', diff);
+			
 			document.getElementById('following-departures').appendChild(wrapper);
 		}
 		
@@ -283,8 +375,8 @@
 				? new Date(scheduled)
 				: new Date(estimated);
 			
-			var hrs = date.getHours() < 10 ? '0' + date.getHours() : date.getHours();
-			var mins = date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes();
+			var hrs = ensureTwoDigits(date.getHours());
+			var mins = ensureTwoDigits(date.getMinutes());
 			var result = hrs + ":" + mins;
 			return result;
 		}
@@ -292,10 +384,14 @@
 		function formatSingleTime(time) {
 			var date = new Date(time);
 			
-			var hrs = date.getHours() < 10 ? '0' + date.getHours() : date.getHours();
-			var mins = date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes();
+			var hrs = ensureTwoDigits(date.getHours());
+			var mins = ensureTwoDigits(date.getMinutes());
 			var result = hrs + ":" + mins;
 			return result;
+		}
+		
+		function ensureTwoDigits(input) {
+			return input < 10 ? '0' + input : input;
 		}
 		
 		function getDifferenceFromNow(estimated, scheduled) {
@@ -306,6 +402,10 @@
 			var now = new Date();
 			
 			return Math.ceil(((date.getTime() - now.getTime()) / 1000) / 60);
+		}
+		
+		function hasLocalStorage() {
+			return typeof(Storage) !== "undefined";
 		}
 		
 		function init() {
@@ -329,6 +429,7 @@
 			
 			var stop_id = getQueryVariable('stop_id');
 			var route_type = getQueryVariable('route_type');
+			var route_id = getQueryVariable('route_id');
 			var e = document.getElementById("platform-select");
 			var platform_number = e.options[e.selectedIndex].value;
 			
@@ -340,6 +441,7 @@
 			
 			var params = {
 				route_type: route_type,
+				route_id: route_id,
 				stop_id: stop_id,
 				platform_number: platform_number
 			};
@@ -393,7 +495,46 @@
 			font-size: 20px;
 			width: 100px;
 		}
-		#wrapper { max-width: 700px; }
+		
+		.next-item-wrapper {
+			display: inline-block;
+			width: 20%;
+			margin-left: 2%;
+		}
+		
+		.next-item-wrapper .label {
+			padding-left: 5px;
+			font-size: 12px;
+			width: 100%;
+			display: inline-block;
+		}
+		
+		#next-dest {
+			width: 50%;
+			display: inline-block;
+			font-size: 40px;
+		}
+		
+		#next-time, #next-diff {
+			font-size: 30px;
+		}
+		
+		.mins {
+			font-size: 20px;
+		}
+		
+		#next-wrapper {
+			border-top: 1px solid #555;
+			border-bottom: 1px solid #555;
+			padding: 10px 0;
+			margin-top: 10px;
+		}	
+		
+		#header {
+			color: #555;
+		}
+		#header, #wrapper { max-width: 700px; }
+		
 		#next-stops {
 			font-size: 16px;
 		}
@@ -405,7 +546,13 @@
 			font-size: 18px; 
 			margin-bottom: 5px; 
 			display: inline-block;
+		}
+		#loading { 
 			width: 25%;
+		}
+		#refresh-time {
+			text-align: center;
+			width: 54%;
 		}
 		#next-stops-list {
 			list-style-type: none;
@@ -424,11 +571,32 @@
 		#next-stops-list li {
 			margin-top: 5px;
 		}
-		#following-departures { margin-top: 20px; }
+		#following-departures { 
+			margin-top: 20px;
+			padding-top: 10px;
+			border-top: 1px solid #555;
+		}
+		#following-departures .fd.selected { color: #B3E5FC }
+		#following-departures .disruption, #following-departures .time,
+		#following-departures .dest, #following-departures .diff {
+			display: inline-block;
+			margin-left: 1%;
+		}
+		#following-departures .disruption { 
+			color: #F00;
+			margin-left: 0;
+		}
+		#following-departures .time {
+			margin-left: 0;
+			width: 15%;
+		}
+		#following-departures .dest {
+			width: 58%;
+		}
 	</style>
 </head>
 <body onload="init()">
-	<div>
+	<div id="header">
 		<span id="loading"></span>&nbsp;&nbsp;<span id="refresh-time"></span>		
 		<input type="checkbox" id="auto-refresh" name="auto-refresh" checked="checked" onchange="updateTimer()" />
 		<label id="auto-refresh-label" for="auto-refresh">Auto refresh</label>
@@ -454,11 +622,22 @@
 				<option value="14">14</option>
 			</select>
 		</span>
-		<br /><br />
-		<span id="next-time"></span>&nbsp;&nbsp;&nbsp;	
-		<span id="next-dest"></span>&nbsp;&nbsp;&nbsp;
-		<span id="next-diff"></span>&nbsp;&nbsp;&nbsp;
 		<br />
+		
+		<div id="next-wrapper">		
+			<div id="next-dest"></div>
+		
+			<div class="next-item-wrapper">
+				<span class="label">Scheduled</span>
+				<span id="next-time">&nbsp;</span>
+			</div>
+		
+			<div class="next-item-wrapper">
+				<span class="label">Departing</span>
+				<span id="next-diff">&nbsp;</span>&nbsp;<span class="mins">min</span>
+			</div>
+		</div>
+		
 		<div id="next-stops">
 			<ul id="next-stops-list"></ul>
 		</div>
