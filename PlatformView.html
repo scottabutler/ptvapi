@@ -507,9 +507,14 @@
 			width: 100px;
 		}
 		
+		#next-item-block {
+			display: inline-block;
+			width: 40%;
+		}
+		
 		.next-item-wrapper {
 			display: inline-block;
-			width: 20%;
+			width: 45%;
 			margin-left: 2%;
 		}
 		
@@ -579,7 +584,7 @@
 			padding-left: 0px;
 		}
 		#next-stops-list li {
-			margin-top: 5px;
+			padding-top: 5px;
 		}
 		#following-departures { 
 			margin-top: 20px;
@@ -647,15 +652,16 @@
 		
 		<div id="next-wrapper">		
 			<div id="next-dest"></div>
+			<div id="next-item-block">
+				<div class="next-item-wrapper">
+					<span class="label">Scheduled</span>
+					<span id="next-time">&nbsp;</span>
+				</div>
 		
-			<div class="next-item-wrapper">
-				<span class="label">Scheduled</span>
-				<span id="next-time">&nbsp;</span>
-			</div>
-		
-			<div class="next-item-wrapper">
-				<span class="label">Departing</span>
-				<span id="next-diff">&nbsp;</span>&nbsp;<span id="next-diff-mins" class="mins"></span>
+				<div class="next-item-wrapper">
+					<span class="label">Departing</span>
+					<span id="next-diff">&nbsp;</span>&nbsp;<span id="next-diff-mins" class="mins"></span>
+				</div>
 			</div>
 		</div>
 		
