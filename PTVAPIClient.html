@@ -222,18 +222,39 @@
 			width: 100%;
 			margin-right: 10px;
 		}
+		#top {
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 95%;
+			height: 20%;
+		}
+		#bottom {
+			position: relative;
+			top: 20%;
+			height: 75%;
+		}
+		#output {
+			height: 90%;
+		}
+		#stateOutput {
+			height: 10%;
+		}
 	</style>
 </head>
 <body onload="init()">
-	<label for="endpoint">Endpoint: </label><br />
-	<input type="text" id="endpoint" value="/v3/route_types" /><br /><br />
-	<input type="button" onclick="previous()" value="< Back" />
-	<input type="button" onclick="reset()" value="Reset" />
-	<input type="button" onclick="PTV.makeRequest()" value="Send" />
-	<span id="loader" style="display:none; color: red;">Loading...</span>
-	<br />	
-	<pre id="output"></pre>
-	<div id="stateOutput"></div>
-	<br />
+	<div id="top">
+		<label for="endpoint">Endpoint: </label><br />
+		<input type="text" id="endpoint" value="/v3/route_types" /><br /><br />
+		<input type="button" onclick="previous()" value="< Back" />
+		<input type="button" onclick="reset()" value="Reset" />
+		<input type="button" onclick="PTV.makeRequest()" value="Send" />
+		<span id="loader" style="display:none; color: red;">Loading...</span>
+	</div>
+	<div id="bottom">
+		<pre id="output"></pre>
+		<div id="stateOutput"></div>
+		<br />
+	</div>
 </body>
 </html>
