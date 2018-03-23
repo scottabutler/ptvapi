@@ -228,7 +228,7 @@
 					document.getElementById("realtime").style.display = (isRt ? "none" : "block");
 					
 					var mins_text = "min" + (isRt ? "" : "*");
-					if (diffSec < 30 && diffSec >= -60) {
+					if (diffSec <= 60 && diffSec >= -60) {
 						diff = "Now" + (isRt ? "" : "*");
 						mins_text = "";
 					}
