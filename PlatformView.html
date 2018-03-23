@@ -62,6 +62,8 @@
 					.then(this.updatePage)
 					.catch(function(e) {
 						document.getElementById('error').innerHTML = 'Error: ' + e;
+						document.getElementById('loading').innerHTML = 'Error.';
+						document.getElementById("realtime").style.display = 'none';						
 						console.log(e);
 						PTV.clearPage();					
 					})
@@ -183,10 +185,10 @@
 				return new Promise(function(resolve, reject) {
 					debug('updatePage');
 					//Update the loading indicator and display the current time
-					document.getElementById('loading').innerHTML += 'done.';					
+					document.getElementById('loading').innerHTML = 'Done.';
 					var refresh_date = new Date();
-					document.getElementById('refresh-time').innerHTML = ensureTwoDigits(refresh_date.getHours()) + 
-						':' + ensureTwoDigits(refresh_date.getMinutes()) + ':' + ensureTwoDigits(refresh_date.getSeconds());					
+					document.getElementById('refresh-time').innerHTML = padSingleDigitWithZero(refresh_date.getHours()) + 
+						':' + padSingleDigitWithZero(refresh_date.getMinutes()) + ':' + padSingleDigitWithZero(refresh_date.getSeconds());					
 					
 					state.pattern = state.data;
 					state.data = null;
@@ -227,7 +229,7 @@
 					
 					var mins_text = "min" + (isRt ? "" : "*");
 					if (diffSec < 30 && diffSec >= -60) {
-						diff = "Now";
+						diff = "Now" + (isRt ? "" : "*");
 						mins_text = "";
 					}
 					
@@ -390,8 +392,8 @@
 				? new Date(scheduled)
 				: new Date(estimated);
 			
-			var hrs = ensureTwoDigits(date.getHours());
-			var mins = ensureTwoDigits(date.getMinutes());
+			var hrs = padSingleDigitWithZero(date.getHours());
+			var mins = padSingleDigitWithZero(date.getMinutes());
 			var result = hrs + ":" + mins;
 			return result;
 		}
@@ -403,12 +405,12 @@
 			if (hrs > 12) {
 				hrs -= 12;
 			}
-			var mins = ensureTwoDigits(date.getMinutes());
+			var mins = padSingleDigitWithZero(date.getMinutes());
 			var result = hrs + ":" + mins;
 			return result;
 		}
 		
-		function ensureTwoDigits(input) {
+		function padSingleDigitWithZero(input) {
 			return input < 10 ? '0' + input : input;
 		}
 		
@@ -423,7 +425,7 @@
 			
 			var now = new Date();
 			
-			return Math.ceil(getDifferenceFromNowSec(estimated, scheduled) / 60);
+			return Math.floor(getDifferenceFromNowSec(estimated, scheduled) / 60);
 		}
 		
 		function getDifferenceFromNowSec(estimated, scheduled) {
@@ -626,10 +628,16 @@
 		}
 		#following-departures .time {
 			margin-left: 0;
-			width: 15%;
+			width: 7%;
+			text-align: right;
 		}
 		#following-departures .dest {
 			width: 58%;
+			margin-left: 8%;
+		}
+		#following-departures .diff {
+			width: 11%;
+			text-align: right;
 		}
 		#realtime {
 			color: #999;
