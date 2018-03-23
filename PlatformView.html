@@ -20,12 +20,10 @@
 			sendRequest: function(endpoint, name, state) {				
 				return new Promise(function(resolve, reject) {
 					document.getElementById('loading').innerHTML += '.';
-					//document.getElementById('loading').innerHTML += name + '...';
 					var xmlhttp = new XMLHttpRequest();
 					xmlhttp.onreadystatechange = function() {					
 						if (xmlhttp.readyState === XMLHttpRequest.DONE) {
 							if (xmlhttp.status === 200) {
-								//document.getElementById('loading').innerHTML += 'done. ';
 								debug('sendRequest end ' + name);
 								state.data = JSON.parse(xmlhttp.responseText);
 								resolve(state);
@@ -43,8 +41,7 @@
 					var url = settings.baseUrl + endpoint + "&signature=" + sig;
 				
 					if (settings.useCorsBypass == true) {
-						//url = 'https://cors-anywhere.herokuapp.com/' + url;
-						url = 'https://ptvproxy20170416075948.azurewebsites.net/api/proxy?url=' + encodeURIComponent(url);
+						url = settings.proxyUrl + encodeURIComponent(url);
 					}
 					
 					debug('sendRequest start ' + name);
@@ -90,7 +87,7 @@
 					};
 					
 					//Try and load the cache from local storage
-					if (hasLocalStorage()) {						
+					if (BrowserHelpers.hasLocalStorage()) {						
 						var cache = JSON.parse(localStorage.getItem(PTV.localStorageCacheKey));
 						
 						if (cache) {						
@@ -157,7 +154,7 @@
 					if (!PTV.stopsOnRouteCache[key]) {
 						PTV.stopsOnRouteCache[key] = state.stopsOnRoute;
 						
-						if (hasLocalStorage) {
+						if (BrowserHelpers.hasLocalStorage) {
 							localStorage.setItem(PTV.localStorageCacheKey, JSON.stringify(PTV.stopsOnRouteCache));
 						}
 					}
@@ -172,11 +169,12 @@
 			
 			clearPage: function() {
 				debug('clearPage');
-				document.getElementById('platform').innerHTML = '';
-				document.getElementById('next-dest').innerHTML = '';
-				document.getElementById('next-time').innerHTML = '';
-				document.getElementById('next-diff').innerHTML = '';
-				document.getElementById('next-diff-mins').innerHTML = '';
+				
+				var elementsToClear = document.getElementsByClassName('clearable');
+				for (var i = 0; i < elementsToClear.length; i++) {
+					elementsToClear[0].innerHTML = '';
+				}
+				
 				clearStoppingPattern();
 				clearFollowingDepartures();
 			},
@@ -283,15 +281,12 @@
 			
 			
 			/* Util functions */
-						
-			getIsoDate: function() {
-				return new Date().toISOString();
-			},
-			
 			getGlobalSettings: function() {
 				return {
 					baseUrl: 'http://timetableapi.ptv.vic.gov.au',
-					useCorsBypass: true
+					useCorsBypass: true,
+					proxyUrl: 'https://ptvproxy20170416075948.azurewebsites.net/api/proxy?url='
+					//'https://cors-anywhere.herokuapp.com/'
 				}
 			},
 			
@@ -299,7 +294,7 @@
 			
 			//Departures
 			buildDeparturesEndpoint: function(params) {
-				var date_utc = PTV.getIsoDate();
+				var date_utc = DateTimeHelpers.getIsoDate();
 				var template = '/v3/departures/route_type/{route_type}/stop/{stop_id}' +
 						'?max_results=6&date_utc={date_utc}&platform_numbers={platform_number}&expand=stop&expand=run';
 				var endpoint = template
@@ -312,7 +307,7 @@
 			
 			//Stops on route
 			buildStopsOnRouteEndpoint: function(params) {
-				var date_utc = PTV.getIsoDate();
+				var date_utc = DateTimeHelpers.getIsoDate();
 				var template = '/v3/stops/route/{route_id}/route_type/{route_type}' +
 						'?date_utc={date_utc}';
 				var endpoint = template
@@ -324,7 +319,7 @@
 
 			//Stopping pattern
 			buildStoppingPatternEndpoint: function(params) {
-				var date_utc = PTV.getIsoDate();
+				var date_utc = DateTimeHelpers.getIsoDate();
 				var template = '/v3/pattern/run/{run_id}/route_type/{route_type}' +
 						'?date_utc={date_utc}';
 				var endpoint = template
@@ -440,10 +435,6 @@
 			return result;
 		}
 		
-		function hasLocalStorage() {
-			return typeof(Storage) !== "undefined";
-		}
-		
 		function init() {
 			PTV._devId = getQueryVariable('d');
 			PTV._secret = getQueryVariable('s');
@@ -493,178 +484,10 @@
 			}
 		}
 		
-		//https://css-tricks.com/snippets/javascript/get-url-variables/
-		function getQueryVariable(variable) {
-		   var query = window.location.search.substring(1);
-		   var vars = query.split("&");
-		   for (var i=0;i<vars.length;i++) {
-			   var pair = vars[i].split("=");
-			   if(pair[0] == variable){return pair[1];}
-		   }
-		   return(false);
-		}
 		
-		function updateQueryVariable(key, value) {
-			var query = window.location.search.substring(1);
-			var vars = query.split("&");
-			var result = "";
-			for (var i=0;i<vars.length;i++) {
-				var pair = vars[i].split("=");
-				if(pair[0] == key){
-					result = result + "&" + pair[0] + "=" + value;
-				} else {
-					result = result + "&" + pair[0] + "=" + pair[1];
-				}
-			}
-			return "?" + result.substring(1);
-		}
 	</script>
-	<style>
-		body {
-			font-family: arial;
-			background-color: #222;
-			color: #FFF;
-			font-size: 20px;
-			min-width: 325px;
-		}
-		select {
-			font-size: 20px;
-			width: 100px;
-		}
-		
-		#next-item-block {
-			display: inline-block;
-			width: 48%;
-		}
-		
-		.next-item-wrapper {
-			display: inline-block;
-			width: 45%;
-			margin-left: 2%;
-		}
-		
-		.next-item-wrapper .label {
-			font-size: 12px;
-			width: 100%;
-			display: inline-block;
-		}
-		
-		#next-dest {
-			min-width: 50%;
-			display: inline-block;
-			font-size: 40px;
-		}
-		
-		#next-time, #next-diff {
-			font-size: 30px;
-		}
-		
-		.mins {
-			font-size: 20px;
-		}
-		
-		#next-wrapper {
-			border-top: 1px solid #555;
-			border-bottom: 1px solid #555;
-			padding: 10px 0;
-			margin-top: 10px;
-		}	
-		
-		#header {
-			color: #777;
-		}		
-		
-		#next-stops {
-			font-size: 16px;
-		}
-		#next-stops div {
-			margin-top: 5px;
-		}
-		#error { color: #f55; }
-		#loading, #refresh-time, #auto-refresh-label { 
-			font-size: 18px; 
-			margin-bottom: 5px; 
-			display: inline-block;
-		}
-		#loading { 
-			width: 25%;
-		}
-		#refresh-time {
-			text-align: center;
-			width: 54%;
-		}
-		#next-stops-list {
-			list-style-type: none;
-			padding-left: 0px;
-			font-size: 16px;
-		}
-		.two-columns {
-			-moz-column-count: 2;
-			-moz-column-gap: 20px;
-			-webkit-column-count: 2;
-			-webkit-column-gap: 20px;
-			column-count: 2;
-			column-width: 20%;
-			list-style-type: none;
-			padding-left: 0px;
-		}
-		#next-stops-list li {
-			padding-top: 5px;
-		}
-		#following-departures { 
-			margin-top: 20px;
-			padding-top: 10px;
-			border-top: 1px solid #555;
-		}
-		#following-departures .fd.selected { color: #B3E5FC }
-		#following-departures .disruption, #following-departures .time,
-		#following-departures .dest, #following-departures .diff {
-			display: inline-block;
-			margin-left: 1%;
-		}
-		#following-departures .disruption { 
-			color: #F00;
-			margin-left: 0;
-		}
-		#following-departures .time {
-			margin-left: 0;
-			width: 7%;
-			text-align: right;
-		}
-		#following-departures .dest {
-			width: 58%;
-			margin-left: 8%;
-		}
-		#following-departures .diff {
-			width: 21%;
-			text-align: right;
-		}
-		#realtime {
-			color: #999;
-			font-size: 10px;
-			margin-top: 10px;
-			display: none;
-		}
-		#footer {
-			color: #999;
-			font-size: 10px;
-			margin-top: 10px;
-		}
-		#footer a, #footer a:visited {
-			color: #FFF;
-		}
-		
-		@media only screen and (min-width: 981px) {
-			#header, #wrapper { max-width: 700px; }
-		}
-		@media only screen and (max-width: 360px) {
-			/* For mobile phones:
-			window 980w 1394h
-			screen 360w 640h
-			 */
-			
-		}
-	</style>
+	<script type="text/javascript" src="utils.js"></script>
+	<link rel="stylesheet" href="PlatformView.css" />
 </head>
 <body onload="init()">
 	<div id="header">
@@ -674,7 +497,7 @@
 	</div>
 	<br />
 	<div id="wrapper">
-		<span id="stop"></span> - <span id="platform"></span>&nbsp;		
+		<span id="stop"></span> - <span id="platform" class="clearable"></span>&nbsp;		
 		<span id="platform-select-wrapper">
 			<select id="platform-select" onchange="updateView()">
 				<option value="1">1</option>
@@ -696,16 +519,16 @@
 		<br />
 		
 		<div id="next-wrapper">		
-			<div id="next-dest"></div>
+			<div id="next-dest" class="clearable"></div>
 			<div id="next-item-block">
 				<div class="next-item-wrapper">
 					<span class="label">Scheduled</span>
-					<span id="next-time">&nbsp;</span>&nbsp;
+					<span id="next-time" class="clearable">&nbsp;</span>&nbsp;
 				</div>
 		
 				<div class="next-item-wrapper">
 					<span class="label">Departing</span>
-					<span id="next-diff">&nbsp;</span>&nbsp;<span id="next-diff-mins" class="mins"></span>
+					<span id="next-diff" class="clearable">&nbsp;</span>&nbsp;<span id="next-diff-mins" class="mins clearable"></span>
 				</div>
 			</div>
 		</div>
