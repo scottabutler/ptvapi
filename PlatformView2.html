@@ -1,0 +1,245 @@
+<html>
+	<head>
+		<title>PTV v4</title>
+		<!-- Required meta tags -->
+		<meta charset="utf-8">
+
+		<!-- Bootstrap CSS -->
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+		<style>
+			.two-columns {
+				-moz-column-count: 2;
+				-moz-column-gap: 20px;
+				-webkit-column-count: 2;
+				-webkit-column-gap: 20px;
+				column-count: 2;
+				column-width: 20%;
+				list-style-type: square;
+			}	
+		</style>
+		<script src="ptv-hmac-sha1.js"></script>
+		<script src="platformView.js"></script>
+		<script type="text/javascript">	
+			
+			/* CUSTOM RENDERING FUNCTIONS/VARIABLES */
+	
+			const _loadingElementId = 'loading';
+			const _refreshTimeElementId = 'refresh-time';
+			const _errorElementId = 'error';
+			const _stopElementId = 'stop';
+			const _platformElementId = 'platform';		
+	
+			/* END CUSTOM */		
+			
+			//TODO Assign these render functions to PTV object
+			function addFollowingDeparture(state, index) {
+				var template = '<span class="disruption">{disruption}</span><span class="time">{time}</span><span class="dest">{dest}</span><span class="diff">{diff} mins</span>';
+				
+				var time = DateTimeHelpers.formatSingleTime(state.departures.departures[index].scheduled_departure_utc);
+				var diff = DateTimeHelpers.getDifferenceFromNow(state.departures.departures[index].estimated_departure_utc, state.departures.departures[index].scheduled_departure_utc); 
+				var dest = state.departures.runs[state.departures.departures[index].run_id].destination_name;
+				var status = state.departures.runs[state.departures.departures[index].run_id].status;
+				var disruptions = state.departures.runs[state.departures.departures[index].run_id].disruption_ids;
+				var disruption_marker = disruptions != undefined && disruptions.length > 0 ? '!&nbsp;' : '';
+				var route_id = state.departures.departures[index].route_id;
+				var is_selected_route = route_id == state.params.route_id;
+				
+				if (diff >= 60) {
+					return;
+				}
+			
+				var wrapper = document.createElement('div');
+				wrapper.setAttribute('class', 'fd' + (is_selected_route ? ' selected' : ''));
+				
+				wrapper.innerHTML = template.replace('{disruption}', disruption_marker)
+											.replace('{time}', time)
+											.replace('{dest}', dest)
+											.replace('{diff}', diff);
+				
+				//document.getElementById('following-departures').appendChild(wrapper);
+			}
+			
+			function clearFollowingDepartures() {
+				//document.getElementById('following-departures').innerHTML = '';
+			}
+			
+			function addStoppingPatternItem(name, index) {
+				//var wrapper = document.createElement('li');
+				//wrapper.innerHTML = name;
+				//document.getElementById('next-stops-list').appendChild(wrapper);
+			}
+			
+			function clearStoppingPattern() {
+				//document.getElementById('next-stops-list').innerHTML = '';
+			}
+			
+			
+			
+			function init() {
+				PTV._devId = getQueryVariable('d');
+				PTV._secret = getQueryVariable('s');
+				var platform_number = getQueryVariable('p');
+				var e = document.getElementById("platform-select");
+				e.value = platform_number;
+				
+				if (PTV._devId == null || PTV._devId == '' || PTV._secret == null || PTV._secret == '') {
+					return;
+				}
+				
+				updateView();
+			}
+			
+			function updateView() {
+				var loading = document.getElementById(_loadingElementId);
+				loading.innerHTML = 'Loading';
+				document.getElementById(_refreshTimeElementId).innerHTML = '';
+				
+				var stop_id = getQueryVariable('stop_id');
+				var route_type = getQueryVariable('route_type');
+				var route_id = getQueryVariable('route_id');
+				var e = document.getElementById("platform-select");
+				var platform_number = e.options[e.selectedIndex].value;
+				
+				var new_url = window.location.pathname + updateQueryVariable('p', platform_number);
+				window.history.replaceState( {} , 'Platform View', new_url );
+				
+				//Set an auto-refresh timer
+				updateTimer();
+				
+				var params = {
+					route_type: route_type,
+					route_id: route_id,
+					stop_id: stop_id,
+					platform_number: platform_number
+				};
+				
+				PTV.doStuff(params);
+			}
+			
+			var timer;
+			function updateTimer() {			
+				clearTimeout(timer);
+				if (document.getElementById('auto-refresh').checked) {
+					timer = setTimeout(function(){updateView()}, 30000);
+				}
+			}
+			
+			
+		</script>
+		<script type="text/javascript" src="utils.js"></script>
+	</head>
+	<body onload="init()">
+		<div class="container">
+			<div class="row my-3">
+				<div class="col-12" id="header">
+					<span id="loading"></span>&nbsp;&nbsp;<span id="refresh-time"></span>		
+					<input type="checkbox" id="auto-refresh" name="auto-refresh" checked="checked" onchange="updateTimer()" />
+					<label id="auto-refresh-label" for="auto-refresh">&#8635;</label>
+				</div>
+			</div>
+			<div class="row my-3">
+				<div class="col-12">
+					<span id="stop"></span> - <span id="platform" class="clearable"></span>&nbsp;		
+					<span id="platform-select-wrapper">
+						<select id="platform-select" onchange="updateView()">
+							<option value="1">1</option>
+							<option value="2">2</option>
+							<option value="3">3</option>
+							<option value="4">4</option>
+							<option value="5">5</option>
+							<option value="6">6</option>
+							<option value="7">7</option>
+							<option value="8">8</option>
+							<option value="9">9</option>
+							<option value="10">10</option>
+							<option value="11">11</option>
+							<option value="12">12</option>
+							<option value="13">13</option>
+							<option value="14">14</option>
+						</select>
+					</span>
+					<br />
+					
+					<div id="error"></div>
+					<div id="realtime">* Difference based off timetable, not real-time data.</div>
+				</div>
+			</div>
+			<div class="row mt-1 mb-3">
+				<div class="col-12 bg-primary">
+					<p class="mb-0">&nbsp;</p>
+
+				</div>
+			</div>
+			<div class="row my-2 pb-2 border-bottom border-dark">
+				<div class="col-8 col-md-3 col-lg-2 order-1">
+					<h1 id="next-time" class="font-weight-light"></h1>
+
+				</div>
+				<div class="col-12 col-md-6 col-lg-8 order-3 order-md-2">
+					<h1 id="next-dest"></h1>
+
+				</div>
+				<div class="col-4 col-md-3 col-lg-2 order-2 order-md-3 bg-dark">
+					<h1 id="next-diff" class="font-weight-light text-white text-right">
+						&nbsp;
+					</h1>
+				</div>
+			</div>
+			<div class="row border-bottom border-dark pb-2 mb-2">
+				<div class="col-12">
+					<ul id="next-stops-list" class="two-columns pl-4">
+						<li>East Richmond</li><li>Burnley</li>
+						<li>Heyington</li>
+						<li>Kooyong</li>
+						<li>Tooronga</li>
+						<li>Gardiner</li>
+						<li>Glen Iris</li>
+						<li>Darling</li>
+						<li>East Malvern</li>
+						<li>Holmesglen</li>
+						<li>Jordanville</li>
+						<li>Mount Waverley</li>
+						<li>Syndal</li>
+						<li>Glen Waverley</li>
+					</ul>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-5 col-md-3 col-lg-2 order-2 order-md-1 ml-4 ml-md-0">
+					<h4 class="font-weight-light">12:59pm</h4>
+
+				</div>
+				<div class="col-12 col-md-6 col-lg-8 order-1 order-md-2">
+					<h4>Glen Waverley</h4>
+
+				</div>
+				<div class="col-5 col-md-3 col-lg-2 order-3 order-md-3">
+					<h4 class="font-weight-light">33 min</h4>
+
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-5 col-md-3 col-lg-2 order-2 order-md-1 ml-4 ml-md-0">
+					<h4 class="font-weight-light">12:59pm</h4>
+
+				</div>
+				<div class="col-12 col-md-6 col-lg-8 order-1 order-md-2">
+					<h4>Upper Ferntree Gully</h4>
+
+				</div>
+				<div class="col-5 col-md-3 col-lg-2 order-3 order-md-3">
+					<h4 class="font-weight-light">33 min</h4>
+
+				</div>
+			</div>
+		</div>
+		<div class="text-muted">
+			<span class="d-inline d-sm-none">XS</span>
+			<span class="d-none d-sm-inline d-md-none">SM</span>
+			<span class="d-none d-md-inline d-lg-none">MD</span>
+			<span class="d-none d-lg-inline d-xl-none">LG</span>
+			<span class="d-none d-xl-inline">XL</span>
+		</div>
+	</body>
+</html>
