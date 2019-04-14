@@ -1,0 +1,4 @@
+Finish refactoring custom render funcs
+DRY up some more of the copied JS
+Bootstrapify copied markup
+Set up colour grouping
