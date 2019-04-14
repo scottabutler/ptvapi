@@ -210,7 +210,8 @@ var PTV = {
             var next_departure_name = state.departures.runs[next_departure.run_id].destination_name;				
             document.getElementById('next-dest').innerHTML = next_departure_name;
         
-            var time = DateTimeHelpers.formatSingleTime(next_departure.scheduled_departure_utc);				
+            //TODO disable designator for old UI
+            var time = DateTimeHelpers.formatSingleTime(next_departure.scheduled_departure_utc, true);				
             document.getElementById('next-time').innerHTML = time;
         
             var diff = DateTimeHelpers.getDifferenceFromNow(next_departure.estimated_departure_utc, next_departure.scheduled_departure_utc);

@@ -51,16 +51,20 @@ class DateTimeHelpers {
 		return result;
 	}*/
 
-	static formatSingleTime(time) {
+	static formatSingleTime(time, includeDesignator) {
 		var date = new Date(time);
 		
 		var hrs = date.getHours();
+		var designator = "am";
 		if (hrs > 12) {
 			hrs -= 12;
+			designator = "pm";
 		}
 		var mins = padSingleDigitWithZero(date.getMinutes());
-		var result = hrs + ":" + mins;
-		return result;
+		
+		return includeDesignator
+			? hrs + ":" + mins + designator
+			: hrs + ":" + mins;
 	}
 
 	static getDifferenceFromNow(estimated, scheduled) {

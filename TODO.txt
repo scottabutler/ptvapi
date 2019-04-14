@@ -1,5 +1,4 @@
-Add am/pm to departure time
 Finish refactoring custom render funcs
 DRY up some more of the copied JS
 Bootstrapify copied markup
-Fix next departure minutes
+Set up colour grouping

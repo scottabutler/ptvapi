@@ -7,6 +7,7 @@
 		<!-- Bootstrap CSS -->
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+		<link href="https://fonts.googleapis.com/css?family=Nunito+Sans:200,600" rel="stylesheet">
 		<style>
 			.two-columns {
 				-moz-column-count: 2;
@@ -16,7 +17,16 @@
 				column-count: 2;
 				column-width: 20%;
 				list-style-type: square;
-			}	
+			}
+
+			body, h1, h4 {
+				font-family: 'Nunito Sans', sans-serif;
+				font-weight: 600 !important;
+			}
+
+			.font-weight-light {
+				font-weight: 300 !important;
+			}
 		</style>
 		<script src="ptv-hmac-sha1.js"></script>
 		<script src="platformView.js"></script>
@@ -65,16 +75,14 @@
 			}
 			
 			function addStoppingPatternItem(name, index) {
-				//var wrapper = document.createElement('li');
-				//wrapper.innerHTML = name;
-				//document.getElementById('next-stops-list').appendChild(wrapper);
+				var wrapper = document.createElement('li');
+				wrapper.innerHTML = name;
+				document.getElementById('next-stops-list').appendChild(wrapper);
 			}
 			
 			function clearStoppingPattern() {
-				//document.getElementById('next-stops-list').innerHTML = '';
-			}
-			
-			
+				document.getElementById('next-stops-list').innerHTML = '';
+			}			
 			
 			function init() {
 				PTV._devId = getQueryVariable('d');
@@ -180,8 +188,8 @@
 					<h1 id="next-dest"></h1>
 
 				</div>
-				<div class="col-4 col-md-3 col-lg-2 order-2 order-md-3 bg-dark">
-					<h1 id="next-diff" class="font-weight-light text-white text-right">
+				<div class="col-4 col-md-3 col-lg-2 order-2 order-md-3 pr-0">
+					<h1 id="next-diff" class="mb-0 font-weight-light text-white text-right bg-dark py-1 px-2">
 						&nbsp;
 					</h1>
 				</div>
@@ -189,19 +197,6 @@
 			<div class="row border-bottom border-dark pb-2 mb-2">
 				<div class="col-12">
 					<ul id="next-stops-list" class="two-columns pl-4">
-						<li>East Richmond</li><li>Burnley</li>
-						<li>Heyington</li>
-						<li>Kooyong</li>
-						<li>Tooronga</li>
-						<li>Gardiner</li>
-						<li>Glen Iris</li>
-						<li>Darling</li>
-						<li>East Malvern</li>
-						<li>Holmesglen</li>
-						<li>Jordanville</li>
-						<li>Mount Waverley</li>
-						<li>Syndal</li>
-						<li>Glen Waverley</li>
 					</ul>
 				</div>
 			</div>
@@ -211,7 +206,7 @@
 
 				</div>
 				<div class="col-12 col-md-6 col-lg-8 order-1 order-md-2">
-					<h4>Glen Waverley</h4>
+					<h4>Some station</h4>
 
 				</div>
 				<div class="col-5 col-md-3 col-lg-2 order-3 order-md-3">
@@ -225,7 +220,7 @@
 
 				</div>
 				<div class="col-12 col-md-6 col-lg-8 order-1 order-md-2">
-					<h4>Upper Ferntree Gully</h4>
+					<h4>Some station</h4>
 
 				</div>
 				<div class="col-5 col-md-3 col-lg-2 order-3 order-md-3">
