@@ -211,7 +211,7 @@ var PTV = {
             document.getElementById('next-dest').innerHTML = next_departure_name;
         
             //TODO disable designator for old UI
-            var time = DateTimeHelpers.formatSingleTime(next_departure.scheduled_departure_utc, true);				
+            var time = DateTimeHelpers.formatSingleTime(next_departure.scheduled_departure_utc, false);				
             document.getElementById('next-time').innerHTML = time;
         
             var diff = DateTimeHelpers.getDifferenceFromNow(next_departure.estimated_departure_utc, next_departure.scheduled_departure_utc);
