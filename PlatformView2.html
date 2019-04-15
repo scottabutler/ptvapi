@@ -60,18 +60,46 @@
 				}
 			
 				var wrapper = document.createElement('div');
-				wrapper.setAttribute('class', 'fd' + (is_selected_route ? ' selected' : ''));
+				wrapper.setAttribute('class', 'row '); // TODO do we still need this? + (is_selected_route ? ' selected' : ''));
 				
-				wrapper.innerHTML = template.replace('{disruption}', disruption_marker)
-											.replace('{time}', time)
-											.replace('{dest}', dest)
-											.replace('{diff}', diff);
+				//TODO DRY this up
+				//Time
+				var timeWrapper = document.createElement('div');
+				timeWrapper.setAttribute('class', 'col-5 col-md-3 col-lg-2 order-2 order-md-1 ml-4 ml-md-0');
+
+				var timeElement = document.createElement('h4');
+				timeElement.setAttribute('class', 'font-weight-light');
+				timeElement.textContent = time;
+
+				timeWrapper.appendChild(timeElement);
+				wrapper.appendChild(timeWrapper);
+
+				//Destination
+				var destWrapper = document.createElement('div');
+				destWrapper.setAttribute('class', 'col-12 col-md-6 col-lg-8 order-1 order-md-2');
+
+				var destElement = document.createElement('h4');
+				destElement.textContent = dest;
+
+				destWrapper.appendChild(destElement);
+				wrapper.appendChild(destWrapper);
+
+				//Diff				
+				var diffWrapper = document.createElement('div');
+				diffWrapper.setAttribute('class', 'col-5 col-md-3 col-lg-2 order-3 order-md-3');
+
+				var diffElement = document.createElement('h4');
+				diffElement.setAttribute('class', 'font-weight-light');
+				diffElement.textContent = diff + ' min';
+
+				diffWrapper.appendChild(diffElement);
+				wrapper.appendChild(diffWrapper);
 				
-				//document.getElementById('following-departures').appendChild(wrapper);
+				document.getElementById('following-departures').appendChild(wrapper);
 			}
 			
 			function clearFollowingDepartures() {
-				//document.getElementById('following-departures').innerHTML = '';
+				document.getElementById('following-departures').innerHTML = '';
 			}
 			
 			function addStoppingPatternItem(name, index) {
@@ -180,7 +208,7 @@
 				</div>
 			</div>
 			<div class="row my-2 pb-2 border-bottom border-dark">
-				<div class="col-8 col-md-3 col-lg-2 order-1">
+				<div class="col-6 col-md-3 col-lg-2 order-1">
 					<h1 id="next-time" class="font-weight-light"></h1>
 
 				</div>
@@ -188,8 +216,8 @@
 					<h1 id="next-dest"></h1>
 
 				</div>
-				<div class="col-4 col-md-3 col-lg-2 order-2 order-md-3 pr-0">
-					<h1 id="next-diff" class="mb-0 font-weight-light text-white text-right bg-dark py-1 px-2">
+				<div class="col-6 col-md-3 col-lg-2 order-2 order-md-3 pr-0 text-right">
+					<h1 id="next-diff" class="mb-0 font-weight-light text-white text-right bg-dark py-1 px-2 d-inline-block">
 						&nbsp;
 					</h1>
 				</div>
@@ -200,33 +228,7 @@
 					</ul>
 				</div>
 			</div>
-			<div class="row">
-				<div class="col-5 col-md-3 col-lg-2 order-2 order-md-1 ml-4 ml-md-0">
-					<h4 class="font-weight-light">12:59pm</h4>
-
-				</div>
-				<div class="col-12 col-md-6 col-lg-8 order-1 order-md-2">
-					<h4>Some station</h4>
-
-				</div>
-				<div class="col-5 col-md-3 col-lg-2 order-3 order-md-3">
-					<h4 class="font-weight-light">33 min</h4>
-
-				</div>
-			</div>
-			<div class="row">
-				<div class="col-5 col-md-3 col-lg-2 order-2 order-md-1 ml-4 ml-md-0">
-					<h4 class="font-weight-light">12:59pm</h4>
-
-				</div>
-				<div class="col-12 col-md-6 col-lg-8 order-1 order-md-2">
-					<h4>Some station</h4>
-
-				</div>
-				<div class="col-5 col-md-3 col-lg-2 order-3 order-md-3">
-					<h4 class="font-weight-light">33 min</h4>
-
-				</div>
+			<div id="following-departures">
 			</div>
 		</div>
 		<div class="text-muted">
