@@ -86,7 +86,7 @@
 
 				//Diff				
 				var diffWrapper = document.createElement('div');
-				diffWrapper.setAttribute('class', 'col-5 col-md-3 col-lg-2 order-3 order-md-3');
+				diffWrapper.setAttribute('class', 'col-5 col-md-3 col-lg-2 order-3 order-md-3 text-right');
 
 				var diffElement = document.createElement('h4');
 				diffElement.setAttribute('class', 'font-weight-light');
@@ -197,8 +197,8 @@
 					</span>
 					<br />
 					
-					<div id="error"></div>
-					<div id="realtime">* Difference based off timetable, not real-time data.</div>
+					<div id="error" class="text-danger"></div>
+					<div id="realtime" class="text-warning">* Difference based off timetable, not real-time data.</div>
 				</div>
 			</div>
 			<div class="row mt-1 mb-3">
@@ -209,15 +209,15 @@
 			</div>
 			<div class="row my-2 pb-2 border-bottom border-dark">
 				<div class="col-6 col-md-3 col-lg-2 order-1">
-					<h1 id="next-time" class="font-weight-light"></h1>
+					<h1 id="next-time" class="font-weight-light clearable"></h1>
 
 				</div>
-				<div class="col-12 col-md-6 col-lg-8 order-3 order-md-2">
-					<h1 id="next-dest"></h1>
+				<div class="col-12 col-md-6 col-lg-7 order-3 order-md-2">
+					<h1 id="next-dest" class="clearable"></h1>
 
 				</div>
-				<div class="col-6 col-md-3 col-lg-2 order-2 order-md-3 pr-0 text-right">
-					<h1 id="next-diff" class="mb-0 font-weight-light text-white text-right bg-dark py-1 px-2 d-inline-block">
+				<div class="col-6 col-md-3 col-lg-3 order-2 order-md-3 pr-0 text-right">
+					<h1 id="next-diff" class="mb-0 font-weight-light text-white text-right bg-dark px-2 d-inline-block clearable">
 						&nbsp;
 					</h1>
 				</div>
@@ -230,6 +230,7 @@
 			</div>
 			<div id="following-departures">
 			</div>
+			<div class="text-muted mt-3">&copy Scott Butler 2019. Data sourced from <a href="https://www.ptv.vic.gov.au/about-ptv/data-and-reports/digital-products/ptv-timetable-api/" target="_blank">PTV.</a></div>
 		</div>
 		<div class="text-muted">
 			<span class="d-inline d-sm-none">XS</span>
