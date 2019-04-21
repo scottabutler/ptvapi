@@ -166,13 +166,41 @@ var PTV = {
         
         var elementsToClear = document.getElementsByClassName('clearable');
         for (var i = 0; i < elementsToClear.length; i++) {
-            elementsToClear[0].innerHTML = '';
+            elementsToClear[i].innerHTML = '';
         }
         
         clearStoppingPattern();
         clearFollowingDepartures();
     },
     
+    getColourForRoute: function(route_id) {
+        switch (route_id) {
+            case 5: //Mernda
+            case 8: //Hurstbridge
+                return "red";
+            case 6: //Frankston
+            case 16: //Werribee
+            case 17: //Williamstown
+                return "green";
+            case 14: //Sunbury
+            case 3: //Craigieburn
+            case 15: //Upfield
+                return "yellow";
+            case 2: //Belgrave
+            case 9: //Lilydale
+            case 1: //Alamein
+            case 7: //Glen Waverley
+                return "dark-blue";
+            case 4: //Cranbourne
+            case 11: //Pakenham
+                return "light-blue";
+            case 12: //Sandringham
+                return "pink";
+            default:
+                return "dark-blue";
+        }
+    },
+
     updatePage: function(state) {
         return new Promise(function(resolve, reject) {
             debug('updatePage');
@@ -186,6 +214,9 @@ var PTV = {
             state.data = null;
             var next_departure = state.departures.departures[0];
         
+            var route_id = next_departure.route_id;
+            document.body.setAttribute('data-colour', PTV.getColourForRoute(route_id));
+
             //Reset some elements
             document.getElementById(_errorElementId).innerHTML = '';
         
