@@ -54,7 +54,7 @@
 			}
 		</style>
 		<script src="ptv-hmac-sha1.js"></script>
-		<script src="platformView.js"></script>
+		<script src="platformView2.js"></script>
 		<script type="text/javascript">	
 			
 			/* CUSTOM RENDERING FUNCTIONS/VARIABLES */
@@ -127,9 +127,13 @@
 				document.getElementById('following-departures').innerHTML = '';
 			}
 			
-			function addStoppingPatternItem(name, index) {
+			function addStoppingPatternItem(name, isCurrentStop) {
+				var content = document.createElement('span');
+				content.setAttribute('class', 'px-1' + (isCurrentStop ? ' active-colour' : ''));
+				content.innerText = name;
+				
 				var wrapper = document.createElement('li');
-				wrapper.innerHTML = name;
+				wrapper.appendChild(content);
 				document.getElementById('next-stops-list').appendChild(wrapper);
 			}
 			
