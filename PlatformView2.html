@@ -71,7 +71,7 @@
 			function addFollowingDeparture(state, index) {
 				var template = '<span class="disruption">{disruption}</span><span class="time">{time}</span><span class="dest">{dest}</span><span class="diff">{diff} mins</span>';
 				
-				var time = DateTimeHelpers.formatSingleTime(state.departures.departures[index].scheduled_departure_utc);
+				var time = DateTimeHelpers.formatSingleTime(state.departures.departures[index].scheduled_departure_utc, true);
 				var diff = DateTimeHelpers.getDifferenceFromNow(state.departures.departures[index].estimated_departure_utc, state.departures.departures[index].scheduled_departure_utc); 
 				var dest = state.departures.runs[state.departures.departures[index].run_id].destination_name;
 				var status = state.departures.runs[state.departures.departures[index].run_id].status;
