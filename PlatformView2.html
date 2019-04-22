@@ -9,6 +9,68 @@
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
 		<link href="https://fonts.googleapis.com/css?family=Nunito+Sans:200,600" rel="stylesheet">
 		<style>
+			ul {
+				list-style-type: square;
+			}
+
+			ul li {
+				position:relative
+			}
+
+			ul#next-stops-list li span:not(.active-colour) {
+				color: black;
+			}
+
+			ul li span:after {
+				content: '';
+				position: absolute;
+				left: -20px;
+				bottom: 0;
+				z-index: -1;
+				height: 100%
+			}
+
+			body[data-colour="red"] ul#next-stops-list li span:after {
+				border-left: 5px solid rgb(208, 32, 46);
+			}
+			body[data-colour="yellow"] ul#next-stops-list li span:after {
+				border-left: 5px solid rgb(252, 184, 24);
+			}
+			body[data-colour="dark-blue"] ul#next-stops-list li span:after {
+				border-left: 5px solid rgb(1, 81, 138);
+			}
+			body[data-colour="light-blue"] ul#next-stops-list li span:after {
+				border-left: 5px solid rgb(0, 168, 228);
+			}
+			body[data-colour="green"] ul#next-stops-list li span:after {
+				border-left: 5px solid rgb(0, 150, 69);
+			}
+			body[data-colour="pink"] ul#next-stops-list li span:after {
+				border-left: 5px solid rgb(241, 127, 177);
+			}
+
+			body[data-colour="red"] ul#next-stops-list {
+				color: rgb(208, 32, 46);
+			}
+			body[data-colour="yellow"] ul#next-stops-list {
+				color: rgb(252, 184, 24);
+			}
+			body[data-colour="dark-blue"] ul#next-stops-list {
+				color: rgb(1, 81, 138);
+			}
+			body[data-colour="light-blue"] ul#next-stops-list {
+				color: rgb(0, 168, 228);
+			}
+			body[data-colour="green"] ul#next-stops-list {
+				color: rgb(0, 150, 69);
+			}
+			body[data-colour="pink"] ul#next-stops-list {
+				color: rgb(241, 127, 177);
+			}
+
+		</style>
+		
+		<style>
 			.two-columns {
 				-moz-column-count: 2;
 				-moz-column-gap: 20px;
@@ -16,7 +78,6 @@
 				-webkit-column-gap: 20px;
 				column-count: 2;
 				column-width: 20%;
-				list-style-type: square;
 			}
 
 			body, h1, h4 {
@@ -52,6 +113,8 @@
 				background-color: rgb(241, 127, 177);
 				color: #222;
 			}
+
+
 		</style>
 		<script src="ptv-hmac-sha1.js"></script>
 		<script src="platformView2.js"></script>
@@ -254,11 +317,9 @@
 			<div class="row my-2 pb-2 border-bottom border-dark">
 				<div class="col-6 col-md-3 col-lg-2 order-1">
 					<h1 id="next-time" class="font-weight-light clearable"></h1>
-
 				</div>
 				<div class="col-12 col-md-6 col-lg-7 order-3 order-md-2">
 					<h1 id="next-dest" class="clearable"></h1>
-
 				</div>
 				<div class="col-6 col-md-3 col-lg-3 order-2 order-md-3 pr-0 text-right">
 					<h1 id="next-diff" class="mb-0 font-weight-light text-white text-right bg-dark px-2 d-inline-block clearable">
@@ -266,23 +327,20 @@
 					</h1>
 				</div>
 			</div>
-			<div class="row border-bottom border-dark pb-2 mb-2">
+			<div class="row border-bottom border-dark pb-2 mb-3">
 				<div class="col-12">
-					<ul id="next-stops-list" class="two-columns pl-4">
+					<ul id="next-stops-list" class="two-columns pl-4 mb-1">
 					</ul>
 				</div>
 			</div>
 			<div id="following-departures">
 			</div>
-			<div class="text-muted mt-3">&copy Scott Butler 2019. Data sourced from <a href="https://www.ptv.vic.gov.au/about-ptv/data-and-reports/digital-products/ptv-timetable-api/" target="_blank">PTV.</a></div>
-			<div class="text-muted mt-3">Disclaimer: This project is not provided by, nor affiliated with, Public Transport Victoria. This has been built for learning purposes and is intended for use in accordance with the <a href="https://www.ptv.vic.gov.au/footer/data-and-reporting/datasets/ptv-timetable-api/" target="_blank">License terms</a>.</div>
-		</div>
-		<div class="text-muted">
-			<span class="d-inline d-sm-none">XS</span>
-			<span class="d-none d-sm-inline d-md-none">SM</span>
-			<span class="d-none d-md-inline d-lg-none">MD</span>
-			<span class="d-none d-lg-inline d-xl-none">LG</span>
-			<span class="d-none d-xl-inline">XL</span>
+			<small class="d-inline-block mt-3">
+				&copy Scott Butler 2019. Data sourced from <a href="https://www.ptv.vic.gov.au/about-ptv/data-and-reports/digital-products/ptv-timetable-api/" target="_blank">PTV.</a>
+				<strong>Disclaimer:</strong> This project is not provided by, nor affiliated with, Public Transport Victoria. 
+				This has been built for learning purposes and is intended for use in accordance with the 
+				<a href="https://www.ptv.vic.gov.au/footer/data-and-reporting/datasets/ptv-timetable-api/" target="_blank">License terms</a>.
+			</small>
 		</div>
 	</body>
 </html>
