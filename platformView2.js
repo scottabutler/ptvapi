@@ -288,7 +288,7 @@ var PTV = {
             var list_element = document.getElementById('next-stops-list');
             if (stopping_pattern_count > 7) {
                 if (list_element.className.indexOf('two-columns') == -1) {
-                    list_element.className += 'two-columns';
+                    list_element.className += ' two-columns';
                 }
             } else {
                 list_element.className = list_element.className.replace('two-columns', '');
