@@ -1,6 +1,6 @@
 <html>
 	<head>
-		<title>PTV v4</title>
+		<title>PTV Platform View</title>
 		<!-- Required meta tags -->
 		<meta charset="utf-8">
 
@@ -114,7 +114,31 @@
 				color: #222;
 			}
 
+			.disruption {
+				display: inline-block;
+				width: 8px;
+				height: 8px;
+				border-radius: 8px;	
+				border: 8px solid black;
+				position: relative;
+				top: -5px;			
+			}
 
+			.disruption.minordelays {
+				border-color: #e87801;
+			}
+			.disruption.majordelays {
+				border-color: #e5492d;
+			}
+			.disruption.worksalert {
+				border-color: yellow; /* TODO */
+			}
+			.disruption.travelalert {
+				border-color: yellow; /* TODO */
+			}
+			.disruption.suspended {
+				border-color: #333; /* TODO */
+			}
 		</style>
 		<script src="ptv-hmac-sha1.js"></script>
 		<script src="platformView2.js"></script>
@@ -126,68 +150,71 @@
 			const _refreshTimeElementId = 'refresh-time';
 			const _errorElementId = 'error';
 			const _stopElementId = 'stop';
-			const _platformElementId = 'platform';		
+			const _platformElementId = 'platform';
+			const _followingDeparturesElementId = 'following-departures';
+			const _nextStopsListElementId = 'next-stops-list';
+			const _platformSelectElementId = 'platform-select'
 	
 			/* END CUSTOM */		
 			
 			//TODO Assign these render functions to PTV object
 			function addFollowingDeparture(state, index) {
-				var template = '<span class="disruption">{disruption}</span><span class="time">{time}</span><span class="dest">{dest}</span><span class="diff">{diff} mins</span>';
-				
 				var time = DateTimeHelpers.formatSingleTime(state.departures.departures[index].scheduled_departure_utc, true);
 				var diff = DateTimeHelpers.getDifferenceFromNow(state.departures.departures[index].estimated_departure_utc, state.departures.departures[index].scheduled_departure_utc); 
 				var dest = state.departures.runs[state.departures.departures[index].run_id].destination_name;
-				var status = state.departures.runs[state.departures.departures[index].run_id].status;
-				var disruptions = state.departures.runs[state.departures.departures[index].run_id].disruption_ids;
-				var disruption_marker = disruptions != undefined && disruptions.length > 0 ? '!&nbsp;' : '';
+				//var status = state.departures.runs[state.departures.departures[index].run_id].status;
+				//var disruptions = state.departures.runs[state.departures.departures[index].run_id].disruption_ids;
+				//var disruptions = state.departures.departures[index].disruption_ids;
+
+				
+				//var disruption_marker = disruptions != undefined && disruptions.length > 0 ? '!' : '';
 				var route_id = state.departures.departures[index].route_id;
-				var is_selected_route = route_id == state.params.route_id;
 				
 				if (diff >= 60) {
 					return;
 				}
 			
 				var wrapper = document.createElement('div');
-				wrapper.setAttribute('class', 'row '); // TODO do we still need this? + (is_selected_route ? ' selected' : ''));
+				wrapper.setAttribute('class', 'row ');
 				
-				//TODO DRY this up
 				//Time
-				var timeWrapper = document.createElement('div');
-				timeWrapper.setAttribute('class', 'col-5 col-md-3 col-lg-2 order-2 order-md-1 ml-4 ml-md-0');
-
-				var timeElement = document.createElement('h4');
-				timeElement.setAttribute('class', 'font-weight-light');
-				timeElement.textContent = time;
-
-				timeWrapper.appendChild(timeElement);
+				var timeWrapper = createElementWithContent(
+					'div', 'col-5 col-md-3 col-lg-2 order-2 order-md-1 ml-4 ml-md-0',
+					'h4', 'font-weight-light', time);
+				
 				wrapper.appendChild(timeWrapper);
 
 				//Destination
-				var destWrapper = document.createElement('div');
-				destWrapper.setAttribute('class', 'col-12 col-md-6 col-lg-8 order-1 order-md-2');
+				var destWrapper = createElementWithContent(
+					'div', 'col-12 col-md-6 col-lg-8 order-1 order-md-2',
+					'h4', '', dest);
 
-				var destElement = document.createElement('h4');
-				destElement.textContent = dest;
-
-				destWrapper.appendChild(destElement);
 				wrapper.appendChild(destWrapper);
 
-				//Diff				
-				var diffWrapper = document.createElement('div');
-				diffWrapper.setAttribute('class', 'col-5 col-md-3 col-lg-2 order-3 order-md-3 text-right');
+				//Diff
+				var diffWrapper = createElementWithContent(
+					'div', 'col-5 col-md-3 col-lg-2 order-3 order-md-3 text-right',
+					'h4', 'font-weight-light', diff + ' min');
 
-				var diffElement = document.createElement('h4');
-				diffElement.setAttribute('class', 'font-weight-light');
-				diffElement.textContent = diff + ' min';
-
-				diffWrapper.appendChild(diffElement);
 				wrapper.appendChild(diffWrapper);
 				
-				document.getElementById('following-departures').appendChild(wrapper);
+				document.getElementById(_followingDeparturesElementId).appendChild(wrapper);
+			}
+
+			function createElementWithContent(tag, classVal, childTag, childClassVal, childTextContent) {
+				var wrapper = document.createElement(tag);
+				wrapper.setAttribute('class', classVal);
+
+				var child = document.createElement(childTag);
+				child.setAttribute('class', childClassVal);
+				child.textContent = childTextContent;
+
+				wrapper.appendChild(child);
+				return wrapper;
 			}
 			
 			function clearFollowingDepartures() {
-				document.getElementById('following-departures').innerHTML = '';
+				document.getElementById(_followingDeparturesElementId).innerHTML = '';
 			}
 			
 			function addStoppingPatternItem(name, isCurrentStop) {
@@ -197,18 +224,18 @@
 				
 				var wrapper = document.createElement('li');
 				wrapper.appendChild(content);
-				document.getElementById('next-stops-list').appendChild(wrapper);
+				document.getElementById(_nextStopsListElementId).appendChild(wrapper);
 			}
 			
 			function clearStoppingPattern() {
-				document.getElementById('next-stops-list').innerHTML = '';
+				document.getElementById(_nextStopsListElementId).innerHTML = '';
 			}			
 			
 			function init() {
 				PTV._devId = getQueryVariable('d');
 				PTV._secret = getQueryVariable('s');
 				var platform_number = getQueryVariable('p');
-				var e = document.getElementById("platform-select");
+				var e = document.getElementById(_platformSelectElementId);
 				e.value = platform_number;
 				
 				if (PTV._devId == null || PTV._devId == '' || PTV._secret == null || PTV._secret == '') {
@@ -226,7 +253,7 @@
 				var stop_id = getQueryVariable('stop_id');
 				var route_type = getQueryVariable('route_type');
 				var route_id = getQueryVariable('route_id');
-				var e = document.getElementById("platform-select");
+				var e = document.getElementById(_platformSelectElementId);
 				var platform_number = e.options[e.selectedIndex].value;
 				
 				var new_url = window.location.pathname + updateQueryVariable('p', platform_number);
@@ -251,8 +278,7 @@
 				if (document.getElementById('auto-refresh').checked) {
 					timer = setTimeout(function(){updateView()}, 30000);
 				}
-			}
-			
+			}			
 			
 		</script>
 		<script type="text/javascript" src="utils.js"></script>
@@ -314,17 +340,22 @@
 					<p class="mb-0">&nbsp;</p>
 				</div>
 			</div>
-			<div class="row my-2 pb-2 border-bottom border-dark">
+			<div class="row mt-2 pb-1">
 				<div class="col-6 col-md-3 col-lg-2 order-1">
 					<h1 id="next-time" class="font-weight-light clearable"></h1>
 				</div>
 				<div class="col-12 col-md-6 col-lg-7 order-3 order-md-2">
-					<h1 id="next-dest" class="clearable"></h1>
+					<span id="next-dest-disruption"></span><h1 id="next-dest" class="clearable d-inline"></h1>
 				</div>
 				<div class="col-6 col-md-3 col-lg-3 order-2 order-md-3 pr-0 text-right">
 					<h1 id="next-diff" class="mb-0 font-weight-light text-white text-right bg-dark px-2 d-inline-block clearable">
 						&nbsp;
 					</h1>
+				</div>
+			</div>
+			<div class="row border-bottom border-dark pb-1 mb-2">
+				<div class="col-12 col-md-6 col-lg-7 offset-md-3 offset-lg-2">
+					<small id="next-dest-disruption-message" class="mb-0 clearable"></small>
 				</div>
 			</div>
 			<div class="row border-bottom border-dark pb-2 mb-3">

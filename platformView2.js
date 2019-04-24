@@ -50,6 +50,7 @@ var PTV = {
             .then(this.requestDepartures)
             .then(this.requestStopsOnRoute)
             .then(this.requestStoppingPattern)
+            .then(this.requestDisruptions)
             .then(this.updatePage)
             .catch(function(e) {
                 document.getElementById(_errorElementId).innerHTML = 'Error: ' + e;
@@ -136,6 +137,17 @@ var PTV = {
             }
         });
     },
+
+    requestDisruptions: function(state) {							
+        return new Promise(function(resolve, reject) {
+            debug('requestDisruptions');
+            state.pattern = state.data;
+            state.data = null;
+            
+            var endpoint = PTV.buildDisruptionsEndpoint(state.params);
+            resolve(PTV.sendRequest(endpoint, 'Disruptions', state));
+        });
+    },
     
     requestStoppingPattern: function(state) {
         return new Promise(function(resolve, reject) {
@@ -201,6 +213,49 @@ var PTV = {
         }
     },
 
+    buildDisruptionsMap: function(items) {
+        var map = new Map();
+        for (var i = 0; i < items.length; i++) {
+            map.set(items[i].disruption_id, items[i]);
+        }
+        return map;
+    },
+
+    getDisruptionDataForDeparture(departure, disruptions) {
+        if (departure.disruption_ids == undefined) {
+            return '';
+        }
+
+        var result = {};
+        result.message = '';
+        result.className = '';
+
+        for (var i = 0; i < departure.disruption_ids.length; i++) {
+            var id = departure.disruption_ids[i];
+            var data = disruptions.get(id);
+
+            if (!data) continue;
+            if (!data.display_on_board) continue;
+
+            var disruptionType = data.disruption_type.toLowerCase().replace(' ', '');
+            switch (disruptionType) {
+                case "minordelays":
+                case "majordelays":
+                case "worksalert":
+                case "travelalert":
+                case "suspended":
+                    result.className = "disruption " + disruptionType + " mr-1";
+                    break;
+                default:
+                    result.className = "";
+            }
+
+            result.message += data.description;            
+        }
+
+        return result;
+    },
+
     updatePage: function(state) {
         return new Promise(function(resolve, reject) {
             debug('updatePage');
@@ -210,8 +265,10 @@ var PTV = {
             document.getElementById(_refreshTimeElementId).innerHTML = padSingleDigitWithZero(refresh_date.getHours()) + 
                 ':' + padSingleDigitWithZero(refresh_date.getMinutes()) + ':' + padSingleDigitWithZero(refresh_date.getSeconds());					
             
-            state.pattern = state.data;
+            state.disruptions = PTV.buildDisruptionsMap(state.data.disruptions.metro_train);
+            console.dir(state.disruptions);
             state.data = null;
+
             var next_departure = state.departures.departures[0];
         
             var route_id = next_departure.route_id;
@@ -222,11 +279,9 @@ var PTV = {
         
             //Set stop name
             var stop_name = '';
-            var selected_stop_index = 0;
             for (var i = 0; i < state.stopsOnRoute.stops.length; i++) {
                 if (state.stopsOnRoute.stops[i].stop_id == state.params.stop_id) {
                     stop_name = state.stopsOnRoute.stops[i].stop_name;
-                    selected_stop_index = i;
                     break;
                 }
             }
@@ -240,6 +295,12 @@ var PTV = {
             //Set next departure
             var next_departure_name = state.departures.runs[next_departure.run_id].destination_name;				
             document.getElementById('next-dest').innerHTML = next_departure_name;
+
+            //Set disruption information
+            var disruption_data = PTV.getDisruptionDataForDeparture(next_departure, state.disruptions);        
+            var disruptionElement = document.getElementById('next-dest-disruption');
+            disruptionElement.setAttribute('class', disruption_data.className);
+            document.getElementById('next-dest-disruption-message').innerText = disruption_data.message;
         
             var time = DateTimeHelpers.formatSingleTime(next_departure.scheduled_departure_utc, true);				
             document.getElementById('next-time').innerHTML = time;
@@ -352,7 +413,16 @@ var PTV = {
                             .replace('{run_id}', params.run_id)					
                             .replace('{date_utc}', date_utc);
         return endpoint;
-    }			
+    },
+
+    //Stopping pattern
+    buildDisruptionsEndpoint: function(params) {
+        var template = '/v3/disruptions?route_types={route_type}&disruption_status={disruption_status}';
+        var endpoint = template
+            .replace('{route_type}', params.route_type)
+            .replace('{disruption_status}', 'current');
+        return endpoint;
+    }
 };
 
 //TODO move inside PTV object (or another object)
