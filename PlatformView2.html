@@ -9,11 +9,15 @@
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
 		<link href="https://fonts.googleapis.com/css?family=Nunito+Sans:200,600" rel="stylesheet">
 		<style>
-			ul {
+			ul#disruption-list {
+				list-style-type: none;
+			}
+			
+			ul#next-stops-list {
 				list-style-type: square;
 			}
 
-			ul li {
+			ul#next-stops-list li {
 				position:relative
 			}
 
@@ -21,7 +25,7 @@
 				color: black;
 			}
 
-			ul li span:after {
+			ul#next-stops-list li span:after {
 				content: '';
 				position: absolute;
 				left: -20px;
@@ -131,13 +135,16 @@
 				border-color: #e5492d;
 			}
 			.disruption.worksalert {
-				border-color: yellow; /* TODO */
+				border-color: #ffd500; /* TODO */
 			}
 			.disruption.travelalert {
-				border-color: yellow; /* TODO */
+				border-color: #ffd500; /* TODO */
 			}
-			.disruption.suspended {
-				border-color: #333; /* TODO */
+			.disruption.suspended, .disruption.partsuspended {
+				border-color: #1f1f1f; /* TODO */
+			}
+			.disruption.plannedworks {
+				border-color: #ffd500; /* TODO */
 			}
 		</style>
 		<script src="ptv-hmac-sha1.js"></script>
@@ -229,7 +236,12 @@
 			
 			function clearStoppingPattern() {
 				document.getElementById(_nextStopsListElementId).innerHTML = '';
-			}			
+			}
+			
+			function clearDisruptionList() {
+				//TODO add const for this id
+				document.getElementById('disruption-list').innerHTML = '';
+			}
 			
 			function init() {
 				PTV._devId = getQueryVariable('d');
@@ -355,7 +367,7 @@
 			</div>
 			<div class="row border-bottom border-dark pb-1 mb-2">
 				<div class="col-12 col-md-6 col-lg-7 offset-md-3 offset-lg-2">
-					<small id="next-dest-disruption-message" class="mb-0 clearable"></small>
+					<ul id="disruption-list" class="mb-0 pl-0 clearable"></ul>
 				</div>
 			</div>
 			<div class="row border-bottom border-dark pb-2 mb-3">

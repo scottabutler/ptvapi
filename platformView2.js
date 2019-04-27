@@ -221,13 +221,32 @@ var PTV = {
         return map;
     },
 
-    getDisruptionDataForDeparture(departure, disruptions) {
-        if (departure.disruption_ids == undefined) {
+    getGeneralDisruptions: function(disruptions) {
+        if (disruptions.general == undefined) {
             return '';
         }
 
+        var result = '';
+
+        for (var i = 0; i < disruptions.general.length; i++) {
+            var data = disruptions.general[i];
+
+            if (!data) continue;
+            if (!data.display_on_board) continue;
+
+            result += data.description;
+        }
+
+        return result;
+    },
+
+    getDisruptionDataForDeparture: function(departure, disruptions) {
+        if (departure.disruption_ids == undefined) {
+            return {};
+        }
+
         var result = {};
-        result.message = '';
+        result.items = [];
         result.className = '';
 
         for (var i = 0; i < departure.disruption_ids.length; i++) {
@@ -241,16 +260,21 @@ var PTV = {
             switch (disruptionType) {
                 case "minordelays":
                 case "majordelays":
+                case "plannedworks":
                 case "worksalert":
                 case "travelalert":
                 case "suspended":
-                    result.className = "disruption " + disruptionType + " mr-1";
+                case "partsuspended":
+                    result.className = "disruption " + disruptionType + " mr-2";
                     break;
                 default:
                     result.className = "";
             }
 
-            result.message += data.description;            
+            result.items.push({
+                type: data.disruption_type,
+                message: data.description
+            });
         }
 
         return result;
@@ -266,7 +290,6 @@ var PTV = {
                 ':' + padSingleDigitWithZero(refresh_date.getMinutes()) + ':' + padSingleDigitWithZero(refresh_date.getSeconds());					
             
             state.disruptions = PTV.buildDisruptionsMap(state.data.disruptions.metro_train);
-            console.dir(state.disruptions);
             state.data = null;
 
             var next_departure = state.departures.departures[0];
@@ -300,8 +323,26 @@ var PTV = {
             var disruption_data = PTV.getDisruptionDataForDeparture(next_departure, state.disruptions);        
             var disruptionElement = document.getElementById('next-dest-disruption');
             disruptionElement.setAttribute('class', disruption_data.className);
-            document.getElementById('next-dest-disruption-message').innerText = disruption_data.message;
-        
+            
+            var disruption_list = document.getElementById('disruption-list');
+
+            var template = '<small><strong>{type}: </strong>{message}</small>';
+            var general_disruptions = PTV.getGeneralDisruptions(state.disruptions);
+            
+            clearDisruptionList();
+            if (general_disruptions && general_disruptions != '') {
+                var item = document.createElement('li');                
+                item.innerHTML = template.replace('{type}', 'General').replace('{message}', general_disruptions);
+                disruption_list.appendChild(item);
+            }
+            
+            for (var d of disruption_data.items) {
+                var item = document.createElement('li');                
+                item.innerHTML = template.replace('{type}', d.type).replace('{message}', d.message);
+                disruption_list.appendChild(item);
+            }
+            
+            //Set time and difference information
             var time = DateTimeHelpers.formatSingleTime(next_departure.scheduled_departure_utc, true);				
             document.getElementById('next-time').innerHTML = time;
         
