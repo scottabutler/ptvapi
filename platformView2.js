@@ -263,6 +263,7 @@ var PTV = {
                 case "plannedworks":
                 case "worksalert":
                 case "travelalert":
+                case "serviceinformation":
                 case "suspended":
                 case "partsuspended":
                     result.className = "disruption " + disruptionType + " mr-2";
@@ -320,6 +321,7 @@ var PTV = {
             document.getElementById('next-dest').innerHTML = next_departure_name;
 
             //Set disruption information
+            clearDisruptionList();
             var disruption_data = PTV.getDisruptionDataForDeparture(next_departure, state.disruptions);        
             var disruptionElement = document.getElementById('next-dest-disruption');
             disruptionElement.setAttribute('class', disruption_data.className);
@@ -328,8 +330,7 @@ var PTV = {
 
             var template = '<small><strong>{type}: </strong>{message}</small>';
             var general_disruptions = PTV.getGeneralDisruptions(state.disruptions);
-            
-            clearDisruptionList();
+                        
             if (general_disruptions && general_disruptions != '') {
                 var item = document.createElement('li');                
                 item.innerHTML = template.replace('{type}', 'General').replace('{message}', general_disruptions);

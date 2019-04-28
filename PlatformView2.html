@@ -134,17 +134,14 @@
 			.disruption.majordelays {
 				border-color: #e5492d;
 			}
-			.disruption.worksalert {
-				border-color: #ffd500; /* TODO */
+			.disruption.worksalert, .disruption.plannedworks {
+				border-color: #ffd500;
 			}
-			.disruption.travelalert {
-				border-color: #ffd500; /* TODO */
+			.disruption.travelalert, .disruption.serviceinformation {
+				border-color: #d3ecf4;
 			}
 			.disruption.suspended, .disruption.partsuspended {
-				border-color: #1f1f1f; /* TODO */
-			}
-			.disruption.plannedworks {
-				border-color: #ffd500; /* TODO */
+				border-color: #1f1f1f;
 			}
 		</style>
 		<script src="ptv-hmac-sha1.js"></script>
@@ -241,6 +238,7 @@
 			function clearDisruptionList() {
 				//TODO add const for this id
 				document.getElementById('disruption-list').innerHTML = '';
+				document.getElementById('next-dest-disruption').setAttribute('class', '');
 			}
 			
 			function init() {
@@ -305,7 +303,7 @@
 					<span id="refresh-time" class="text-muted"></span>
 				</div>
 				<div class="col-4">
-					<input type="checkbox" id="auto-refresh" name="auto-refresh" checked="checked" onchange="updateTimer()" />
+					<input type="checkbox" id="auto-refresh" name="auto-refresh" onchange="updateTimer()" />
 					<label id="auto-refresh-label" for="auto-refresh" class="text-muted">Auto &#8635;</label>
 				</div>
 			</div>
