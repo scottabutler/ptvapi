@@ -128,6 +128,18 @@
 				top: -5px;			
 			}
 
+			#following-departures .disruption {
+				top: 0;
+			}			
+			
+			#following-departures .disruption-message ul {
+				padding-left: 0;
+			}
+
+			#following-departures .disruption-message li {
+				list-style-type: none;
+			}
+
 			.disruption.minordelays {
 				border-color: #e87801;
 			}
@@ -142,6 +154,9 @@
 			}
 			.disruption.suspended, .disruption.partsuspended {
 				border-color: #1f1f1f;
+			}
+			.disruption.goodservice {
+				border-color: #90af53;
 			}
 		</style>
 		<script src="ptv-hmac-sha1.js"></script>
@@ -166,12 +181,7 @@
 				var time = DateTimeHelpers.formatSingleTime(state.departures.departures[index].scheduled_departure_utc, true);
 				var diff = DateTimeHelpers.getDifferenceFromNow(state.departures.departures[index].estimated_departure_utc, state.departures.departures[index].scheduled_departure_utc); 
 				var dest = state.departures.runs[state.departures.departures[index].run_id].destination_name;
-				//var status = state.departures.runs[state.departures.departures[index].run_id].status;
-				//var disruptions = state.departures.runs[state.departures.departures[index].run_id].disruption_ids;
-				//var disruptions = state.departures.departures[index].disruption_ids;
-
-				
-				//var disruption_marker = disruptions != undefined && disruptions.length > 0 ? '!' : '';
+				var disruption_data = PTV.getDisruptionDataForDeparture(state.departures.departures[index], state.disruptions);
 				var route_id = state.departures.departures[index].route_id;
 				
 				if (diff >= 60) {
@@ -183,25 +193,53 @@
 				
 				//Time
 				var timeWrapper = createElementWithContent(
-					'div', 'col-5 col-md-3 col-lg-2 order-2 order-md-1 ml-4 ml-md-0',
+					'div', 'col-6 col-md-3 col-lg-2 order-2 order-md-1 ml-4 ml-md-0',
 					'h4', 'font-weight-light', time);
 				
 				wrapper.appendChild(timeWrapper);
 
+				//Disruption
+				var disruptionSpan = document.createElement('span');
+				disruptionSpan.setAttribute('class', disruption_data.className);
+
 				//Destination
-				var destWrapper = createElementWithContent(
-					'div', 'col-12 col-md-6 col-lg-8 order-1 order-md-2',
-					'h4', '', dest);
+				var destWrapper = document.createElement('div');
+				destWrapper.setAttribute('class', 'col-12 col-md-6 col-lg-8 order-1 order-md-2');
+
+				var destContent = document.createElement('h4');
+				destContent.setAttribute('class', 'd-inline');
+				destContent.innerText = dest;
+
+				destWrapper.appendChild(disruptionSpan);
+				destWrapper.appendChild(destContent);
 
 				wrapper.appendChild(destWrapper);
 
 				//Diff
 				var diffWrapper = createElementWithContent(
 					'div', 'col-5 col-md-3 col-lg-2 order-3 order-md-3 text-right',
-					'h4', 'font-weight-light', diff + ' min');
+					'h4', 'font-weight-light text-white bg-dark d-inline px-2', diff + ' min');
 
 				wrapper.appendChild(diffWrapper);
 				
+				//Disruption details
+				var disruption_list = document.createElement('ul');
+				var template = '<small><strong>{type}: </strong>{message}</small>';
+				for (var d of disruption_data.items) {
+					var item = document.createElement('li');                
+					item.innerHTML = template.replace('{type}', d.type).replace('{message}', d.message);
+					disruption_list.appendChild(item);
+				}
+
+				if (disruption_data.items.length > 0) {
+					var disruptionDetailWrapper = document.createElement('div');
+					disruptionDetailWrapper.setAttribute('class', 
+							'disruption-message col-12 col-md-9 offset-md-3 col-lg-8 offset-lg-2 order-4');
+					disruptionDetailWrapper.appendChild(disruption_list);
+
+					wrapper.appendChild(disruptionDetailWrapper);
+				}
+
 				document.getElementById(_followingDeparturesElementId).appendChild(wrapper);
 			}
 

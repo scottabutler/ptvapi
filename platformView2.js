@@ -247,7 +247,7 @@ var PTV = {
 
         var result = {};
         result.items = [];
-        result.className = '';
+        result.className = 'disruption goodservice mr-2';
 
         for (var i = 0; i < departure.disruption_ids.length; i++) {
             var id = departure.disruption_ids[i];
@@ -269,7 +269,7 @@ var PTV = {
                     result.className = "disruption " + disruptionType + " mr-2";
                     break;
                 default:
-                    result.className = "";
+                    result.className = "disruption goodservice mr-2";
             }
 
             result.items.push({
