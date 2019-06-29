@@ -370,7 +370,9 @@ var PTV = {
             for (var s = 0; s < state.stopsOnRoute.stops.length; s++) {
                 stops.set(state.stopsOnRoute.stops[s].stop_id, state.stopsOnRoute.stops[s].stop_name);
             }
-            
+
+            var stopsFromCurrent = [];
+
             var found_current_stop = false;
             var stopping_pattern_count = 0;
             for (var j = 0; j < state.pattern.departures.length; j++) {
@@ -384,10 +386,16 @@ var PTV = {
 
                 if (found_current_stop) {						
                     var name = stops.get(stop_id).replace(' Station', '');
-                    addStoppingPatternItem(name, is_current_stop);
+                    stopsFromCurrent.push({id: stop_id, name: name});
+                    //addStoppingPatternItem(name, is_current_stop);
                 }
-            }				
+            }
             
+            var fullList = getStoppingPatternWithSkippedStations(stopsFromCurrent, state.departures.departures[0].route_id, state.departures.departures[0].direction_id);
+            fullList.map(x => {
+                addStoppingPatternItem(x.name, x.isSkipped, x.id == state.params.stop_id)
+            })
+
             var list_element = document.getElementById('next-stops-list');
             if (stopping_pattern_count > 7) {
                 if (list_element.className.indexOf('two-columns') == -1) {
@@ -457,7 +465,7 @@ var PTV = {
         return endpoint;
     },
 
-    //Stopping pattern
+    //Disruptions
     buildDisruptionsEndpoint: function(params) {
         var template = '/v3/disruptions?route_types={route_type}&disruption_status={disruption_status}';
         var endpoint = template

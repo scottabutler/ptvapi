@@ -25,6 +25,11 @@
 				color: black;
 			}
 
+			ul#next-stops-list li span.skipped-colour {
+				color: rgb(155, 155, 155);
+				text-decoration: line-through;
+			}
+
 			ul#next-stops-list li span:after {
 				content: '';
 				position: absolute;
@@ -160,6 +165,7 @@
 			}
 		</style>
 		<script src="ptv-hmac-sha1.js"></script>
+		<script src="lines.js"></script>
 		<script src="platformView2.js"></script>
 		<script type="text/javascript">	
 			
@@ -176,6 +182,23 @@
 	
 			/* END CUSTOM */		
 			
+			function getStoppingPatternWithSkippedStations(stopList, lineId, directionId) {
+				var inbound = directionId == 0;
+				var allStops = getLine(lineId).data;
+				var results = [];
+
+				var stopListIds = stopList.map(x => x.id);
+				var stopListNames = new Map();
+				stopList.map(x => stopListNames.set(x.id, x.name));
+
+				var res = allStops.map(x =>
+					stopListIds.includes(x.stop_id * 1)
+					? {id: x.stop_id * 1, name: stopListNames.get(x.stop_id * 1), isSkipped: false}
+					: {id: x.stop_id * 1, name: x.name, isSkipped: true}
+				);
+				return inbound ? res : res.reverse();
+			}
+
 			//TODO Assign these render functions to PTV object
 			function addFollowingDeparture(state, index) {
 				var time = DateTimeHelpers.formatSingleTime(state.departures.departures[index].scheduled_departure_utc, true);
@@ -259,9 +282,9 @@
 				document.getElementById(_followingDeparturesElementId).innerHTML = '';
 			}
 			
-			function addStoppingPatternItem(name, isCurrentStop) {
+			function addStoppingPatternItem(name, isSkipped, isCurrentStop) {
 				var content = document.createElement('span');
-				content.setAttribute('class', 'px-1' + (isCurrentStop ? ' active-colour' : ''));
+				content.setAttribute('class', 'px-1' + (isCurrentStop ? ' active-colour' : '') + (isSkipped ? ' skipped-colour' : ''));
 				content.innerText = name;
 				
 				var wrapper = document.createElement('li');
@@ -416,7 +439,7 @@
 			</div>
 			<small class="d-inline-block mt-3">
 				&copy Scott Butler 2019. Data sourced from <a href="https://www.ptv.vic.gov.au/about-ptv/data-and-reports/digital-products/ptv-timetable-api/" target="_blank">PTV.</a>
-				<strong>Disclaimer:</strong> This project is not provided by, nor affiliated with, Public Transport Victoria. 
+				<br /><strong>Disclaimer:</strong> This project is not provided by, nor affiliated with, Public Transport Victoria. 
 				This has been built for learning purposes and is intended for use in accordance with the 
 				<a href="https://www.ptv.vic.gov.au/footer/data-and-reporting/datasets/ptv-timetable-api/" target="_blank">License terms</a>.
 			</small>
