@@ -391,7 +391,7 @@ var PTV = {
                 }
             }
             
-            var fullList = getStoppingPatternWithSkippedStations(stopsFromCurrent, state.departures.departures[0].route_id, state.departures.departures[0].direction_id);
+            var fullList = getStoppingPatternWithSkippedStations(stopsFromCurrent, state.departures.departures[0].route_id, state.departures.departures[0].direction_id, state.params.stop_id);
             fullList.map(x => {
                 addStoppingPatternItem(x.name, x.isSkipped, x.id == state.params.stop_id)
             })

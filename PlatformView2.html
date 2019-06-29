@@ -182,8 +182,8 @@
 	
 			/* END CUSTOM */		
 			
-			function getStoppingPatternWithSkippedStations(stopList, lineId, directionId) {
-				var inbound = directionId == 0;
+			function getStoppingPatternWithSkippedStations(stopList, lineId, directionId, currentStopId) {
+				var inbound = directionId == 1;
 				var allStops = getLine(lineId).data;
 				var results = [];
 
@@ -191,7 +191,18 @@
 				var stopListNames = new Map();
 				stopList.map(x => stopListNames.set(x.id, x.name));
 
-				var res = allStops.map(x =>
+				var foundCurrentStop = false;
+				var allStopsReduced = [];
+				
+				for (let i = 0; i < allStops.length; i++) {
+					if (!foundCurrentStop && allStops[i].stop_id * 1 == currentStopId) 
+						foundCurrentStop = true;
+
+					if (foundCurrentStop) 
+						allStopsReduced.push(allStops[i]);					
+				}
+				console.log(allStopsReduced);
+				var res = allStopsReduced.map(x =>
 					stopListIds.includes(x.stop_id * 1)
 					? {id: x.stop_id * 1, name: stopListNames.get(x.stop_id * 1), isSkipped: false}
 					: {id: x.stop_id * 1, name: x.name, isSkipped: true}
