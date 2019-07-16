@@ -25,6 +25,10 @@
 				color: black;
 			}
 
+			ul#next-stops-list li span.skipped-colour {
+				color: rgb(155, 155, 155);
+			}
+
 			ul#next-stops-list li span:after {
 				content: '';
 				position: absolute;
@@ -160,6 +164,7 @@
 			}
 		</style>
 		<script src="ptv-hmac-sha1.js"></script>
+		<script src="lines.js"></script>
 		<script src="platformView2.js"></script>
 		<script type="text/javascript">	
 			
@@ -176,6 +181,42 @@
 	
 			/* END CUSTOM */		
 			
+			function getStoppingPatternWithSkippedStations(stopList, lineId, directionId, currentStopId) {
+				var inbound = directionId == 1;
+				var allStops = getLine(lineId).data;
+				var results = [];
+
+				var stopListIds = stopList.map(x => x.id);
+				var stopListNames = new Map();
+				stopList.map(x => stopListNames.set(x.id, x.name));
+
+				var foundCurrentStop = false;
+				var allStopsReduced = [];
+				
+				if (!inbound) 
+					allStops = reverseArray(allStops); //Don't use .reverse() here as it mutates my static source line data!
+
+				for (let i = 0; i < allStops.length; i++) {
+					if (!foundCurrentStop && allStops[i].stop_id * 1 == currentStopId) 
+						foundCurrentStop = true;
+
+					if (foundCurrentStop) 
+						allStopsReduced.push(allStops[i]);
+					
+					//Check if we've found the last stop in the stopping pattern for this run
+					if (allStops[i].stop_id * 1 == stopList[stopList.length-1].id)
+						break;
+				}
+				
+				var res = allStopsReduced.map(x =>
+					stopListIds.includes(x.stop_id * 1)
+					? {id: x.stop_id * 1, name: stopListNames.get(x.stop_id * 1), isSkipped: false}
+					: {id: x.stop_id * 1, name: x.name, isSkipped: true}
+				);
+
+				return res;
+			}
+
 			//TODO Assign these render functions to PTV object
 			function addFollowingDeparture(state, index) {
 				var time = DateTimeHelpers.formatSingleTime(state.departures.departures[index].scheduled_departure_utc, true);
@@ -200,7 +241,7 @@
 
 				//Disruption
 				var disruptionSpan = document.createElement('span');
-				disruptionSpan.setAttribute('class', disruption_data.className);
+				disruptionSpan.setAttribute('class', disruption_data.className + ' clearable');
 
 				//Destination
 				var destWrapper = document.createElement('div');
@@ -259,9 +300,9 @@
 				document.getElementById(_followingDeparturesElementId).innerHTML = '';
 			}
 			
-			function addStoppingPatternItem(name, isCurrentStop) {
+			function addStoppingPatternItem(name, isSkipped, isCurrentStop) {
 				var content = document.createElement('span');
-				content.setAttribute('class', 'px-1' + (isCurrentStop ? ' active-colour' : ''));
+				content.setAttribute('class', 'px-1' + (isCurrentStop ? ' active-colour' : '') + (isSkipped ? ' skipped-colour' : ''));
 				content.innerText = name;
 				
 				var wrapper = document.createElement('li');
@@ -276,7 +317,7 @@
 			function clearDisruptionList() {
 				//TODO add const for this id
 				document.getElementById('disruption-list').innerHTML = '';
-				document.getElementById('next-dest-disruption').setAttribute('class', '');
+				document.getElementById('next-dest-disruption').setAttribute('class', 'clearable');
 			}
 			
 			function init() {
@@ -416,7 +457,7 @@
 			</div>
 			<small class="d-inline-block mt-3">
 				&copy Scott Butler 2019. Data sourced from <a href="https://www.ptv.vic.gov.au/about-ptv/data-and-reports/digital-products/ptv-timetable-api/" target="_blank">PTV.</a>
-				<strong>Disclaimer:</strong> This project is not provided by, nor affiliated with, Public Transport Victoria. 
+				<br /><strong>Disclaimer:</strong> This project is not provided by, nor affiliated with, Public Transport Victoria. 
 				This has been built for learning purposes and is intended for use in accordance with the 
 				<a href="https://www.ptv.vic.gov.au/footer/data-and-reporting/datasets/ptv-timetable-api/" target="_blank">License terms</a>.
 			</small>
