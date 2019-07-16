@@ -388,11 +388,13 @@ var PTV = {
                 if (found_current_stop) {						
                     var name = stops.get(stop_id).replace(' Station', '');
                     stopsFromCurrent.push({id: stop_id, name: name});
-                    //addStoppingPatternItem(name, is_current_stop);
                 }
             }
             
-            var fullList = getStoppingPatternWithSkippedStations(stopsFromCurrent, state.departures.departures[0].route_id, state.departures.departures[0].direction_id, state.params.stop_id);
+            var inbound = state.departures.departures[0].direction_id == 1;
+            var fullList = getStoppingPatternWithSkippedStations(stopsFromCurrent, state.departures.departures[0].route_id, inbound, state.params.stop_id);
+            var desc = getShortStoppingPatternDescription(fullList, inbound, state.params.stop_id);
+            
             fullList.map(x => {
                 addStoppingPatternItem(x.name, x.isSkipped, x.id == state.params.stop_id)
             })

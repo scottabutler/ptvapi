@@ -102,6 +102,39 @@ function reverseArray(input) {
 	return result;
 }
 
+/* STATION HELPERS */
+const _PARLIAMENT_ID = 1155;
+const _MELBOURNE_CENTRAL_ID = 1120;
+const _FLAGSTAFF_ID = 1068;
+const _FLINDERS_ST_ID = 1071;
+
+function isCityLoopStation(stopId) {
+	return stopId == _PARLIAMENT_ID || //Parliament
+			stopId == _MELBOURNE_CENTRAL_ID || //Melbourne Central
+			stopId == _FLAGSTAFF_ID; //Flagstaff
+}
+
+function isStoppingAtAnyCityLoopStation(stopIds) {
+	var result = false;
+	for (var i = 0; i < stopIds.length; i++) {
+		if (isCityLoopStation(stopIds[i])) {			
+			result = true;
+			break;
+		}
+	}
+	return result;
+}
+
+function isNotRunningViaCityLoop(stopIds) {	
+	return !stopIds.includes(_PARLIAMENT_ID) &&
+		!stopIds.includes(_MELBOURNE_CENTRAL_ID) &&
+		!stopIds.includes(_FLAGSTAFF_ID);
+}
+
+function isFlindersSt(stopId) {
+	return stopId === _FLINDERS_ST_ID;
+}
+
 /* OTHER RANDOM CODE */
 
 function padSingleDigitWithZero(input) {

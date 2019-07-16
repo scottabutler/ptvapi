@@ -181,11 +181,8 @@
 	
 			/* END CUSTOM */		
 			
-			function getStoppingPatternWithSkippedStations(stopList, lineId, directionId, currentStopId) {
-				var inbound = directionId == 1;
+			function getStoppingPatternWithSkippedStations(stopList, lineId, inbound, currentStopId) {
 				var allStops = getLine(lineId).data;
-				var results = [];
-
 				var stopListIds = stopList.map(x => x.id);
 				var stopListNames = new Map();
 				stopList.map(x => stopListNames.set(x.id, x.name));
@@ -214,7 +211,67 @@
 					: {id: x.stop_id * 1, name: x.name, isSkipped: true}
 				);
 
-				return res;
+				//If the train is not going through the city loop, don't show any city loop stops (not even as skipped)
+				if (isNotRunningViaCityLoop(stopListIds))
+				{
+					var results = [];
+					res.map(x => {
+						if (!isCityLoopStation(x.id))
+							results.push(x);
+					});
+					return results;
+				} else {
+					return res;
+				}
+			}
+
+			function getShortStoppingPatternDescription(stoppingPatternWithSkippedStations, inbound, currentStopId) {
+				//PREFIX
+				//If only skipped one stop - 'All stations except X'
+				//If skipped more than one non-loop stop - 'Limited express'
+
+				//SUFFIX
+				//If stopping at Flagstaff, Melb Central or Parliament - 'via the city loop'
+				//If skipped all loop stops - 'via (stop after loop)'
+				
+				var result = '';
+				
+				var skipped = [];
+				var notSkipped = [];
+				stoppingPatternWithSkippedStations.map(x => {
+					if (x.isSkipped == true) {
+						skipped.push(x);
+					} else {
+						notSkipped.push(x);
+					}
+				});
+				var notSkippedIds = notSkipped.map(x => x.id);
+				var skipCount = skipped.length;
+				var isStoppingAtAnyLoopStation = isStoppingAtAnyCityLoopStation(notSkippedIds);
+				var isNotRunningViaLoop = isNotRunningViaCityLoop(notSkippedIds);
+
+				var nextNonLoopStationName = 'TEST'; //TODO
+
+				//console.log('Stopping any loop: ' + isStoppingAtAnyLoopStation);
+				//console.log('Not running via loop: ' + isNotRunningViaLoop);
+
+				//Type (all stations or express)
+				if (skipCount == 0) {
+					result = 'All stations';
+				} else if (skipCount == 1) {
+					result = 'All except ' + skipped[0].name;
+				} else {
+					result = 'Limited express';
+				}
+
+				//Direct or via loop
+				if (isStoppingAtAnyLoopStation) {
+					result += ' via the city loop';
+				} else if (isNotRunningViaLoop && !inbound && isFlindersSt(currentStopId)) {
+					result += ' via ' + nextNonLoopStationName;
+				}
+
+				//console.log(result);
 			}
 
 			//TODO Assign these render functions to PTV object
