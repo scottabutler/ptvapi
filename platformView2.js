@@ -183,6 +183,7 @@ var PTV = {
         
         clearStoppingPattern();
         clearFollowingDepartures();
+        clearDisruptionList();
     },
     
     getColourForRoute: function(route_id) {
@@ -324,7 +325,7 @@ var PTV = {
             clearDisruptionList();
             var disruption_data = PTV.getDisruptionDataForDeparture(next_departure, state.disruptions);        
             var disruptionElement = document.getElementById('next-dest-disruption');
-            disruptionElement.setAttribute('class', disruption_data.className);
+            disruptionElement.setAttribute('class', 'clearable ' + disruption_data.className);
             
             var disruption_list = document.getElementById('disruption-list');
 

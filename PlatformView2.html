@@ -27,7 +27,6 @@
 
 			ul#next-stops-list li span.skipped-colour {
 				color: rgb(155, 155, 155);
-				text-decoration: line-through;
 			}
 
 			ul#next-stops-list li span:after {
@@ -194,20 +193,28 @@
 				var foundCurrentStop = false;
 				var allStopsReduced = [];
 				
+				if (!inbound) 
+					allStops = reverseArray(allStops); //Don't use .reverse() here as it mutates my static source line data!
+
 				for (let i = 0; i < allStops.length; i++) {
 					if (!foundCurrentStop && allStops[i].stop_id * 1 == currentStopId) 
 						foundCurrentStop = true;
 
 					if (foundCurrentStop) 
-						allStopsReduced.push(allStops[i]);					
+						allStopsReduced.push(allStops[i]);
+					
+					//Check if we've found the last stop in the stopping pattern for this run
+					if (allStops[i].stop_id * 1 == stopList[stopList.length-1].id)
+						break;
 				}
-				console.log(allStopsReduced);
+				
 				var res = allStopsReduced.map(x =>
 					stopListIds.includes(x.stop_id * 1)
 					? {id: x.stop_id * 1, name: stopListNames.get(x.stop_id * 1), isSkipped: false}
 					: {id: x.stop_id * 1, name: x.name, isSkipped: true}
 				);
-				return inbound ? res : res.reverse();
+
+				return res;
 			}
 
 			//TODO Assign these render functions to PTV object
@@ -234,7 +241,7 @@
 
 				//Disruption
 				var disruptionSpan = document.createElement('span');
-				disruptionSpan.setAttribute('class', disruption_data.className);
+				disruptionSpan.setAttribute('class', disruption_data.className + ' clearable');
 
 				//Destination
 				var destWrapper = document.createElement('div');
@@ -310,7 +317,7 @@
 			function clearDisruptionList() {
 				//TODO add const for this id
 				document.getElementById('disruption-list').innerHTML = '';
-				document.getElementById('next-dest-disruption').setAttribute('class', '');
+				document.getElementById('next-dest-disruption').setAttribute('class', 'clearable');
 			}
 			
 			function init() {

@@ -90,6 +90,18 @@ class DateTimeHelpers {
 	}
 }
 
+/* ARRAY FUNCTIONS */
+function reverseArray(input) {
+	if (!input || input == undefined || input.length <= 0)
+		return input;
+	
+	let result = [];
+	for (let i = input.length - 1; i >= 0; i--) {
+		result.push(input[i]);
+	}
+	return result;
+}
+
 /* OTHER RANDOM CODE */
 
 function padSingleDigitWithZero(input) {
