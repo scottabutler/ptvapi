@@ -376,6 +376,7 @@ var PTV = {
 
             var found_current_stop = false;
             var stopping_pattern_count = 0;
+            
             for (var j = 0; j < state.pattern.departures.length; j++) {
                 var stop_id = state.pattern.departures[j].stop_id;
                 var is_current_stop = stop_id == state.params.stop_id;
@@ -385,7 +386,7 @@ var PTV = {
                     found_current_stop = true;
                 }
 
-                if (found_current_stop) {						
+                if (found_current_stop) {				
                     var name = stops.get(stop_id).replace(' Station', '');
                     stopsFromCurrent.push({id: stop_id, name: name});
                 }
@@ -394,7 +395,8 @@ var PTV = {
             var inbound = state.departures.departures[0].direction_id == 1;
             var fullList = getStoppingPatternWithSkippedStations(stopsFromCurrent, state.departures.departures[0].route_id, inbound, state.params.stop_id);
             var desc = getShortStoppingPatternDescription(fullList, inbound, state.params.stop_id);
-            
+            document.getElementById("next-dest-description").innerText = desc; //TODO const for id
+
             fullList.map(x => {
                 addStoppingPatternItem(x.name, x.isSkipped, x.id == state.params.stop_id)
             })

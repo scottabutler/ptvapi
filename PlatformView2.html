@@ -216,7 +216,7 @@
 				{
 					var results = [];
 					res.map(x => {
-						if (!isCityLoopStation(x.id))
+						if (!isCityLoopStation(x.id) && !(isSouthernCross(x.id) && x.isSkipped))
 							results.push(x);
 					});
 					return results;
@@ -250,14 +250,18 @@
 				var isStoppingAtAnyLoopStation = isStoppingAtAnyCityLoopStation(notSkippedIds);
 				var isNotRunningViaLoop = isNotRunningViaCityLoop(notSkippedIds);
 
-				var nextNonLoopStationName = 'TEST'; //TODO
+				var nextNonLoopStationName = notSkipped.length >=2 ? notSkipped[1].name : '';
 
 				//console.log('Stopping any loop: ' + isStoppingAtAnyLoopStation);
 				//console.log('Not running via loop: ' + isNotRunningViaLoop);
+				//console.log('Inbound: ' + inbound);
+				//console.log('Flinders: ' + isFlindersSt(currentStopId));
+				//console.log('Current stop id: ' + currentStopId);
+				//console.log('Next non-loop: ' + nextNonLoopStationName);
 
 				//Type (all stations or express)
 				if (skipCount == 0) {
-					result = 'All stations';
+					result = 'Stopping all stations';
 				} else if (skipCount == 1) {
 					result = 'All except ' + skipped[0].name;
 				} else {
@@ -267,11 +271,14 @@
 				//Direct or via loop
 				if (isStoppingAtAnyLoopStation) {
 					result += ' via the city loop';
-				} else if (isNotRunningViaLoop && !inbound && isFlindersSt(currentStopId)) {
+				} else if (isNotRunningViaLoop 
+					&& !inbound 
+					&& isFlindersSt(currentStopId)
+					&& nextNonLoopStationName != '') {
 					result += ' via ' + nextNonLoopStationName;
 				}
 
-				//console.log(result);
+				return result;
 			}
 
 			//TODO Assign these render functions to PTV object
@@ -501,6 +508,7 @@
 			</div>
 			<div class="row border-bottom border-dark pb-1 mb-2">
 				<div class="col-12 col-md-6 col-lg-7 offset-md-3 offset-lg-2">
+					<div id="next-dest-description" class="clearable"></div>
 					<ul id="disruption-list" class="mb-0 pl-0 clearable"></ul>
 				</div>
 			</div>

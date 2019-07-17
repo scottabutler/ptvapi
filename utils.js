@@ -107,6 +107,7 @@ const _PARLIAMENT_ID = 1155;
 const _MELBOURNE_CENTRAL_ID = 1120;
 const _FLAGSTAFF_ID = 1068;
 const _FLINDERS_ST_ID = 1071;
+const _SOUTHERN_CROSS_ID = 1181;
 
 function isCityLoopStation(stopId) {
 	return stopId == _PARLIAMENT_ID || //Parliament
@@ -132,7 +133,11 @@ function isNotRunningViaCityLoop(stopIds) {
 }
 
 function isFlindersSt(stopId) {
-	return stopId === _FLINDERS_ST_ID;
+	return stopId == _FLINDERS_ST_ID;
+}
+
+function isSouthernCross(stopId) {
+	return stopId == _SOUTHERN_CROSS_ID;
 }
 
 /* OTHER RANDOM CODE */
