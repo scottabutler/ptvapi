@@ -126,10 +126,7 @@ var cr = [
     {"key": "17", "name": "Melbourne Central", "stop_id": "1120"},
     {"key": "18", "name": "Parliament", "stop_id": "1155"},
     {"key": "19", "name": "Southern Cross", "stop_id": "1181"},
-    {"key": "20", "name": "Flinders Street", "stop_id": "1071"},
-    {"key": "22", "name": "Parliament", "stop_id": "1155"},
-    {"key": "23", "name": "Melbourne Central", "stop_id": "1120"},
-    {"key": "24", "name": "Flagstaff", "stop_id": "1068"}
+    {"key": "20", "name": "Flinders Street", "stop_id": "1071"}
 ];
 var cb = [
     {"key": "0", "name": "Cranbourne", "stop_id": "1045"},
@@ -203,7 +200,7 @@ var hb2 = [
     {"key": "0", "name": "Hurstbridge", "stop_id": "1100"},
     {"key": "1", "name": "Wattle Glen", "stop_id": "1204"},
     {"key": "2", "name": "Diamond Creek", "stop_id": "1054"},
-    {"key": "3", "name": "Eltham ARR", "stop_id": "1062"},
+    {"key": "3", "name": "Eltham", "stop_id": "1062"},
     {"key": "4", "name": "Montmorency", "stop_id": "1130"},
     {"key": "5", "name": "Greensborough", "stop_id": "1084"},
     {"key": "6", "name": "Watsonia", "stop_id": "1203"},
@@ -223,11 +220,11 @@ var hb2 = [
     {"key": "20", "name": "North Richmond", "stop_id": "1145"},
     {"key": "21", "name": "West Richmond", "stop_id": "1207"},
     {"key": "22", "name": "Jolimont-MCG", "stop_id": "1104"},
-    {"key": "23", "name": "Flinders Street", "stop_id": "1071"}/*,
-    {"key": "24", "name": "Southern Cross", "stop_id": "1181"},
+    {"key": "23", "name": "Parliament", "stop_id": "1155"},
+    {"key": "24", "name": "Melbourne Central", "stop_id": "1120"},
     {"key": "25", "name": "Flagstaff", "stop_id": "1068"},
-    {"key": "26", "name": "Melbourne Central", "stop_id": "1120"},
-    {"key": "27", "name": "Parliament", "stop_id": "1155"}*/
+    {"key": "26", "name": "Southern Cross", "stop_id": "1181"},
+    {"key": "27", "name": "Flinders Street", "stop_id": "1071"}
 ];
 var hb = [
     {"key": "0", "name": "Hurstbridge", "stop_id": "1100"},
@@ -253,11 +250,7 @@ var hb = [
     {"key": "22", "name": "North Richmond", "stop_id": "1145"},
     {"key": "23", "name": "West Richmond", "stop_id": "1207"},
     {"key": "24", "name": "Jolimont-MCG", "stop_id": "1104"},
-    {"key": "25", "name": "Flinders Street", "stop_id": "1071"}/*,
-    {"key": "27", "name": "Southern Cross", "stop_id": "1181"},
-    {"key": "28", "name": "Flagstaff", "stop_id": "1068"},
-    {"key": "29", "name": "Melbourne Central", "stop_id": "1120"},
-    {"key": "30", "name": "Parliament", "stop_id": "1155"}*/
+    {"key": "25", "name": "Flinders Street", "stop_id": "1071"}
 ];
 var pa = [
     {"key": "0", "name": "Pakenham", "stop_id": "1153"},
@@ -333,11 +326,11 @@ var me = [
     {"key": "21", "name": "North Richmond", "stop_id": "1145"},
     {"key": "22", "name": "West Richmond", "stop_id": "1207"},
     {"key": "23", "name": "Jolimont-MCG", "stop_id": "1104"},
-    {"key": "24", "name": "Flinders Street", "stop_id": "1071"}/*,
-    {"key": "26", "name": "Southern Cross", "stop_id": "1181"},
-    {"key": "27", "name": "Flagstaff", "stop_id": "1068"},
-    {"key": "28", "name": "Melbourne Central", "stop_id": "1120"},
-    {"key": "29", "name": "Parliament", "stop_id": "1155"}*/
+    {"key": "24", "name": "Parliament", "stop_id": "1155"},
+    {"key": "25", "name": "Melbourne Central", "stop_id": "1120"},
+    {"key": "26", "name": "Flagstaff", "stop_id": "1068"},
+    {"key": "27", "name": "Southern Cross", "stop_id": "1181"},
+    {"key": "28", "name": "Flinders Street", "stop_id": "1071"}
 ];
 var sp = [
     {"key": "0", "name": "Stony Point", "stop_id": "1185"},
@@ -369,10 +362,7 @@ var su = [
     {"key": "14", "name": "Melbourne Central", "stop_id": "1120"},
     {"key": "15", "name": "Parliament", "stop_id": "1155"},
     {"key": "16", "name": "Southern Cross", "stop_id": "1181"},
-    {"key": "17", "name": "Flinders Street", "stop_id": "1071"}/*,
-    {"key": "19", "name": "Parliament", "stop_id": "1155"},
-    {"key": "20", "name": "Melbourne Central", "stop_id": "1120"},
-    {"key": "21", "name": "Flagstaff", "stop_id": "1068"}*/
+    {"key": "17", "name": "Flinders Street", "stop_id": "1071"}
 ];
 var uf = [
     {"key": "0", "name": "Upfield", "stop_id": "1198"},
@@ -415,10 +405,7 @@ var we = [
     {"key": "17", "name": "Melbourne Central", "stop_id": "1120"},
     {"key": "18", "name": "Parliament", "stop_id": "1155"},
     {"key": "19", "name": "Southern Cross", "stop_id": "1181"},
-    {"key": "20", "name": "Flinders Street ARR", "stop_id": "1071"}/*,
-    {"key": "22", "name": "Parliament", "stop_id": "1155"},
-    {"key": "23", "name": "Melbourne Central", "stop_id": "1120"},
-    {"key": "24", "name": "Flagstaff", "stop_id": "1068"}*/
+    {"key": "20", "name": "Flinders Street ARR", "stop_id": "1071"}
 ];
 var wi = [
     {"key": "0", "name": "Williamstown", "stop_id": "1211"},
@@ -435,10 +422,7 @@ var wi = [
     {"key": "11", "name": "Melbourne Central", "stop_id": "1120"},
     {"key": "12", "name": "Parliament", "stop_id": "1155"},
     {"key": "13", "name": "Southern Cross", "stop_id": "1181"},
-    {"key": "14", "name": "Flinders Street", "stop_id": "1071"}/*,
-    {"key": "16", "name": "Parliament", "stop_id": "1155"},
-    {"key": "17", "name": "Melbourne Central", "stop_id": "1120"},
-    {"key": "18", "name": "Flagstaff", "stop_id": "1068"}*/
+    {"key": "14", "name": "Flinders Street", "stop_id": "1071"}
 ];
  
 var Lines = [

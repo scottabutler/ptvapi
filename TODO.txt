@@ -1,2 +1,6 @@
 Finish refactoring custom render funcs
 DRY up some more of the copied JS
+
+BUG:
+In the evening, Upfield trains go via the loop, Flinders to Parliament. Currently the stopping pattern is being rendered 'Flinders, Southern Cross (grey), Parliament...'. Southern Cross should not display.
+
