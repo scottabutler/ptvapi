@@ -304,11 +304,15 @@ var PTV = {
         
             //Set stop name
             var stop_name = '';
-            for (var i = 0; i < state.stopsOnRoute.stops.length; i++) {
-                if (state.stopsOnRoute.stops[i].stop_id == state.params.stop_id) {
-                    stop_name = state.stopsOnRoute.stops[i].stop_name;
-                    break;
+            if (state.stopsOnRoute.stops != undefined) {
+                for (var i = 0; i < state.stopsOnRoute.stops.length; i++) {
+                    if (state.stopsOnRoute.stops[i].stop_id == state.params.stop_id) {
+                        stop_name = state.stopsOnRoute.stops[i].stop_name;
+                        break;
+                    }
                 }
+            } else {
+                reject(state.stopsOnRoute.message);
             }
             
             var short_stop_name = stop_name.replace(' Station', '');
