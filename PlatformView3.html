@@ -1,0 +1,261 @@
+<html>
+	<head>
+		<title>PTV Platform View</title>
+		<!-- Required meta tags -->
+		<meta charset="utf-8">
+
+		<!-- Bootstrap CSS -->
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+		<link href="https://fonts.googleapis.com/css?family=Nunito+Sans:200,600" rel="stylesheet">
+		<style>
+			ul#disruption-list {
+				list-style-type: none;
+			}
+			
+			ul#next-stops-list {
+				list-style-type: square;
+			}
+
+			ul#next-stops-list li {
+				position:relative
+			}
+
+			ul#next-stops-list li span:not(.active-colour) {
+				color: black;
+			}
+
+			ul#next-stops-list li span.skipped-colour {
+				color: rgb(155, 155, 155);
+			}
+
+			ul#next-stops-list li span:after {
+				content: '';
+				position: absolute;
+				left: -20px;
+				bottom: 0;
+				z-index: -1;
+				height: 100%
+			}
+
+			body[data-colour="red"] ul#next-stops-list li span:after {
+				border-left: 5px solid rgb(208, 32, 46);
+			}
+			body[data-colour="yellow"] ul#next-stops-list li span:after {
+				border-left: 5px solid rgb(252, 184, 24);
+			}
+			body[data-colour="dark-blue"] ul#next-stops-list li span:after {
+				border-left: 5px solid rgb(1, 81, 138);
+			}
+			body[data-colour="light-blue"] ul#next-stops-list li span:after {
+				border-left: 5px solid rgb(0, 168, 228);
+			}
+			body[data-colour="green"] ul#next-stops-list li span:after {
+				border-left: 5px solid rgb(0, 150, 69);
+			}
+			body[data-colour="pink"] ul#next-stops-list li span:after {
+				border-left: 5px solid rgb(241, 127, 177);
+			}
+
+			body[data-colour="red"] ul#next-stops-list {
+				color: rgb(208, 32, 46);
+			}
+			body[data-colour="yellow"] ul#next-stops-list {
+				color: rgb(252, 184, 24);
+			}
+			body[data-colour="dark-blue"] ul#next-stops-list {
+				color: rgb(1, 81, 138);
+			}
+			body[data-colour="light-blue"] ul#next-stops-list {
+				color: rgb(0, 168, 228);
+			}
+			body[data-colour="green"] ul#next-stops-list {
+				color: rgb(0, 150, 69);
+			}
+			body[data-colour="pink"] ul#next-stops-list {
+				color: rgb(241, 127, 177);
+			}
+
+		</style>
+		
+		<style>
+			.two-columns {
+				-moz-column-count: 2;
+				-moz-column-gap: 20px;
+				-webkit-column-count: 2;
+				-webkit-column-gap: 20px;
+				column-count: 2;
+				column-width: 20%;
+			}
+
+			body, h1, h4 {
+				font-family: 'Nunito Sans', sans-serif;
+				font-weight: 600 !important;
+			}
+
+			.font-weight-light {
+				font-weight: 300 !important;
+			}
+
+			body[data-colour="red"] .active-colour {
+				background-color: rgb(208, 32, 46);
+				color: #FFF;
+			}
+			body[data-colour="yellow"] .active-colour {
+				background-color: rgb(252, 184, 24);
+				color: #222;
+			}
+			body[data-colour="dark-blue"] .active-colour {
+				background-color: rgb(1, 81, 138);
+				color: #FFF;
+			}
+			body[data-colour="light-blue"] .active-colour {
+				background-color: rgb(0, 168, 228);
+				color: #222;
+			}
+			body[data-colour="green"] .active-colour {
+				background-color: rgb(0, 150, 69);
+				color: #FFF;
+			}
+			body[data-colour="pink"] .active-colour {
+				background-color: rgb(241, 127, 177);
+				color: #222;
+			}
+
+			.disruption {
+				display: inline-block;
+				width: 8px;
+				height: 8px;
+				border-radius: 8px;	
+				border: 8px solid black;
+				position: relative;
+				top: -5px;			
+			}
+
+			#following-departures .disruption {
+				top: 0;
+			}			
+			
+			#following-departures .disruption-message ul {
+				padding-left: 0;
+			}
+
+			#following-departures .disruption-message li {
+				list-style-type: none;
+			}
+
+			.disruption.minordelays {
+				border-color: #e87801;
+			}
+			.disruption.majordelays {
+				border-color: #e5492d;
+			}
+			.disruption.worksalert, .disruption.plannedworks {
+				border-color: #ffd500;
+			}
+			.disruption.travelalert, .disruption.serviceinformation {
+				border-color: #d3ecf4;
+			}
+			.disruption.suspended, .disruption.partsuspended {
+				border-color: #1f1f1f;
+			}
+			.disruption.goodservice {
+				border-color: #90af53;
+			}
+		</style>
+		<script src="ptv-hmac-sha1.js"></script>
+		<script src="platformViewTs.js"></script>
+	</head>
+	<body onload="init()" data-colour="dark-blue">
+		<div class="container">
+			<div class="row my-3">
+				<div class="col-4">
+					<span id="loading" class="text-muted"></span>
+				</div>
+				<div class="col-4">
+					<span id="refresh-time" class="text-muted"></span>
+				</div>
+				<div class="col-4">
+					<input type="checkbox" id="auto-refresh" name="auto-refresh" onchange="updateTimer()" />
+					<label id="auto-refresh-label" for="auto-refresh" class="text-muted">Auto &#8635;</label>
+				</div>
+			</div>
+			<div class="row my-3">
+				<div class="col-4">
+					<span id="stop"></span>
+				</div>
+				<div class="col-4">
+					<span id="platform" class="clearable"></span>
+				</div>
+				<div class="col-4">
+					<span id="platform-select-wrapper">
+						<select id="platform-select" onchange="updateView()">
+							<option value="1">1</option>
+							<option value="2">2</option>
+							<option value="3">3</option>
+							<option value="4">4</option>
+							<option value="5">5</option>
+							<option value="6">6</option>
+							<option value="7">7</option>
+							<option value="8">8</option>
+							<option value="9">9</option>
+							<option value="10">10</option>
+							<option value="11">11</option>
+							<option value="12">12</option>
+							<option value="13">13</option>
+							<option value="14">14</option>
+						</select>
+					</span>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-12">
+					<span id="error" class="text-danger"></span>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-12">
+					<span id="realtime" class="text-warning mt-2" style="display: none;">* Real-time data not available for this service.</span>
+				</div>
+			</div>
+			<div class="row mt-1 mb-3">
+				<div class="col-12 active-colour">
+					<p class="mb-0">&nbsp;</p>
+				</div>
+			</div>
+			<div class="row mt-2 pb-1">
+				<div class="col-6 col-md-3 col-lg-2 order-1">
+					<h1 id="next-time" class="font-weight-light clearable"></h1>
+				</div>
+				<div class="col-12 col-md-6 col-lg-7 order-3 order-md-2">
+					<span id="next-dest-disruption"></span><h1 id="next-dest" class="clearable d-inline"></h1>
+				</div>
+				<div class="col-6 col-md-3 col-lg-3 order-2 order-md-3 pr-0 text-right">
+					<h1 id="next-diff" class="mb-0 font-weight-light text-white text-right bg-dark px-2 d-inline-block clearable">
+						&nbsp;
+					</h1>
+				</div>
+			</div>
+			<div class="row border-bottom border-dark pb-1 mb-2">
+				<div class="col-12 col-md-6 col-lg-7 offset-md-3 offset-lg-2">
+					<div id="next-dest-description" class="clearable"></div>
+					<ul id="disruption-list" class="mb-0 pl-0 clearable"></ul>
+				</div>
+			</div>
+			<div class="row border-bottom border-dark pb-2 mb-3">
+				<div class="col-12">
+					<ul id="next-stops-list" class="two-columns pl-4 mb-1">
+					</ul>
+				</div>
+			</div>
+			<div id="following-departures">
+			</div>
+			<small class="d-inline-block mt-3">
+				&copy Scott Butler 2019. Data sourced from <a href="https://www.ptv.vic.gov.au/about-ptv/data-and-reports/digital-products/ptv-timetable-api/" target="_blank">PTV.</a>
+				<br /><strong>Disclaimer:</strong> This project is not provided by, nor affiliated with, Public Transport Victoria. 
+				This has been built for learning purposes and is intended for use in accordance with the 
+				<a href="https://www.ptv.vic.gov.au/footer/data-and-reporting/datasets/ptv-timetable-api/" target="_blank">License terms</a>.
+			</small>
+		</div>
+	</body>
+</html>
