@@ -820,11 +820,11 @@ class DateTimeHelpers {
         return result;
     }*/
     static formatSingleTime(date, includeDesignator) {
-        const hours = date.getHours();
+        const hours = new Date(date).getHours();
         const isPm = hours > 12;
         const hrs = isPm ? hours - 12 : hours;
         const designator = isPm ? "pm" : "am";
-        const mins = padSingleDigitWithZero(date.getMinutes());
+        const mins = padSingleDigitWithZero(new Date(date).getMinutes());
         return includeDesignator
             ? hrs + ":" + mins + designator
             : hrs + ":" + mins;
@@ -841,7 +841,7 @@ class DateTimeHelpers {
             ? scheduled
             : estimated;
         const now = new Date();
-        const result = ((date.getTime() - now.getTime()) / 1000);
+        const result = ((new Date(date).getTime() - now.getTime()) / 1000);
         //console.log(result);
         return result;
     }
