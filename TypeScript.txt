@@ -775,7 +775,7 @@ const PTV = {
                 && input.state.stopsOnRoute != undefined) {
                 _stopsOnRouteCache.data.set(key, input.state.stopsOnRoute);
                 
-                if (BrowserHelpers.hasLocalStorage) {
+                if (BrowserHelpers.hasLocalStorage()) {
                     localStorage.setItem(PTV.localStorageCacheKey, JSON.stringify(_stopsOnRouteCache));
                 }
             }
@@ -909,7 +909,7 @@ const PTV = {
             document.getElementById(_refreshTimeElementId)!.innerHTML = padSingleDigitWithZero(refresh_date.getHours()) + 
                 ':' + padSingleDigitWithZero(refresh_date.getMinutes()) + ':' + padSingleDigitWithZero(refresh_date.getSeconds());					
 
-            const disruptionsResponse: V3Disruptions = input.state.data;
+            const disruptionsResponse: V3Disruptions = input.state.data.disruptions;
             const metroTrainDisruptions: V3Disruption[] = disruptionsResponse.metro_train != undefined
                 ? disruptionsResponse.metro_train
                 : [];
