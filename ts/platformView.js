@@ -612,7 +612,7 @@ function getShortStoppingPatternDescription(stoppingPatternWithSkippedStations, 
     }
     //Direct or via loop
     if (isStoppingAtAnyLoopStation) {
-        result += ' via the city loop';
+        result += ' via the City Loop';
     }
     else if (isNotRunningViaLoop
         && !isInbound
