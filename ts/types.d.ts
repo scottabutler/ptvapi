@@ -1,10 +1,14 @@
 //namespace PtvTypes {
-    export interface Credentials {
+    declare namespace CryptoJS {
+        function HmacSHA1(a: string, b: string): string;
+    }
+
+    interface Credentials {
         id: number,
         secret: string
     }
 
-    export interface StateParams {
+    interface StateParams {
         route_type: number,
         sor_route_id: number,
         run_id: number,
@@ -13,7 +17,7 @@
         credentials: Credentials
     }
 
-    export interface IncompleteState {
+    interface IncompleteState {
         data: any,
         params: StateParams,
         departures: V3DeparturesResponse | undefined,
@@ -22,7 +26,7 @@
         disruptions: Map<number, V3Disruption> | undefined
     }
 
-    export interface State {
+    interface State {
         data: any,
         params: StateParams,
         departures: V3DeparturesResponse,
@@ -31,12 +35,12 @@
         disruptions: Map<number, V3Disruption>
     }
 
-    export interface RequestResult {
+    interface RequestResult {
         state: IncompleteState,
         credentials: Credentials
     }
 
-    export interface StartParams {
+    interface StartParams {
         route_type: number,
         route_id: number,
         stop_id: number,
@@ -45,22 +49,22 @@
         dev_secret: string
     }
 
-    export interface DisruptionsForDeparture {
+    interface DisruptionsForDeparture {
         className: string,
         items: DepartureDisruption[]
     }
 
-    export interface DepartureDisruption {
+    interface DepartureDisruption {
         type: string | undefined,
         message: string | undefined
     }
 
-    export interface StopsOnRouteCache {
+    interface StopsOnRouteCache {
         date: number,
         data: Map<string, V3StopsOnRouteResponse> | undefined
     }
 
-    /*export interface Departure {   
+    /*interface Departure {   
         stop_id: number,
         route_id: number,
         run_id: number,
@@ -74,11 +78,11 @@
         departure_sequence: number
     }
 
-    export interface DeparturesResponse {
+    interface DeparturesResponse {
         departures: Departure[]
     }*/
 
-    export interface V3StopOnRoute {
+    interface V3StopOnRoute {
         /**
         * Disruption information identifier(s)
         */
@@ -113,7 +117,7 @@
         'stop_sequence'?: number;
     }
 
-    export interface V3StopsOnRouteResponse {
+    interface V3StopsOnRouteResponse {
         /**
         * Train stations, tram stops, bus stops, regional coach stops or Night Bus stops
         */
@@ -128,7 +132,7 @@
         'status'?: V3Status;
     }
 
-    export interface V3DeparturesResponse {
+    interface V3DeparturesResponse {
         /**
         * Timetabled and real-time service departures
         */
@@ -159,7 +163,7 @@
         'status'?: V3Status;
     }
 
-    export interface V3Direction {
+    interface V3Direction {
         /**
         * Direction of travel identifier
         */
@@ -178,7 +182,7 @@
         'route_type'?: number;
     }
 
-    export interface V3Disruptions {
+    interface V3Disruptions {
         /**
         * Subset of disruption information applicable to multiple route_types
         */
@@ -237,7 +241,7 @@
         'taxi'?: Array<V3Disruption>;
     }
 
-    export interface V3Disruption {
+    interface V3Disruption {
         /**
         * Disruption information identifier
         */
@@ -259,7 +263,7 @@
         */
         'disruption_status'?: string;
         /**
-        * export interface of disruption
+        * interface of disruption
         */
         'disruption_type'?: string;
         /**
@@ -291,7 +295,7 @@
         'display_status'?: boolean;
     }
 
-    export interface V3DisruptionRoute {
+    interface V3DisruptionRoute {
         /**
         * Transport mode identifier
         */
@@ -318,7 +322,7 @@
         'direction'?: V3DisruptionDirection;
     }
 
-    export interface V3DisruptionDirection {
+    interface V3DisruptionDirection {
         /**
         * Route and direction of travel combination identifier
         */
@@ -337,7 +341,7 @@
         'service_time'?: string;
     }
 
-    export interface V3DisruptionStop {
+    interface V3DisruptionStop {
         /**
         * Stop identifier
         */
@@ -348,7 +352,7 @@
         'stop_name'?: string;
     }
 
-    export interface V3Run {
+    interface V3Run {
         /**
         * Trip/service run identifier
         */
@@ -395,7 +399,7 @@
         'vehicle_descriptor'?: V3VehicleDescriptor;
     }
 
-    export interface V3VehiclePosition {
+    interface V3VehiclePosition {
         /**
         * Geographic coordinate of latitude of the vehicle when known. May be null.              Only available for some bus runs.
         */
@@ -414,7 +418,7 @@
         'supplier'?: string;
     }
 
-    export interface V3VehicleDescriptor {
+    interface V3VehicleDescriptor {
         /**
         * Operator name of the vehicle such as \"Metro Trains Melbourne\", \"Yarra Trams\", \"Ventura Bus Line\", \"CDC\" or \"Sita Bus Lines\" . May be null/empty.              Only available for train, tram, v/line and some bus runs.
         */
@@ -441,7 +445,7 @@
         'supplier'?: string;
     }
 
-    export interface V3Departure {
+    interface V3Departure {
         /**
         * Stop identifier
         */
@@ -488,7 +492,7 @@
         'departure_sequence'?: number;
     }
 
-    export interface V3Status {
+    interface V3Status {
         /**
         * API Version number
         */
@@ -499,12 +503,12 @@
         'health'?: HealthEnum;
     }
 
-    export enum HealthEnum {
+    declare enum HealthEnum {
         NUMBER_0 = 0,
         NUMBER_1 = 1
     }
 
-    export interface V3ResultStop {
+    interface V3ResultStop {
         /**
         * Distance of stop from input location (in metres); returns 0 if no location is input
         */
@@ -539,7 +543,7 @@
         'stop_sequence'?: number;
     }
 
-    export interface V3Route {
+    interface V3Route {
         /**
         * Transport mode identifier
         */

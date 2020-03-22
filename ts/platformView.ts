@@ -1,8 +1,4 @@
-import { 
-    Credentials, StateParams, IncompleteState, State, 
-    RequestResult, StartParams, DisruptionsForDeparture, 
-    StopsOnRouteCache, V3Disruptions, V3Disruption, V3Departure
-} from './types';
+/// <reference path="types.d.ts" />
 
 const _loadingElementId = "loading";
 const _refreshTimeElementId = 'refresh-time';
@@ -25,12 +21,11 @@ const PTV = {
     //is subject to the Terms of Use of the PTV API. Unauthorised use of 
     //these credentials is prohibited. You can request your own key from 
     //PTV via email.
-    
+    // 
     //Methods
     generateSignature: function(request:string, secret:string) {
-        //const hash:string = CryptoJS.HmacSHA1(request, secret);
-        //return hash;
-        return "";
+        const hash:string = CryptoJS.HmacSHA1(request, secret);
+        return hash;
     },
 
     //TODO generics for return type

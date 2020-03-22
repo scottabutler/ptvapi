@@ -1,5 +1,5 @@
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
+/// <reference path="types.d.ts" />
 const _loadingElementId = "loading";
 const _refreshTimeElementId = 'refresh-time';
 const _errorElementId = 'error';
@@ -19,11 +19,11 @@ const PTV = {
     //is subject to the Terms of Use of the PTV API. Unauthorised use of 
     //these credentials is prohibited. You can request your own key from 
     //PTV via email.
+    // 
     //Methods
     generateSignature: function (request, secret) {
-        //const hash:string = CryptoJS.HmacSHA1(request, secret);
-        //return hash;
-        return "";
+        const hash = CryptoJS.HmacSHA1(request, secret);
+        return hash;
     },
     //TODO generics for return type
     sendRequest: function (endpoint, name, state, credentials) {
