@@ -720,7 +720,7 @@ function getShortStoppingPatternDescription(stoppingPatternWithSkippedStations:I
 
     //Direct or via loop
     if (isStoppingAtAnyLoopStation) {
-        result += ' via the city loop';
+        result += ' via the City Loop';
     } else if (isNotRunningViaLoop 
         && !isInbound 
         && isFlindersSt(currentStopId)
