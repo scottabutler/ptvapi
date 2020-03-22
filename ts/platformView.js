@@ -1,9 +1,5 @@
 "use strict";
-var HealthEnum;
-(function (HealthEnum) {
-    HealthEnum[HealthEnum["NUMBER_0"] = 0] = "NUMBER_0";
-    HealthEnum[HealthEnum["NUMBER_1"] = 1] = "NUMBER_1";
-})(HealthEnum || (HealthEnum = {}));
+/// <reference path="types.d.ts" />
 const _loadingElementId = "loading";
 const _refreshTimeElementId = 'refresh-time';
 const _errorElementId = 'error';
@@ -23,6 +19,7 @@ const PTV = {
     //is subject to the Terms of Use of the PTV API. Unauthorised use of 
     //these credentials is prohibited. You can request your own key from 
     //PTV via email.
+    // 
     //Methods
     generateSignature: function (request, secret) {
         const hash = CryptoJS.HmacSHA1(request, secret);
