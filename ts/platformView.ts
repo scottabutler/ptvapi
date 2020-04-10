@@ -1,4 +1,4 @@
-/// <reference path="types.d.ts" />
+/// <reference path="types.ts" />
 
 const _loadingElementId = "loading";
 const _refreshTimeElementId = 'refresh-time';
@@ -50,9 +50,11 @@ const PTV = {
             const settings = PTV.getGlobalSettings();
         
             const qs = endpoint.indexOf("?") == -1 ? "?" : "&";
-            endpoint = endpoint.indexOf("devId=") == -1 ? endpoint + qs + "devid=" + credentials.id : endpoint;
-            const sig = PTV.generateSignature(endpoint, credentials.secret);
-            const urlWithSignature = settings.baseUrl + endpoint + "&signature=" + sig;
+            const theEndpoint = endpoint.indexOf("devId=") == -1 
+                ? endpoint + qs + "devid=" + credentials.id 
+                : endpoint;
+            const sig = PTV.generateSignature(theEndpoint, credentials.secret);
+            const urlWithSignature = settings.baseUrl + theEndpoint + "&signature=" + sig;
             const url = settings.useCorsBypass == true
                 ? settings.proxyUrl + encodeURIComponent(urlWithSignature)
                 : urlWithSignature;        
@@ -61,7 +63,7 @@ const PTV = {
             xmlhttp.open("GET", url, true);
             xmlhttp.send();
         });
-    },
+    },    
     
     doStuff: function(params: StartParams) {			
         const credentials: Credentials = {
@@ -76,6 +78,54 @@ const PTV = {
             sor_route_id: 0, //TODO
             credentials: credentials
         }        
+
+
+        let validateDeparturesResponse = function(departuresResponse:V3DeparturesResponse):Promise<Array<V3Departure>> {
+            return new Promise<Array<V3Departure>>((resolve, reject) => {
+                console.log('departures', departuresResponse);
+                if (departuresResponse == null || departuresResponse.departures == null || departuresResponse.departures.length == 0) {
+                    reject('Departures error: No departures found.');
+                }
+
+                if (departuresResponse.departures![0].route_id == undefined) {
+                    reject('Departures error: No routeId returned for next departure.');
+                }
+
+                if (departuresResponse.departures![0].run_id == undefined) {
+                    reject('Departures error: No runId returned for next departure.');
+                }
+
+                return resolve(departuresResponse.departures!);
+            });
+        }
+
+        let departuresPromise = 
+            this.requestDepartures2(stateParams)
+                .then(validateDeparturesResponse);
+        
+        let prepareStopsOnRouteCachePromise = 
+            this.prepareStopsOnRouteCache2();
+
+        Promise.all([departuresPromise, prepareStopsOnRouteCachePromise])
+            .then((resolvedPromises) => {
+                console.log(resolvedPromises);
+
+                const departures:Array<V3Departure> = resolvedPromises[0];
+                const routeId = departures![0].route_id!;
+                
+                let stopsOnRoutePromise = 
+                    this.requestStopsOnRoute2(params.route_type, routeId, stateParams, resolvedPromises[1]);
+
+                
+            })
+            .catch((error) => console.error(error));
+        
+        /* STATE PROPERTIES TO SET
+        
+        //input.state.params.sor_route_id = input.state.departures!.departures![0].route_id!; - DONE
+        //input.state.params.run_id = input.state.departures!.departures![0].run_id!;
+        
+        */
 
         Promise.resolve(stateParams)
             .then(this.prepareStopsOnRouteCache)
@@ -92,22 +142,7 @@ const PTV = {
                 PTV.clearPage();					
             })
     },
-    
-    requestDepartures: function(params:StateParams): Promise<RequestResult> {
-        return new Promise(function(resolve, reject) {
-            debug('requestDepartures');
-            const endpoint = PTV.buildDeparturesEndpoint(params);
-            resolve(PTV.sendRequest(endpoint, 'Departures', {
-                data: undefined,
-                params: params,
-                departures: undefined,
-                pattern: undefined,
-                stopsOnRoute: undefined,
-                disruptions: undefined
-            }, params.credentials));
-        });
-    },
-    
+
     prepareStopsOnRouteCache: function(params: StateParams): Promise<StateParams> {
         return new Promise(function(resolve, reject) {
             debug('prepareStopsOnRouteCache');
@@ -150,13 +185,113 @@ const PTV = {
             resolve(params);
         });
     },
+
+    prepareStopsOnRouteCache2: function(): Promise<StopsOnRouteCache> {
+        return new Promise(function(resolve) {
+            
+            const expiryDate = new Date();
+            expiryDate.setDate(expiryDate.getDate() + 1);
+            const expiryDateNew = expiryDate.getTime();
+            const newCache:StopsOnRouteCache = {
+                date: expiryDateNew,
+                data: undefined //no data yet
+            };
+            
+            //Try and load the cache from local storage
+            if (BrowserHelpers.hasLocalStorage()) {	
+                const fromStorage = localStorage.getItem(PTV.localStorageCacheKey);			
+                let cache: StopsOnRouteCache =
+                    fromStorage != undefined
+                        ? JSON.parse(fromStorage)
+                        : undefined; //TODO immutable?
+                
+                if (cache != undefined) {						
+                    //Check if the cache has expired
+                    if (new Date(cache.date).getTime() <= new Date().getTime()) {
+                        localStorage.removeItem(PTV.localStorageCacheKey);
+                        return resolve(newCache);
+                    }
+                
+                    return resolve(cache);
+                }
+            } else {
+                // Sorry! No Web Storage support..
+            }
+        
+            return resolve(newCache);
+        });
+    },
         
     localStorageCacheKey: "PTVAPI.stopsOnRouteCache",
     
     getStopsOnRouteCacheKey: function(state:IncompleteState) {
         return state.params.route_type + '_' + state.params.sor_route_id;
     },
-            
+    getStopsOnRouteCacheKey2: function(routeType:number, routeId:number) {
+        return routeType + '_' + routeId;
+    },
+    
+    requestDepartures: function(params:StateParams): Promise<RequestResult> {
+        return new Promise(function(resolve, reject) {
+            debug('requestDepartures');
+            const endpoint = PTV.buildDeparturesEndpoint(params);
+            resolve(PTV.sendRequest(endpoint, 'Departures', {
+                data: undefined,
+                params: params,
+                departures: undefined,
+                pattern: undefined,
+                stopsOnRoute: undefined,
+                disruptions: undefined
+            }, params.credentials));
+        });
+    },
+
+    sendRequest2: function<TResponse>(endpoint:string, credentials:Credentials):Promise<TResponse> {				
+        document.getElementById(_loadingElementId)!.innerHTML += '.';
+        const settings = PTV.getGlobalSettings();
+    
+        const qs = endpoint.indexOf("?") == -1 ? "?" : "&";
+        const endpointWithCredentials = endpoint.indexOf("devId=") == -1 
+            ? endpoint + qs + "devid=" + credentials.id 
+            : endpoint;
+        const sig = PTV.generateSignature(endpointWithCredentials, credentials.secret);
+        const urlWithSignature = settings.baseUrl + endpointWithCredentials + "&signature=" + sig;
+        const url = settings.useCorsBypass == true
+            ? settings.proxyUrl + encodeURIComponent(urlWithSignature)
+            : urlWithSignature;        
+
+        const result:Promise<TResponse> = PTV.fetchTyped<TResponse>(url);
+        return result;
+    },
+
+    fetchTyped: async function<T>(request: RequestInfo) : Promise<T> {
+        const response = await fetch(request);
+        const body = await response.json();
+        return body;
+    },
+
+    requestDepartures2: async function(params:StateParams): Promise<V3DeparturesResponse> {
+        const endpoint = PTV.buildDeparturesEndpoint(params);
+        return await PTV.sendRequest2<V3DeparturesResponse>(endpoint, params.credentials);
+    },
+
+    requestStopsOnRoute2: async function(
+        routeType: number, 
+        routeId:number,
+        params:StateParams,
+        stopsOnRouteCache:StopsOnRouteCache): Promise<V3StopsOnRouteResponse> {							
+        return new Promise(function(resolve) {            
+            const endpoint = PTV.buildStopsOnRouteEndpoint2(routeType, routeId);                                                    
+            const key = PTV.getStopsOnRouteCacheKey2(routeType, routeId);
+
+            if (stopsOnRouteCache.data != undefined && stopsOnRouteCache.data.get(key)) {
+                resolve(stopsOnRouteCache.data.get(key));
+            } else {
+                resolve(PTV.sendRequest2<V3StopsOnRouteResponse>(endpoint, params.credentials));
+            }
+        });
+    },
+
     requestStopsOnRoute: function(input:RequestResult): Promise<RequestResult> {							
         return new Promise(function(resolve, reject) {
             debug('requestStopsOnRoute');
@@ -571,6 +706,15 @@ const PTV = {
                             .replace('{route_id}', params.sor_route_id.toString())					
                             .replace('{date_utc}', date_utc);
         return endpoint;
+    },
+    buildStopsOnRouteEndpoint2: function(routeType:number, routeId:number) {
+        const dateUtc = DateTimeHelpers.getIsoDate();
+        const template = '/v3/stops/route/{route_id}/route_type/{route_type}' +
+                '?date_utc={date_utc}';
+        return template
+                .replace('{route_type}', routeType.toString())
+                .replace('{route_id}', routeId.toString())					
+                .replace('{date_utc}', dateUtc);
     },
 
     //Stopping pattern
