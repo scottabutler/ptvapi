@@ -8,18 +8,8 @@
         secret: string
     }
 
-    interface StateParams {
-        route_type: number,
-        sor_route_id: number,
-        run_id: number,
-        stop_id: number,
-        platform_number: number, //1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14
-        credentials: Credentials
-    }
-
     interface IncompleteState {
         data: any,
-        params: StateParams,
         departures: Array<V3Departure> | undefined,
         runs: RunCollection | undefined,
         pattern: any | undefined,
@@ -29,7 +19,6 @@
 
     interface State {
         data: any,
-        params: StateParams,
         departures: Array<V3Departure>,
         runs: RunCollection,
         pattern: any, //TODO
