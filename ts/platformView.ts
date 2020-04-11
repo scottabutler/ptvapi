@@ -12,7 +12,7 @@ const _disruptionListElementId = 'disruption-list';
 
 let _stopsOnRouteCache: StopsOnRouteCache = {
     date: new Date().setDate(new Date().getDate() - 1),
-    data: undefined
+    data: new Map<string, V3StopsOnRouteResponse>()
 };
 
 const PTV = {
@@ -29,7 +29,7 @@ const PTV = {
     },
 
     //TODO generics for return type
-    sendRequest: function(endpoint:string, name:string, state:IncompleteState, credentials:Credentials):Promise<RequestResult> {				
+    /*sendRequest: function(endpoint:string, name:string, state:IncompleteState, credentials:Credentials):Promise<RequestResult> {				
         return new Promise(function(resolve, reject) {
             document.getElementById(_loadingElementId)!.innerHTML += '.';
             const xmlhttp = new XMLHttpRequest();
@@ -63,13 +63,14 @@ const PTV = {
             xmlhttp.open("GET", url, true);
             xmlhttp.send();
         });
-    },    
+    }, */   
     
     doStuff: function(params: StartParams) {			
         const credentials: Credentials = {
             id: params.dev_id,
             secret: params.dev_secret
-        }
+        };
+
         const stateParams: StateParams = {
             platform_number: params.platform_number,
             route_type: params.route_type,
@@ -77,12 +78,10 @@ const PTV = {
             stop_id: params.stop_id,
             sor_route_id: 0, //TODO
             credentials: credentials
-        }        
+        };
 
-
-        let validateDeparturesResponse = function(departuresResponse:V3DeparturesResponse):Promise<Array<V3Departure>> {
-            return new Promise<Array<V3Departure>>((resolve, reject) => {
-                console.log('departures', departuresResponse);
+        let validateDeparturesResponse = function(departuresResponse:V3DeparturesResponse):Promise<V3DeparturesResponse> {
+            return new Promise<V3DeparturesResponse>((resolve, reject) => {
                 if (departuresResponse == null || departuresResponse.departures == null || departuresResponse.departures.length == 0) {
                     reject('Departures error: No departures found.');
                 }
@@ -95,7 +94,27 @@ const PTV = {
                     reject('Departures error: No runId returned for next departure.');
                 }
 
-                return resolve(departuresResponse.departures!);
+                return resolve(departuresResponse);
+            });
+        };
+
+        let updateStopsOnRouteCache = function(stopsOnRouteResponse:V3StopsOnRouteResponse, cache:StopsOnRouteCache, cacheKey:string)
+            :Promise<StopsOnRouteCache> {
+            return new Promise<StopsOnRouteCache>((resolve) => {
+                //Only modify the cache if the key is not already in there
+                //otherwise we'd just be overwriting with the same data
+                if (cache.data != undefined
+                    && !cache.data.get(cacheKey)
+                    && stopsOnRouteResponse != undefined) {
+                        cache.data.set(cacheKey, stopsOnRouteResponse);
+                    
+                    if (BrowserHelpers.hasLocalStorage()) {
+                        localStorage.setItem(PTV.localStorageCacheKey, JSON.stringify(cache));
+                    }
+                }
+
+                //Return the (possibly updated) cache
+                return resolve(cache);
             });
         }
 
@@ -108,26 +127,65 @@ const PTV = {
 
         Promise.all([departuresPromise, prepareStopsOnRouteCachePromise])
             .then((resolvedPromises) => {
-                console.log(resolvedPromises);
-
-                const departures:Array<V3Departure> = resolvedPromises[0];
+                const departuresResponse:V3DeparturesResponse = resolvedPromises[0];
+                const departures:Array<V3Departure> = departuresResponse.departures!;
+                const runs = departuresResponse.runs;
                 const routeId = departures![0].route_id!;
+                const runId = departures![0].run_id!;
+                const routeType = params.route_type;                
                 
+                const cacheKey = PTV.getStopsOnRouteCacheKey2(routeType, routeId);
+
                 let stopsOnRoutePromise = 
-                    this.requestStopsOnRoute2(params.route_type, routeId, stateParams, resolvedPromises[1]);
+                    this.requestStopsOnRoute2(params.route_type, routeId, stateParams, resolvedPromises[1])
+                    .then((stopsOnRouteResponse) => updateStopsOnRouteCache(stopsOnRouteResponse, _stopsOnRouteCache, cacheKey))
+                    .then((updatedCache) => _stopsOnRouteCache = updatedCache);
 
+                let stoppingPatternPromise =
+                    this.requestStoppingPattern2(routeType, runId, credentials);
+
+                let disruptionsPromise =
+                    this.requestDisruptions2(routeType, credentials);
                 
-            })
-            .catch((error) => console.error(error));
-        
-        /* STATE PROPERTIES TO SET
-        
-        //input.state.params.sor_route_id = input.state.departures!.departures![0].route_id!; - DONE
-        //input.state.params.run_id = input.state.departures!.departures![0].run_id!;
-        
-        */
+                Promise.all([stopsOnRoutePromise, stoppingPatternPromise, disruptionsPromise])
+                    .then((resolvedPromises) => {
+                        const stopsOnRoute = _stopsOnRouteCache.data!.get(cacheKey); //resolvedPromises[0].data!.get(cacheKey);
+                        const stoppingPattern = resolvedPromises[1];
+                        const disruptions = resolvedPromises[2];
 
-        Promise.resolve(stateParams)
+                        //TODO - This is legacy code to connect up to the old updatePage function
+                        const stateParams:StateParams = {
+                            route_type: routeType,
+                            sor_route_id: routeId,
+                            run_id: runId,
+                            stop_id: params.stop_id,
+                            platform_number: params.platform_number,
+                            credentials: credentials
+                        }
+                        const incompleteState:IncompleteState = {
+                            data: disruptions,
+                            params: stateParams,
+                            departures: departures,
+                            runs: runs,
+                            pattern: stoppingPattern,
+                            stopsOnRoute: stopsOnRoute
+                        } 
+                        const requestResult:RequestResult = {
+                            state: incompleteState,
+                            credentials: credentials
+                        }
+                        Promise.resolve(requestResult).then(this.updatePage)
+                    });
+            })
+            .catch(function(e:string) {
+                document.getElementById(_errorElementId)!.innerHTML = 'Error: ' + e;
+                document.getElementById(_loadingElementId)!.innerHTML = 'Error.';
+                document.getElementById("realtime")!.style.display = 'none'
+                PTV.clearPage();					
+            });
+        
+
+        /*Promise.resolve(stateParams)
             .then(this.prepareStopsOnRouteCache)
             .then(this.requestDepartures)
             .then(this.requestStopsOnRoute)
@@ -140,10 +198,10 @@ const PTV = {
                 document.getElementById("realtime")!.style.display = 'none';						
                 console.log(e);
                 PTV.clearPage();					
-            })
+            })*/
     },
 
-    prepareStopsOnRouteCache: function(params: StateParams): Promise<StateParams> {
+    /*prepareStopsOnRouteCache: function(params: StateParams): Promise<StateParams> {
         return new Promise(function(resolve, reject) {
             debug('prepareStopsOnRouteCache');
             
@@ -152,10 +210,10 @@ const PTV = {
             const expiryDateNew = expiryDate.getTime();
 
             //Initialise default cache
-            /*_stopsOnRouteCache = {
-                date: expiryDate.getTime(),
-                data: undefined
-            };*/
+            //_stopsOnRouteCache = {
+            //    date: expiryDate.getTime(),
+            //    data: undefined
+            //};
             
             //Try and load the cache from local storage
             if (BrowserHelpers.hasLocalStorage()) {	
@@ -184,7 +242,7 @@ const PTV = {
             //Pass the params through to the next function
             resolve(params);
         });
-    },
+    },*/
 
     prepareStopsOnRouteCache2: function(): Promise<StopsOnRouteCache> {
         return new Promise(function(resolve) {
@@ -224,14 +282,14 @@ const PTV = {
         
     localStorageCacheKey: "PTVAPI.stopsOnRouteCache",
     
-    getStopsOnRouteCacheKey: function(state:IncompleteState) {
+    /*getStopsOnRouteCacheKey: function(state:IncompleteState) {
         return state.params.route_type + '_' + state.params.sor_route_id;
-    },
+    },*/
     getStopsOnRouteCacheKey2: function(routeType:number, routeId:number) {
         return routeType + '_' + routeId;
     },
     
-    requestDepartures: function(params:StateParams): Promise<RequestResult> {
+    /*requestDepartures: function(params:StateParams): Promise<RequestResult> {
         return new Promise(function(resolve, reject) {
             debug('requestDepartures');
             const endpoint = PTV.buildDeparturesEndpoint(params);
@@ -244,7 +302,7 @@ const PTV = {
                 disruptions: undefined
             }, params.credentials));
         });
-    },
+    },*/
 
     sendRequest2: function<TResponse>(endpoint:string, credentials:Credentials):Promise<TResponse> {				
         document.getElementById(_loadingElementId)!.innerHTML += '.';
@@ -280,19 +338,19 @@ const PTV = {
         routeId:number,
         params:StateParams,
         stopsOnRouteCache:StopsOnRouteCache): Promise<V3StopsOnRouteResponse> {							
-        return new Promise(function(resolve) {            
-            const endpoint = PTV.buildStopsOnRouteEndpoint2(routeType, routeId);                                                    
+        return new Promise(function(resolve) {                                                  
             const key = PTV.getStopsOnRouteCacheKey2(routeType, routeId);
 
             if (stopsOnRouteCache.data != undefined && stopsOnRouteCache.data.get(key)) {
                 resolve(stopsOnRouteCache.data.get(key));
             } else {
+                const endpoint = PTV.buildStopsOnRouteEndpoint2(routeType, routeId); 
                 resolve(PTV.sendRequest2<V3StopsOnRouteResponse>(endpoint, params.credentials));
             }
         });
     },
 
-    requestStopsOnRoute: function(input:RequestResult): Promise<RequestResult> {							
+    /*requestStopsOnRoute: function(input:RequestResult): Promise<RequestResult> {							
         return new Promise(function(resolve, reject) {
             debug('requestStopsOnRoute');
             input.state.departures = input.state.data;
@@ -323,9 +381,9 @@ const PTV = {
                 resolve(PTV.sendRequest(endpoint, 'Stops on route', input.state, input.credentials));
             }
         });
-    },
+    },*/
 
-    requestDisruptions: function(input:RequestResult): Promise<RequestResult> {							
+    /*requestDisruptions: function(input:RequestResult): Promise<RequestResult> {
         return new Promise(function(resolve, reject) {
             debug('requestDisruptions');
             input.state.pattern = input.state.data;
@@ -334,9 +392,16 @@ const PTV = {
             const endpoint = PTV.buildDisruptionsEndpoint(input.state.params);
             resolve(PTV.sendRequest(endpoint, 'Disruptions', input.state, input.credentials));
         });
+    },*/
+
+    requestDisruptions2: function(routeType:number, credentials:Credentials): Promise<V3Disruptions> {
+        return new Promise(function(resolve) {
+            const endpoint = PTV.buildDisruptionsEndpoint2(routeType);
+            resolve(PTV.sendRequest2<V3Disruptions>(endpoint, credentials));
+        });
     },
     
-    requestStoppingPattern: function(input:RequestResult): Promise<RequestResult> {
+    /*requestStoppingPattern: function(input:RequestResult): Promise<RequestResult> {
         return new Promise(function(resolve, reject) {
             debug('requestStoppingPattern');
             input.state.stopsOnRoute = input.state.data;
@@ -359,6 +424,12 @@ const PTV = {
             const endpoint = PTV.buildStoppingPatternEndpoint(input.state.params);
         
             resolve(PTV.sendRequest(endpoint, 'Stopping pattern', input.state, input.credentials));
+        });
+    },*/
+    requestStoppingPattern2: function(routeType:number, runId:number, credentials:Credentials): Promise<V3StoppingPatternResponse> {
+        return new Promise(function(resolve) {
+            const endpoint = PTV.buildStoppingPatternEndpoint2(routeType, runId);        
+            resolve(PTV.sendRequest2<V3StoppingPatternResponse>(endpoint, credentials));
         });
     },
     
@@ -492,16 +563,17 @@ const PTV = {
                 data: input.state.data,
                 params: input.state.params,
                 departures: input.state.departures!,
+                runs: input.state.runs!,
                 pattern: input.state.pattern, //TODO
                 stopsOnRoute: input.state.stopsOnRoute!,
                 disruptions: PTV.buildDisruptionsMap(metroTrainDisruptions)
             };
 
-            if (state.departures == null || state.departures.departures == null || state.departures.departures.length == 0) {
+            if (state.departures == null || state.departures.length == 0) {
                 reject('No departures found.');
             }
 
-            const next_departure:V3Departure = state.departures.departures![0];
+            const next_departure:V3Departure = state.departures![0];
         
             const route_id = next_departure.route_id;
             document.body.setAttribute('data-colour', PTV.getColourForRoute(route_id));
@@ -532,10 +604,10 @@ const PTV = {
             if (next_departure.run_id == undefined)
                 reject('No runId returned for next departure');
 
-            if (state.departures.runs == undefined || state.departures.runs.length == 0)
+            if (state.runs == undefined || state.runs.length == 0)
                 reject('No runs returned for run ' + next_departure.run_id + '.');
             
-            const next_departure_name = state.departures.runs![next_departure.run_id!].destination_name;				
+            const next_departure_name = state.runs![next_departure.run_id!].destination_name;				
             document.getElementById('next-dest')!.innerHTML = next_departure_name != undefined ? next_departure_name : 'Unknown destination';
 
             //Set disruption information
@@ -622,16 +694,16 @@ const PTV = {
                 }
             }
 
-            if (state.departures == null || state.departures.departures == null || state.departures.departures.length == 0) {
+            if (state.departures == null || state.departures == null || state.departures.length == 0) {
                 reject('No departures found.');
             }
 
-            if (state.departures.departures![0].route_id == undefined) {
+            if (state.departures![0].route_id == undefined) {
                 reject('No routeId returned for departure.');
             }
 
-            const inbound = state.departures.departures![0].direction_id == 1;
-            const fullList = getStoppingPatternWithSkippedStations(stopsFromCurrent, state.departures.departures![0].route_id!, inbound, state.params.stop_id);
+            const inbound = state.departures![0].direction_id == 1;
+            const fullList = getStoppingPatternWithSkippedStations(stopsFromCurrent, state.departures![0].route_id!, inbound, state.params.stop_id);
             const desc = getShortStoppingPatternDescription(fullList, inbound, state.params.stop_id);
             document.getElementById("next-dest-description")!.innerText = desc; //TODO const for id
 
@@ -650,17 +722,17 @@ const PTV = {
             
             //Set following departures
             clearFollowingDepartures();
-            for (let i = 1; i < state.departures.departures!.length; i++) {
-                const departure = state.departures.departures![i];
+            for (let i = 1; i < state.departures!.length; i++) {
+                const departure = state.departures![i];
                 const runId = departure.run_id;
                 if (runId == undefined)
                     reject('No runId returned for departure.');
                 
-                if (state.departures.runs == undefined)
+                if (state.runs == undefined)
                     reject('No runs returned for departure.');
 
-                const destinationName = state.departures.runs![runId!].destination_name != undefined
-                    ? state.departures.runs![runId!].destination_name!
+                const destinationName = state.runs![runId!].destination_name != undefined
+                    ? state.runs![runId!].destination_name!
                     : 'Unknown destination'; //TODO this is duplicated somewhere
 
                 addFollowingDeparture(state, departure, destinationName);
@@ -697,7 +769,7 @@ const PTV = {
     },
     
     //Stops on route
-    buildStopsOnRouteEndpoint: function(params: StateParams) {
+    /*buildStopsOnRouteEndpoint: function(params: StateParams) {
         const date_utc = DateTimeHelpers.getIsoDate();
         const template = '/v3/stops/route/{route_id}/route_type/{route_type}' +
                 '?date_utc={date_utc}';
@@ -706,7 +778,7 @@ const PTV = {
                             .replace('{route_id}', params.sor_route_id.toString())					
                             .replace('{date_utc}', date_utc);
         return endpoint;
-    },
+    },*/
     buildStopsOnRouteEndpoint2: function(routeType:number, routeId:number) {
         const dateUtc = DateTimeHelpers.getIsoDate();
         const template = '/v3/stops/route/{route_id}/route_type/{route_type}' +
@@ -718,7 +790,7 @@ const PTV = {
     },
 
     //Stopping pattern
-    buildStoppingPatternEndpoint: function(params: StateParams) {
+    /*buildStoppingPatternEndpoint: function(params: StateParams) {
         const date_utc = DateTimeHelpers.getIsoDate();
         const template = '/v3/pattern/run/{run_id}/route_type/{route_type}' +
                 '?date_utc={date_utc}';
@@ -727,13 +799,30 @@ const PTV = {
                             .replace('{run_id}', params.run_id.toString())					
                             .replace('{date_utc}', date_utc);
         return endpoint;
+    },*/
+    buildStoppingPatternEndpoint2: function(routeType:number, runId:number) {
+        const date_utc = DateTimeHelpers.getIsoDate();
+        const template = '/v3/pattern/run/{run_id}/route_type/{route_type}' +
+                '?date_utc={date_utc}';
+        const endpoint = template
+                            .replace('{route_type}', routeType.toString())
+                            .replace('{run_id}', runId.toString())					
+                            .replace('{date_utc}', date_utc);
+        return endpoint;
     },
 
     //Disruptions
-    buildDisruptionsEndpoint: function(params: StateParams) {
+    /*buildDisruptionsEndpoint: function(params: StateParams) {
         const template = '/v3/disruptions?route_types={route_type}&disruption_status={disruption_status}';
         const endpoint = template
             .replace('{route_type}', params.route_type.toString())
+            .replace('{disruption_status}', 'current');
+        return endpoint;
+    },*/
+    buildDisruptionsEndpoint2: function(routeType:number) {
+        const template = '/v3/disruptions?route_types={route_type}&disruption_status={disruption_status}';
+        const endpoint = template
+            .replace('{route_type}', routeType.toString())
             .replace('{disruption_status}', 'current');
         return endpoint;
     }

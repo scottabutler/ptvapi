@@ -20,19 +20,25 @@
     interface IncompleteState {
         data: any,
         params: StateParams,
-        departures: V3DeparturesResponse | undefined,
+        departures: Array<V3Departure> | undefined,
+        runs: RunCollection | undefined,
         pattern: any | undefined,
         stopsOnRoute: V3StopsOnRouteResponse | undefined,
-        disruptions: Map<number, V3Disruption> | undefined
+        //disruptions: Map<number, V3Disruption> | undefined
     }
 
     interface State {
         data: any,
         params: StateParams,
-        departures: V3DeparturesResponse,
+        departures: Array<V3Departure>,
+        runs: RunCollection,
         pattern: any, //TODO
         stopsOnRoute: V3StopsOnRouteResponse,
         disruptions: Map<number, V3Disruption>
+    }
+
+    interface RunCollection {
+        [key: string]: V3Run
     }
 
     interface RequestResult {
@@ -81,6 +87,37 @@
     interface DeparturesResponse {
         departures: Departure[]
     }*/
+
+    interface V3StoppingPatternResponse {
+        /**
+        * Disruption information applicable to relevant routes or stops
+        */
+        'disruptions'?: Array<V3Disruption>;
+        /**
+        * Timetabled and real-time service departures
+        */
+        'departures'?: Array<V3Departure>;
+        /**
+        * A train station, tram stop, bus stop, regional coach stop or Night Bus stop
+        */
+        'stops'?: { [key: string]: V3ResultStop; };
+        /**
+        * Train lines, tram routes, bus routes, regional coach routes, Night Bus routes
+        */
+        'routes'?: { [key: string]: V3Route; };
+        /**
+        * Individual trips/services of a route
+        */
+        'runs'?: { [key: string]: V3Run; };
+        /**
+        * Directions of travel of route
+        */
+        'directions'?: { [key: string]: V3Direction; };
+        /**
+        * API Status / Metadata
+        */
+        'status'?: V3Status;
+    }
 
     interface V3StopOnRoute {
         /**
