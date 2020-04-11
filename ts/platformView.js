@@ -50,7 +50,40 @@ const PTV = {
                 if (departuresResponse.departures[0].run_id == undefined) {
                     reject('Departures error: No runId returned for next departure.');
                 }
+                if (departuresResponse.runs == undefined) {
+                    reject('Departures error: Departure response contained no runs.');
+                }
                 return resolve(departuresResponse);
+            });
+        };
+        let validateStopsOnRouteResponse = function (resolvedPromises) {
+            return new Promise((resolve, reject) => {
+                const stopsOnRouteResponse = resolvedPromises[0];
+                if (stopsOnRouteResponse == undefined) {
+                    reject('Stops on route cache is undefined.');
+                }
+                return resolve(resolvedPromises);
+            });
+        };
+        let validateStoppingPatternResponse = function (resolvedPromises) {
+            return new Promise((resolve, reject) => {
+                const stoppingPatternResponse = resolvedPromises[1];
+                if (stoppingPatternResponse == undefined) {
+                    reject('Stopping pattern response is undefined.');
+                }
+                if (stoppingPatternResponse.departures == undefined) {
+                    reject('Stopping pattern response contains no departures.');
+                }
+                return resolve(resolvedPromises);
+            });
+        };
+        let validateDisruptionsResponse = function (resolvedPromises) {
+            return new Promise((resolve, reject) => {
+                const disruptionsResponse = resolvedPromises[2];
+                if (disruptionsResponse == undefined) {
+                    reject('Disruptions response is undefined.');
+                }
+                return resolve(resolvedPromises);
             });
         };
         let updateStopsOnRouteCache = function (stopsOnRouteResponse, cache, cacheKey) {
@@ -89,8 +122,11 @@ const PTV = {
             let stoppingPatternPromise = this.requestStoppingPattern(routeType, runId, credentials);
             let disruptionsPromise = this.requestDisruptions(routeType, credentials);
             Promise.all([stopsOnRoutePromise, stoppingPatternPromise, disruptionsPromise])
+                .then(validateStopsOnRouteResponse)
+                .then(validateStoppingPatternResponse)
+                .then(validateDisruptionsResponse)
                 .then((resolvedPromises) => {
-                const stopsOnRoute = _stopsOnRouteCache.data.get(cacheKey);
+                const stopsOnRoute = resolvedPromises[0].data.get(cacheKey);
                 const stoppingPattern = resolvedPromises[1];
                 const disruptions = resolvedPromises[2];
                 //TODO ensure the following are not undefined:
