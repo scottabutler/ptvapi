@@ -1,4 +1,4 @@
-/// <reference path="types.d.ts" />
+/// <reference path="types.ts" />
 
 const _loadingElementId = "loading";
 const _refreshTimeElementId = 'refresh-time';
@@ -12,7 +12,7 @@ const _disruptionListElementId = 'disruption-list';
 
 let _stopsOnRouteCache: StopsOnRouteCache = {
     date: new Date().setDate(new Date().getDate() - 1),
-    data: undefined
+    data: new Map<string, V3StopsOnRouteResponse>()
 };
 
 const PTV = {
@@ -27,203 +27,270 @@ const PTV = {
         const hash:string = CryptoJS.HmacSHA1(request, secret);
         return hash;
     },
-
-    //TODO generics for return type
-    sendRequest: function(endpoint:string, name:string, state:IncompleteState, credentials:Credentials):Promise<RequestResult> {				
-        return new Promise(function(resolve, reject) {
-            document.getElementById(_loadingElementId)!.innerHTML += '.';
-            const xmlhttp = new XMLHttpRequest();
-            xmlhttp.onreadystatechange = function() {					
-                if (xmlhttp.readyState === XMLHttpRequest.DONE) {
-                    if (xmlhttp.status === 200) {
-                        debug('sendRequest end ' + name);
-                        state.data = JSON.parse(xmlhttp.responseText);
-
-                        const result: RequestResult = { state: state, credentials: credentials };
-                        resolve(result);
-                    } else {
-                        reject('Something went wrong: ' + xmlhttp.status);
-                    }
-                }
-            };
-            
-            const settings = PTV.getGlobalSettings();
-        
-            const qs = endpoint.indexOf("?") == -1 ? "?" : "&";
-            endpoint = endpoint.indexOf("devId=") == -1 ? endpoint + qs + "devid=" + credentials.id : endpoint;
-            const sig = PTV.generateSignature(endpoint, credentials.secret);
-            const urlWithSignature = settings.baseUrl + endpoint + "&signature=" + sig;
-            const url = settings.useCorsBypass == true
-                ? settings.proxyUrl + encodeURIComponent(urlWithSignature)
-                : urlWithSignature;        
-            
-            debug('sendRequest start ' + name);
-            xmlhttp.open("GET", url, true);
-            xmlhttp.send();
-        });
-    },
     
     doStuff: function(params: StartParams) {			
         const credentials: Credentials = {
             id: params.dev_id,
             secret: params.dev_secret
-        }
-        const stateParams: StateParams = {
-            platform_number: params.platform_number,
-            route_type: params.route_type,
-            run_id: 0, //TODO
-            stop_id: params.stop_id,
-            sor_route_id: 0, //TODO
-            credentials: credentials
-        }        
+        };
 
-        Promise.resolve(stateParams)
-            .then(this.prepareStopsOnRouteCache)
-            .then(this.requestDepartures)
-            .then(this.requestStopsOnRoute)
-            .then(this.requestStoppingPattern)
-            .then(this.requestDisruptions)
-            .then(this.updatePage)
+        let validateDeparturesResponse = function(departuresResponse:V3DeparturesResponse):Promise<V3DeparturesResponse> {
+            return new Promise<V3DeparturesResponse>((resolve, reject) => {
+                if (departuresResponse == null || departuresResponse.departures == null || departuresResponse.departures.length == 0) {
+                    reject('Departures error: No departures found.');
+                }
+
+                if (departuresResponse.departures![0].route_id == undefined) {
+                    reject('Departures error: No routeId returned for next departure.');
+                }
+
+                if (departuresResponse.departures![0].run_id == undefined) {
+                    reject('Departures error: No runId returned for next departure.');
+                }
+
+                if (departuresResponse.runs == undefined) {
+                    reject('Departures error: Departure response contained no runs.');
+                }
+
+                return resolve(departuresResponse);
+            });
+        };
+
+        let validateStopsOnRouteResponse = function(resolvedPromises:[StopsOnRouteCache, V3StoppingPatternResponse, V3Disruptions])
+            :Promise<[StopsOnRouteCache, V3StoppingPatternResponse, V3Disruptions]> {
+            return new Promise<[StopsOnRouteCache, V3StoppingPatternResponse, V3Disruptions]>((resolve, reject) => {
+                const stopsOnRouteResponse = resolvedPromises[0];
+                if (stopsOnRouteResponse == undefined) {
+                    reject('Stops on route cache is undefined.');
+                }
+
+                return resolve(resolvedPromises);
+            });
+        };
+
+        let validateStoppingPatternResponse = function(resolvedPromises:[StopsOnRouteCache, V3StoppingPatternResponse, V3Disruptions])
+            :Promise<[StopsOnRouteCache, V3StoppingPatternResponse, V3Disruptions]> {
+            return new Promise<[StopsOnRouteCache, V3StoppingPatternResponse, V3Disruptions]>((resolve, reject) => {
+                const stoppingPatternResponse = resolvedPromises[1];
+                if (stoppingPatternResponse == undefined) {
+                    reject('Stopping pattern response is undefined.');
+                }
+                if (stoppingPatternResponse.departures == undefined) {
+                    reject('Stopping pattern response contains no departures.');
+                }
+
+                return resolve(resolvedPromises);
+            });
+        };
+
+        let validateDisruptionsResponse = function(resolvedPromises:[StopsOnRouteCache, V3StoppingPatternResponse, V3Disruptions])
+            :Promise<[StopsOnRouteCache, V3StoppingPatternResponse, V3Disruptions]> {
+            return new Promise<[StopsOnRouteCache, V3StoppingPatternResponse, V3Disruptions]>((resolve, reject) => {
+                const disruptionsResponse = resolvedPromises[2];
+                if (disruptionsResponse == undefined) {
+                    reject('Disruptions response is undefined.');
+                }
+
+                return resolve(resolvedPromises);
+            });
+        };
+
+        let updateStopsOnRouteCache = function(stopsOnRouteResponse:V3StopsOnRouteResponse, cache:StopsOnRouteCache, cacheKey:string)
+            :Promise<StopsOnRouteCache> {
+            return new Promise<StopsOnRouteCache>((resolve) => {
+                //Only modify the cache if the key is not already in there
+                //otherwise we'd just be overwriting with the same data
+
+                if (cache.data != undefined
+                    && !cache.data.get(cacheKey)
+                    && stopsOnRouteResponse != undefined) {
+                    
+                    console.log("Adding 'stops on route' data to the cache");
+                    cache.data.set(cacheKey, stopsOnRouteResponse);
+                    
+                    if (BrowserHelpers.hasLocalStorage()) {
+                        const cacheToSave = {date: cache.date, data: [...cache.data]};
+                        console.log('Saving cache to local storage');
+                        localStorage.setItem(PTV.localStorageCacheKey, JSON.stringify(cacheToSave));
+                    }
+                }
+
+                //Return the (possibly updated) cache
+                return resolve(cache);
+            });
+        }
+
+        const routeType = params.route_type;
+        const stopId = params.stop_id;
+        const platformNumber = params.platform_number;
+
+        let departuresPromise = 
+            this.requestDepartures(routeType, stopId, platformNumber, credentials)
+                .then(validateDeparturesResponse);
+        
+        let prepareStopsOnRouteCachePromise = 
+            this.prepareStopsOnRouteCache(_stopsOnRouteCache);
+
+        Promise.all([departuresPromise, prepareStopsOnRouteCachePromise])
+            .then((resolvedPromises) => {
+                const departuresResponse:V3DeparturesResponse = resolvedPromises[0];
+                const departures:Array<V3Departure> = departuresResponse.departures!;
+                const runs = departuresResponse.runs;
+                const routeId = departures![0].route_id!;
+                const runId = departures![0].run_id!;                                
+                
+                const cacheKey = PTV.getStopsOnRouteCacheKey(routeType, routeId);
+
+                let stopsOnRoutePromise = 
+                    this.requestStopsOnRoute(routeType, routeId, credentials, resolvedPromises[1])
+                    .then((stopsOnRouteResponse) => updateStopsOnRouteCache(stopsOnRouteResponse, resolvedPromises[1], cacheKey))
+                    .then((updatedCache) => _stopsOnRouteCache = updatedCache);
+
+                let stoppingPatternPromise =
+                    this.requestStoppingPattern(routeType, runId, credentials);
+
+                let disruptionsPromise =
+                    this.requestDisruptions(routeType, credentials);
+                
+                Promise.all<StopsOnRouteCache, V3StoppingPatternResponse, V3Disruptions>([stopsOnRoutePromise, stoppingPatternPromise, disruptionsPromise])
+                    .then(validateStopsOnRouteResponse)
+                    .then(validateStoppingPatternResponse)
+                    .then(validateDisruptionsResponse)
+                    .then((resolvedPromises) => {
+                        const stopsOnRoute = resolvedPromises[0].data!.get(cacheKey);
+                        const stoppingPattern = resolvedPromises[1];
+                        const disruptions = resolvedPromises[2];
+
+                        this.updatePage(stopId, routeId, disruptions, 
+                            departures!, runs!, stoppingPattern!, stopsOnRoute!);
+                    });
+            })
             .catch(function(e:string) {
                 document.getElementById(_errorElementId)!.innerHTML = 'Error: ' + e;
                 document.getElementById(_loadingElementId)!.innerHTML = 'Error.';
-                document.getElementById("realtime")!.style.display = 'none';						
-                console.log(e);
+                document.getElementById("realtime")!.style.display = 'none'
                 PTV.clearPage();					
-            })
+            });
     },
-    
-    requestDepartures: function(params:StateParams): Promise<RequestResult> {
-        return new Promise(function(resolve, reject) {
-            debug('requestDepartures');
-            const endpoint = PTV.buildDeparturesEndpoint(params);
-            resolve(PTV.sendRequest(endpoint, 'Departures', {
-                data: undefined,
-                params: params,
-                departures: undefined,
-                pattern: undefined,
-                stopsOnRoute: undefined,
-                disruptions: undefined
-            }, params.credentials));
-        });
-    },
-    
-    prepareStopsOnRouteCache: function(params: StateParams): Promise<StateParams> {
-        return new Promise(function(resolve, reject) {
-            debug('prepareStopsOnRouteCache');
+/*
+On page load, check local storage for cache. 
+- If it exists and has not expired, load into global cache object
+- If it exists and has expired, remove from local storage, initialise global cache with no data
+- If not exists, initialise global cache with no data
+
+On each request, check if global cache has expired
+- If expired, remove from local storage (if exists), initialise global cache with no data
+- If not expired, check for specific key
+    - If key exists, return value
+    - If key does not exist, make request
+*/
+    prepareStopsOnRouteCache: function(existingCache:StopsOnRouteCache): Promise<StopsOnRouteCache> {
+        return new Promise(function(resolve) {
             
+            if (existingCache != undefined && new Date(existingCache.date).getTime() > new Date().getTime()) {
+                console.log('Using existing cache');
+                return resolve(existingCache);
+            }
+
             const expiryDate = new Date();
             expiryDate.setDate(expiryDate.getDate() + 1);
             const expiryDateNew = expiryDate.getTime();
-
-            //Initialise default cache
-            /*_stopsOnRouteCache = {
-                date: expiryDate.getTime(),
-                data: undefined
-            };*/
-            
+            const newCache:StopsOnRouteCache = {
+                date: expiryDateNew,
+                data: new Map<string, V3StopsOnRouteResponse>() //no data yet
+            };
+            console.log('Empty cache created with date', new Date(expiryDateNew).toDateString());
             //Try and load the cache from local storage
             if (BrowserHelpers.hasLocalStorage()) {	
-                const fromStorage = localStorage.getItem(PTV.localStorageCacheKey);			
-                let cache: StopsOnRouteCache =
-                    fromStorage != undefined
-                        ? JSON.parse(fromStorage)
+                const jsonFromStorage = localStorage.getItem(PTV.localStorageCacheKey);			
+                let cacheFromStorage: StopsOnRouteCache =
+                    jsonFromStorage != undefined
+                        ? JSON.parse(jsonFromStorage)
                         : undefined; //TODO immutable?
                 
-                if (cache != undefined) {						
+                if (cacheFromStorage != undefined) {
                     //Check if the cache has expired
-                    if (new Date(cache.date).getTime() <= new Date().getTime()) {
+                    if (new Date(cacheFromStorage.date).getTime() <= new Date().getTime()) {
+                        console.log('Removing cache due to expired date', new Date(cacheFromStorage.date).toDateString());
                         localStorage.removeItem(PTV.localStorageCacheKey);
-                        cache = {
-                            date: expiryDateNew,
-                            data: undefined //no data yet
-                        };
+                        return resolve(newCache);
                     }
                 
-                    _stopsOnRouteCache = cache;
+                    cacheFromStorage.data = new Map(cacheFromStorage.data);
+                    return resolve(cacheFromStorage);
                 }
             } else {
                 // Sorry! No Web Storage support..
             }
         
-            //Pass the params through to the next function
-            resolve(params);
+            return resolve(newCache);
         });
     },
         
     localStorageCacheKey: "PTVAPI.stopsOnRouteCache",
     
-    getStopsOnRouteCacheKey: function(state:IncompleteState) {
-        return state.params.route_type + '_' + state.params.sor_route_id;
-    },
-            
-    requestStopsOnRoute: function(input:RequestResult): Promise<RequestResult> {							
-        return new Promise(function(resolve, reject) {
-            debug('requestStopsOnRoute');
-            input.state.departures = input.state.data;
-            input.state.data = null;
-        
-            if (input.state.departures == null || input.state.departures.departures == null || input.state.departures.departures.length == 0) {
-                reject('No departures found.');
-            }
-
-            if (input.state.departures!.departures![0].route_id == undefined) {
-                reject('No routeId returned for next departure.');
-            }
-
-            if (input.state.departures!.departures![0].run_id == undefined) {
-                reject('No runId returned for next departure.');
-            }
-        
-            input.state.params.sor_route_id = input.state.departures!.departures![0].route_id!;
-            input.state.params.run_id = input.state.departures!.departures![0].run_id!;
-            
-            const endpoint = PTV.buildStopsOnRouteEndpoint(input.state.params);
-                                                    
-            const key = PTV.getStopsOnRouteCacheKey(input.state); //state.params.route_type + '_' + state.params.sor_route_id;
-            if (_stopsOnRouteCache.data != undefined && _stopsOnRouteCache.data.get(key)) {
-                input.state.data = _stopsOnRouteCache.data.get(key);
-                resolve(input);
-            } else {
-                resolve(PTV.sendRequest(endpoint, 'Stops on route', input.state, input.credentials));
-            }
-        });
+    getStopsOnRouteCacheKey: function(routeType:number, routeId:number) {
+        return routeType + '_' + routeId;
     },
 
-    requestDisruptions: function(input:RequestResult): Promise<RequestResult> {							
-        return new Promise(function(resolve, reject) {
-            debug('requestDisruptions');
-            input.state.pattern = input.state.data;
-            input.state.data = null;
-            
-            const endpoint = PTV.buildDisruptionsEndpoint(input.state.params);
-            resolve(PTV.sendRequest(endpoint, 'Disruptions', input.state, input.credentials));
-        });
-    },
+    sendRequest: function<TResponse>(endpoint:string, credentials:Credentials):Promise<TResponse> {				
+        document.getElementById(_loadingElementId)!.innerHTML += '.';
+        const settings = PTV.getGlobalSettings();
     
-    requestStoppingPattern: function(input:RequestResult): Promise<RequestResult> {
-        return new Promise(function(resolve, reject) {
-            debug('requestStoppingPattern');
-            input.state.stopsOnRoute = input.state.data;
-            const key = PTV.getStopsOnRouteCacheKey(input.state);
-            
-            //Only modify the cache if the key is not already in there
-            //otherwise we'd just be overwriting with the same data
-            if (_stopsOnRouteCache.data != undefined
-                && !_stopsOnRouteCache.data.get(key)
-                && input.state.stopsOnRoute != undefined) {
-                _stopsOnRouteCache.data.set(key, input.state.stopsOnRoute);
-                
-                if (BrowserHelpers.hasLocalStorage()) {
-                    localStorage.setItem(PTV.localStorageCacheKey, JSON.stringify(_stopsOnRouteCache));
-                }
+        const qs = endpoint.indexOf("?") == -1 ? "?" : "&";
+        const endpointWithCredentials = endpoint.indexOf("devId=") == -1 
+            ? endpoint + qs + "devid=" + credentials.id 
+            : endpoint;
+        const sig = PTV.generateSignature(endpointWithCredentials, credentials.secret);
+        const urlWithSignature = settings.baseUrl + endpointWithCredentials + "&signature=" + sig;
+        const url = settings.useCorsBypass == true
+            ? settings.proxyUrl + encodeURIComponent(urlWithSignature)
+            : urlWithSignature;        
+
+        const result:Promise<TResponse> = PTV.fetchTyped<TResponse>(url);
+        return result;
+    },
+
+    fetchTyped: async function<T>(request: RequestInfo) : Promise<T> {
+        const response = await fetch(request);
+        const body = await response.json();
+        return body;
+    },
+
+    requestDepartures: async function(routeType:number, stopId:number, platformNumber:number, credentials:Credentials): Promise<V3DeparturesResponse> {
+        const endpoint = PTV.buildDeparturesEndpoint(routeType, stopId, platformNumber); //TODO
+        return await PTV.sendRequest<V3DeparturesResponse>(endpoint, credentials);
+    },
+
+    requestStopsOnRoute: async function(
+        routeType: number, 
+        routeId:number,
+        credentials:Credentials,
+        stopsOnRouteCache:StopsOnRouteCache): Promise<V3StopsOnRouteResponse> {							
+        return new Promise(function(resolve) {                                                  
+            const key = PTV.getStopsOnRouteCacheKey(routeType, routeId);
+
+            if (stopsOnRouteCache.data != undefined && stopsOnRouteCache.data.get(key)) { //TODO date check?
+                console.log("Using cached 'stops on route' data");
+                resolve(stopsOnRouteCache.data.get(key));
+            } else {
+                const endpoint = PTV.buildStopsOnRouteEndpoint(routeType, routeId); 
+                resolve(PTV.sendRequest<V3StopsOnRouteResponse>(endpoint, credentials));
             }
-            
-            input.state.data = null;
-        
-            const endpoint = PTV.buildStoppingPatternEndpoint(input.state.params);
-        
-            resolve(PTV.sendRequest(endpoint, 'Stopping pattern', input.state, input.credentials));
+        });
+    },
+
+    requestDisruptions: function(routeType:number, credentials:Credentials): Promise<V3Disruptions> {
+        return new Promise(function(resolve) {
+            const endpoint = PTV.buildDisruptionsEndpoint(routeType);
+            resolve(PTV.sendRequest<V3Disruptions>(endpoint, credentials));
+        });
+    },
+
+    requestStoppingPattern: function(routeType:number, runId:number, credentials:Credentials): Promise<V3StoppingPatternResponse> {
+        return new Promise(function(resolve) {
+            const endpoint = PTV.buildStoppingPatternEndpoint(routeType, runId);        
+            resolve(PTV.sendRequest<V3StoppingPatternResponse>(endpoint, credentials));
         });
     },
     
@@ -296,7 +363,7 @@ const PTV = {
         return result;
     },
 
-    getDisruptionDataForDeparture: function(departure: V3Departure, disruptions: Map<number, V3Disruption>): DisruptionsForDeparture {
+    getDisruptionDataForDeparture: function(departure: V3Departure, disruptionsMap: Map<number, V3Disruption>): DisruptionsForDeparture {
         const result: DisruptionsForDeparture = {
             className: 'disruption goodservice mr-2',
             items: []
@@ -306,7 +373,7 @@ const PTV = {
 
         for (let i = 0; i < departure.disruption_ids.length; i++) {
             const id = departure.disruption_ids[i];
-            const data:V3Disruption|undefined = disruptions.get(id);
+            const data:V3Disruption|undefined = disruptionsMap.get(id);
 
             if (!data) continue;
             if (!data.display_on_board) continue;
@@ -338,7 +405,15 @@ const PTV = {
         return result;
     },
 
-    updatePage: function(input:RequestResult): Promise<void> { //TODO break up this function
+    updatePage: function( 
+        stopId:number, 
+        routeId:number, 
+        disruptionsResponse:V3Disruptions,
+        departures:Array<V3Departure>,
+        runs:RunCollection,
+        stoppingPattern:V3StoppingPatternResponse,
+        stopsOnRoute:V3StopsOnRouteResponse
+        ): Promise<void> { //TODO break up this function
         return new Promise(function(resolve, reject) {
             debug('updatePage');            
 
@@ -348,66 +423,59 @@ const PTV = {
             document.getElementById(_refreshTimeElementId)!.innerHTML = padSingleDigitWithZero(refresh_date.getHours()) + 
                 ':' + padSingleDigitWithZero(refresh_date.getMinutes()) + ':' + padSingleDigitWithZero(refresh_date.getSeconds());					
 
-            const disruptionsResponse: V3Disruptions = input.state.data.disruptions;
             const metroTrainDisruptions: V3Disruption[] = disruptionsResponse.metro_train != undefined
                 ? disruptionsResponse.metro_train
                 : [];
 
-            const state: State = {
-                data: input.state.data,
-                params: input.state.params,
-                departures: input.state.departures!,
-                pattern: input.state.pattern, //TODO
-                stopsOnRoute: input.state.stopsOnRoute!,
-                disruptions: PTV.buildDisruptionsMap(metroTrainDisruptions)
-            };
+            const disruptionsMap = PTV.buildDisruptionsMap(metroTrainDisruptions);
 
-            if (state.departures == null || state.departures.departures == null || state.departures.departures.length == 0) {
-                reject('No departures found.');
+            //TODO is this required?
+            if (departures == null || departures.length == 0) {
+                reject('Update page error: No departures found.');
             }
 
-            const next_departure:V3Departure = state.departures.departures![0];
+            const nextDeparture:V3Departure = departures![0];
         
-            const route_id = next_departure.route_id;
-            document.body.setAttribute('data-colour', PTV.getColourForRoute(route_id));
+            const nextDepartureRouteId = nextDeparture.route_id;
+            document.body.setAttribute('data-colour', PTV.getColourForRoute(nextDepartureRouteId));
 
             //Reset some elements
             document.getElementById(_errorElementId)!.innerHTML = '';
         
             //Set stop name
             let stop_name = '';
-            if (state.stopsOnRoute != undefined && state.stopsOnRoute.stops != undefined) {
-                for (let i = 0; i < state.stopsOnRoute.stops.length; i++) {
-                    if (state.stopsOnRoute.stops[i].stop_id == state.params.stop_id) {
-                        stop_name = state.stopsOnRoute.stops[i].stop_name!.toString();
+            if (stopsOnRoute != undefined && stopsOnRoute.stops != undefined) {
+                for (let i = 0; i < stopsOnRoute.stops.length; i++) {
+                    if (stopsOnRoute.stops[i].stop_id == stopId) {
+                        stop_name = stopsOnRoute.stops[i].stop_name!.toString();
                         break;
                     }
                 }
             } else {
-                reject('No stops found for route ' + state.params.sor_route_id + '.');
+                reject('No stops found for route ' + routeId + '.');
             }
             
-            const short_stop_name = stop_name.replace(' Station', '');
-            document.getElementById(_stopElementId)!.innerHTML = short_stop_name;
+            const shortStopName = stop_name.replace(' Station', '');
+            document.getElementById(_stopElementId)!.innerHTML = shortStopName;
         
             //Set platform number
-            document.getElementById(_platformElementId)!.innerHTML = 'Platform ' + next_departure.platform_number;
+            document.getElementById(_platformElementId)!.innerHTML = 'Platform ' + nextDeparture.platform_number;
         
             //Set next departure
-            if (next_departure.run_id == undefined)
+            if (nextDeparture.run_id == undefined)
                 reject('No runId returned for next departure');
 
-            if (state.departures.runs == undefined || state.departures.runs.length == 0)
-                reject('No runs returned for run ' + next_departure.run_id + '.');
+            if (runs == undefined || runs.length == 0)
+                reject('No runs returned for run ' + nextDeparture.run_id + '.');
             
-            const next_departure_name = state.departures.runs![next_departure.run_id!].destination_name;				
-            document.getElementById('next-dest')!.innerHTML = next_departure_name != undefined ? next_departure_name : 'Unknown destination';
+            const nextDepartureName = runs![nextDeparture.run_id!].destination_name;				
+            document.getElementById('next-dest')!.innerHTML = nextDepartureName != undefined ? nextDepartureName : 'Unknown destination';
 
             //Set disruption information
             clearDisruptionList();
 
-            if (next_departure.disruption_ids != null) {
-                const disruption_data = PTV.getDisruptionDataForDeparture(next_departure, state.disruptions);
+            if (nextDeparture.disruption_ids != null) {
+                const disruption_data = PTV.getDisruptionDataForDeparture(nextDeparture, disruptionsMap);
                 const disruptionElement = document.getElementById('next-dest-disruption')!;
                 disruptionElement.setAttribute('class', 'clearable ' + disruption_data.className);
 
@@ -433,102 +501,103 @@ const PTV = {
             }
 
             //Set time and difference information
-            if (next_departure.scheduled_departure_utc == undefined)
+            if (nextDeparture.scheduled_departure_utc == undefined)
                 reject('No scheduled_departure_utc returned for next departure');
-            const time = DateTimeHelpers.formatSingleTime(next_departure.scheduled_departure_utc!, true);				
+            const time = DateTimeHelpers.formatSingleTime(nextDeparture.scheduled_departure_utc!, true);				
             document.getElementById('next-time')!.innerHTML = time;
 
             //TODO immutable for diff
-            let diff = DateTimeHelpers.getDifferenceFromNow(next_departure.estimated_departure_utc, next_departure.scheduled_departure_utc!).toString();
-            const diffSec = DateTimeHelpers.getDifferenceFromNowSec(next_departure.estimated_departure_utc, next_departure.scheduled_departure_utc!);
+            let diff = DateTimeHelpers.getDifferenceFromNow(nextDeparture.estimated_departure_utc, nextDeparture.scheduled_departure_utc!).toString();
+            const diffSec = DateTimeHelpers.getDifferenceFromNowSec(nextDeparture.estimated_departure_utc, nextDeparture.scheduled_departure_utc!);
             
-            const isRt = isRealTime(next_departure.estimated_departure_utc);
+            const isRt = isRealTime(nextDeparture.estimated_departure_utc);
             document.getElementById("realtime")!.style.display = (isRt ? "none" : "block");
             
-            let mins_text = "min" + (isRt ? "" : "*"); //TODO immutable
+            let minsText = "min" + (isRt ? "" : "*"); //TODO immutable
             if (diffSec <= 60 && diffSec >= -60) {
                 diff = "Now" + (isRt ? "" : "*");
-                mins_text = "";
+                minsText = "";
             }
             
-            document.getElementById('next-diff')!.innerHTML = diff + ' ' + mins_text;
+            document.getElementById('next-diff')!.innerHTML = diff + ' ' + minsText;
             
             //Set title
-            document.title = diff + ' ' + mins_text + ' ' + short_stop_name + ' to ' +  next_departure_name;
+            document.title = diff + ' ' + minsText + ' ' + shortStopName + ' to ' +  nextDepartureName;
         
             //Set stopping pattern
             clearStoppingPattern();
 
-            if (state.stopsOnRoute == undefined || state.stopsOnRoute.stops == undefined) {
-                reject('No stops found for route ' + state.params.sor_route_id + '.');
+            if (stopsOnRoute == undefined || stopsOnRoute.stops == undefined) {
+                reject('No stops found for route ' + routeId + '.');
             }
             const stops = new Map();
-            for (let s = 0; s < state.stopsOnRoute.stops!.length; s++) {
-                stops.set(state.stopsOnRoute.stops![s].stop_id, state.stopsOnRoute.stops![s].stop_name);
+            for (let s = 0; s < stopsOnRoute.stops!.length; s++) {
+                stops.set(stopsOnRoute.stops![s].stop_id, stopsOnRoute.stops![s].stop_name);
             }
 
             const stopsFromCurrent:IdName[] = [];
 
-            let found_current_stop = false;
-            let stopping_pattern_count = 0;
+            let foundCurrentStop = false;
+            let stoppingPatternCount = 0;
             
-            for (let j = 0; j < state.pattern.departures.length; j++) {
-                const stop_id = state.pattern.departures[j].stop_id;
-                const is_current_stop = stop_id == state.params.stop_id;
+            for (let j = 0; j < stoppingPattern.departures!.length; j++) {
+                const stoppingPatternStopId = stoppingPattern.departures![j].stop_id!;
+                const isCurrentStop = stoppingPatternStopId == stopId;
 
-                if (is_current_stop) {
-                    stopping_pattern_count = state.pattern.departures.length - j;
-                    found_current_stop = true;
+                if (isCurrentStop) {
+                    stoppingPatternCount = stoppingPattern.departures!.length - j;
+                    foundCurrentStop = true;
                 }
 
-                if (found_current_stop) {				
-                    const name = stops.get(stop_id).replace(' Station', '');
-                    stopsFromCurrent.push({id: stop_id, name: name});
+                if (foundCurrentStop) {				
+                    const name = stops.get(stoppingPatternStopId).replace(' Station', '');
+                    stopsFromCurrent.push({id: stoppingPatternStopId, name: name});
                 }
             }
 
-            if (state.departures == null || state.departures.departures == null || state.departures.departures.length == 0) {
+            //TODO is this required?
+            if (departures == null || departures.length == 0) {
                 reject('No departures found.');
             }
 
-            if (state.departures.departures![0].route_id == undefined) {
+            if (departures![0].route_id == undefined) {
                 reject('No routeId returned for departure.');
             }
 
-            const inbound = state.departures.departures![0].direction_id == 1;
-            const fullList = getStoppingPatternWithSkippedStations(stopsFromCurrent, state.departures.departures![0].route_id!, inbound, state.params.stop_id);
-            const desc = getShortStoppingPatternDescription(fullList, inbound, state.params.stop_id);
+            const inbound = departures![0].direction_id == 1;
+            const fullList = getStoppingPatternWithSkippedStations(stopsFromCurrent, departures![0].route_id!, inbound, stopId);
+            const desc = getShortStoppingPatternDescription(fullList, inbound, stopId);
             document.getElementById("next-dest-description")!.innerText = desc; //TODO const for id
 
             fullList.map(x => {
-                addStoppingPatternItem(x.name, x.isSkipped, x.id == state.params.stop_id)
+                addStoppingPatternItem(x.name, x.isSkipped, x.id == stopId)
             })
 
-            const list_element = document.getElementById('next-stops-list')!;
-            if (stopping_pattern_count > 7) {
-                if (list_element.className.indexOf('two-columns') == -1) {
-                    list_element.className += ' two-columns';
+            const listElement = document.getElementById('next-stops-list')!;
+            if (stoppingPatternCount > 7) {
+                if (listElement.className.indexOf('two-columns') == -1) {
+                    listElement.className += ' two-columns';
                 }
             } else {
-                list_element.className = list_element.className.replace('two-columns', '');
+                listElement.className = listElement.className.replace('two-columns', '');
             }
             
             //Set following departures
             clearFollowingDepartures();
-            for (let i = 1; i < state.departures.departures!.length; i++) {
-                const departure = state.departures.departures![i];
+            for (let i = 1; i < departures!.length; i++) {
+                const departure = departures![i];
                 const runId = departure.run_id;
                 if (runId == undefined)
                     reject('No runId returned for departure.');
                 
-                if (state.departures.runs == undefined)
+                if (runs == undefined)
                     reject('No runs returned for departure.');
 
-                const destinationName = state.departures.runs![runId!].destination_name != undefined
-                    ? state.departures.runs![runId!].destination_name!
+                const destinationName = runs![runId!].destination_name != undefined
+                    ? runs![runId!].destination_name!
                     : 'Unknown destination'; //TODO this is duplicated somewhere
 
-                addFollowingDeparture(state, departure, destinationName);
+                addFollowingDeparture(disruptionsMap, departure, destinationName);
             }
             debug('End updatePage ---');
             resolve();
@@ -549,47 +618,46 @@ const PTV = {
     /* Request functions */
     
     //Departures
-    buildDeparturesEndpoint: function(params: StateParams) {
+    buildDeparturesEndpoint: function(routeType:number, stopId:number, platformNumber:number) {
         const date_utc = DateTimeHelpers.getIsoDate();
         const template = '/v3/departures/route_type/{route_type}/stop/{stop_id}' +
                 '?max_results=6&date_utc={date_utc}&platform_numbers={platform_number}&expand=stop&expand=run';
         const endpoint = template
-                            .replace('{route_type}', params.route_type.toString())
-                            .replace('{stop_id}', params.stop_id.toString())
-                            .replace('{platform_number}', params.platform_number.toString())					
+                            .replace('{route_type}', routeType.toString())
+                            .replace('{stop_id}', stopId.toString())
+                            .replace('{platform_number}', platformNumber.toString())					
                             .replace('{date_utc}', date_utc);
         return endpoint;
     },
     
     //Stops on route
-    buildStopsOnRouteEndpoint: function(params: StateParams) {
-        const date_utc = DateTimeHelpers.getIsoDate();
+    buildStopsOnRouteEndpoint: function(routeType:number, routeId:number) {
+        const dateUtc = DateTimeHelpers.getIsoDate();
         const template = '/v3/stops/route/{route_id}/route_type/{route_type}' +
                 '?date_utc={date_utc}';
-        const endpoint = template
-                            .replace('{route_type}', params.route_type.toString())
-                            .replace('{route_id}', params.sor_route_id.toString())					
-                            .replace('{date_utc}', date_utc);
-        return endpoint;
+        return template
+                .replace('{route_type}', routeType.toString())
+                .replace('{route_id}', routeId.toString())					
+                .replace('{date_utc}', dateUtc);
     },
 
     //Stopping pattern
-    buildStoppingPatternEndpoint: function(params: StateParams) {
+    buildStoppingPatternEndpoint: function(routeType:number, runId:number) {
         const date_utc = DateTimeHelpers.getIsoDate();
         const template = '/v3/pattern/run/{run_id}/route_type/{route_type}' +
                 '?date_utc={date_utc}';
         const endpoint = template
-                            .replace('{route_type}', params.route_type.toString())
-                            .replace('{run_id}', params.run_id.toString())					
+                            .replace('{route_type}', routeType.toString())
+                            .replace('{run_id}', runId.toString())					
                             .replace('{date_utc}', date_utc);
         return endpoint;
     },
 
     //Disruptions
-    buildDisruptionsEndpoint: function(params: StateParams) {
+    buildDisruptionsEndpoint: function(routeType:number) {
         const template = '/v3/disruptions?route_types={route_type}&disruption_status={disruption_status}';
         const endpoint = template
-            .replace('{route_type}', params.route_type.toString())
+            .replace('{route_type}', routeType.toString())
             .replace('{disruption_status}', 'current');
         return endpoint;
     }
@@ -732,14 +800,14 @@ function getShortStoppingPatternDescription(stoppingPatternWithSkippedStations:I
 }
 
 //TODO Assign these render functions to PTV object
-function addFollowingDeparture(state:State, departure:V3Departure, destinationName: string): void {
+function addFollowingDeparture(disruptionsMap: Map<number, V3Disruption>, departure:V3Departure, destinationName: string): void {
     const time = departure.scheduled_departure_utc != undefined
         ? DateTimeHelpers.formatSingleTime(departure.scheduled_departure_utc!, true)
         : '--:--';
     const diff = departure.scheduled_departure_utc != undefined
         ? DateTimeHelpers.getDifferenceFromNow(departure.estimated_departure_utc, departure.scheduled_departure_utc)
         : '--'; 
-    const disruption_data = PTV.getDisruptionDataForDeparture(departure, state.disruptions);
+    const disruption_data = PTV.getDisruptionDataForDeparture(departure, disruptionsMap);
     const route_id = departure.route_id;
 
     if (diff >= 60) {
