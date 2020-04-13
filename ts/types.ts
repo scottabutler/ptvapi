@@ -56,7 +56,7 @@
 
     interface StopsOnRouteCache {
         date: number,
-        data: Map<string, V3StopsOnRouteResponse> | undefined
+        data: Map<string, V3StopsOnRouteResponse>
     }
 
     /*interface Departure {   

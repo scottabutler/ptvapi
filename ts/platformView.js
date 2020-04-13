@@ -90,12 +90,16 @@ const PTV = {
             return new Promise((resolve) => {
                 //Only modify the cache if the key is not already in there
                 //otherwise we'd just be overwriting with the same data
+                ///////cache.data = new Map(cache.data);
                 if (cache.data != undefined
                     && !cache.data.get(cacheKey)
                     && stopsOnRouteResponse != undefined) {
+                    console.log("Adding 'stops on route' data to the cache");
                     cache.data.set(cacheKey, stopsOnRouteResponse);
                     if (BrowserHelpers.hasLocalStorage()) {
-                        localStorage.setItem(PTV.localStorageCacheKey, JSON.stringify(cache));
+                        const cacheToSave = { date: cache.date, data: [...cache.data] };
+                        console.log('Saving cache to local storage');
+                        localStorage.setItem(PTV.localStorageCacheKey, JSON.stringify(cacheToSave));
                     }
                 }
                 //Return the (possibly updated) cache
@@ -107,7 +111,7 @@ const PTV = {
         const platformNumber = params.platform_number;
         let departuresPromise = this.requestDepartures(routeType, stopId, platformNumber, credentials)
             .then(validateDeparturesResponse);
-        let prepareStopsOnRouteCachePromise = this.prepareStopsOnRouteCache();
+        let prepareStopsOnRouteCachePromise = this.prepareStopsOnRouteCache(_stopsOnRouteCache);
         Promise.all([departuresPromise, prepareStopsOnRouteCachePromise])
             .then((resolvedPromises) => {
             const departuresResponse = resolvedPromises[0];
@@ -117,7 +121,7 @@ const PTV = {
             const runId = departures[0].run_id;
             const cacheKey = PTV.getStopsOnRouteCacheKey(routeType, routeId);
             let stopsOnRoutePromise = this.requestStopsOnRoute(routeType, routeId, credentials, resolvedPromises[1])
-                .then((stopsOnRouteResponse) => updateStopsOnRouteCache(stopsOnRouteResponse, _stopsOnRouteCache, cacheKey))
+                .then((stopsOnRouteResponse) => updateStopsOnRouteCache(stopsOnRouteResponse, resolvedPromises[1], cacheKey))
                 .then((updatedCache) => _stopsOnRouteCache = updatedCache);
             let stoppingPatternPromise = this.requestStoppingPattern(routeType, runId, credentials);
             let disruptionsPromise = this.requestDisruptions(routeType, credentials);
@@ -129,12 +133,8 @@ const PTV = {
                 const stopsOnRoute = resolvedPromises[0].data.get(cacheKey);
                 const stoppingPattern = resolvedPromises[1];
                 const disruptions = resolvedPromises[2];
-                //TODO ensure the following are not undefined:
-                // runs
-                // departures
-                // stoppingPattern
-                // stoppingPattern.departures
-                // stopsOnRoute
+                if (runs == undefined)
+                    throw new Error('Runs');
                 this.updatePage(stopId, routeId, disruptions, departures, runs, stoppingPattern, stopsOnRoute);
             });
         })
@@ -145,8 +145,24 @@ const PTV = {
             PTV.clearPage();
         });
     },
-    prepareStopsOnRouteCache: function () {
+    /*
+    On page load, check local storage for cache.
+    - If it exists and has not expired, load into global cache object
+    - If it exists and has expired, remove from local storage, initialise global cache with no data
+    - If not exists, initialise global cache with no data
+    
+    On each request, check if global cache has expired
+    - If expired, remove from local storage (if exists), initialise global cache with no data
+    - If not expired, check for specific key
+        - If key exists, return value
+        - If key does not exist, make request
+    */
+    prepareStopsOnRouteCache: function (existingCache) {
         return new Promise(function (resolve) {
+            if (existingCache != undefined && new Date(existingCache.date).getTime() > new Date().getTime()) {
+                console.log('Using existing cache');
+                return resolve(existingCache);
+            }
             const expiryDate = new Date();
             expiryDate.setDate(expiryDate.getDate() + 1);
             const expiryDateNew = expiryDate.getTime();
@@ -154,19 +170,22 @@ const PTV = {
                 date: expiryDateNew,
                 data: new Map() //no data yet
             };
+            console.log('Empty cache created with date', new Date(expiryDateNew).toDateString());
             //Try and load the cache from local storage
             if (BrowserHelpers.hasLocalStorage()) {
-                const fromStorage = localStorage.getItem(PTV.localStorageCacheKey);
-                let cache = fromStorage != undefined
-                    ? JSON.parse(fromStorage)
+                const jsonFromStorage = localStorage.getItem(PTV.localStorageCacheKey);
+                let cacheFromStorage = jsonFromStorage != undefined
+                    ? JSON.parse(jsonFromStorage)
                     : undefined; //TODO immutable?
-                if (cache != undefined) {
+                if (cacheFromStorage != undefined) {
                     //Check if the cache has expired
-                    if (new Date(cache.date).getTime() <= new Date().getTime()) {
+                    if (new Date(cacheFromStorage.date).getTime() <= new Date().getTime()) {
+                        console.log('Removing cache due to expired date', new Date(cacheFromStorage.date).toDateString());
                         localStorage.removeItem(PTV.localStorageCacheKey);
                         return resolve(newCache);
                     }
-                    return resolve(cache);
+                    cacheFromStorage.data = new Map(cacheFromStorage.data);
+                    return resolve(cacheFromStorage);
                 }
             }
             else {
@@ -211,7 +230,8 @@ const PTV = {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise(function (resolve) {
                 const key = PTV.getStopsOnRouteCacheKey(routeType, routeId);
-                if (stopsOnRouteCache.data != undefined && stopsOnRouteCache.data.get(key)) {
+                if (stopsOnRouteCache.data != undefined && stopsOnRouteCache.data.get(key)) { //TODO date check?
+                    console.log("Using cached 'stops on route' data");
                     resolve(stopsOnRouteCache.data.get(key));
                 }
                 else {
