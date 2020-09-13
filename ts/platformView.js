@@ -369,7 +369,6 @@ const PTV = {
                 let accumulatedOffset = 0;
                 for (let i = 0; i < departures.length; i++) {
                     accumulatedOffset += (Math.floor(Math.random() * 9) + 1) * 60000;
-                    console.log(accumulatedOffset);
                     const date = new Date(now.getTime() + accumulatedOffset);
                     departures[i].scheduled_departure_utc = date;
                     departures[i].estimated_departure_utc = date;
