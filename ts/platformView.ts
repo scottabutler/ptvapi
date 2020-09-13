@@ -439,7 +439,6 @@ On each request, check if global cache has expired
                 let accumulatedOffset = 0;
                 for (let i = 0; i < departures.length; i++) {
                     accumulatedOffset += (Math.floor(Math.random() * 9)+1)*60000;
-                    console.log(accumulatedOffset);
                     const date = new Date(now.getTime() + accumulatedOffset);
                     departures[i].scheduled_departure_utc = date;
                     departures[i].estimated_departure_utc = date;
@@ -617,7 +616,7 @@ On each request, check if global cache has expired
     /* Util functions */
     getGlobalSettings: function() {
         return {
-            baseUrl: _useMockData ? '/ts' : 'http://timetableapi.ptv.vic.gov.au',
+            baseUrl: _useMockData ? '' : 'http://timetableapi.ptv.vic.gov.au',
             useCorsBypass: true,
             proxyUrl: 'https://ptvproxy20170416075948.azurewebsites.net/api/proxy?url='
             //'https://cors-anywhere.herokuapp.com/'
@@ -637,7 +636,7 @@ On each request, check if global cache has expired
                             .replace('{platform_number}', platformNumber.toString())
                             .replace('{date_utc}', date_utc);
         return _useMockData
-            ? '/mocks/departures.json'
+            ? 'mocks/departures.json'
             : endpoint;
     },
 
@@ -651,7 +650,7 @@ On each request, check if global cache has expired
                 .replace('{route_id}', routeId.toString())
                 .replace('{date_utc}', dateUtc);
         return _useMockData
-                ? '/mocks/stopsOnRoute.json'
+                ? 'mocks/stopsOnRoute.json'
                 : endpoint;
     },
 
@@ -665,7 +664,7 @@ On each request, check if global cache has expired
                             .replace('{run_id}', runId.toString())
                             .replace('{date_utc}', date_utc);
         return _useMockData
-            ? '/mocks/stoppingPattern.json'
+            ? 'mocks/stoppingPattern.json'
             : endpoint;
     },
 
@@ -676,7 +675,7 @@ On each request, check if global cache has expired
             .replace('{route_type}', routeType.toString())
             .replace('{disruption_status}', 'current');
         return _useMockData
-            ? '/mocks/disruptions.json'
+            ? 'mocks/disruptions.json'
             : endpoint;
     }
 };

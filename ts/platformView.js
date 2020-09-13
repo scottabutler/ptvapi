@@ -510,7 +510,7 @@ const PTV = {
     /* Util functions */
     getGlobalSettings: function () {
         return {
-            baseUrl: _useMockData ? '/ts' : 'http://timetableapi.ptv.vic.gov.au',
+            baseUrl: _useMockData ? '' : 'http://timetableapi.ptv.vic.gov.au',
             useCorsBypass: true,
             proxyUrl: 'https://ptvproxy20170416075948.azurewebsites.net/api/proxy?url='
             //'https://cors-anywhere.herokuapp.com/'
@@ -528,7 +528,7 @@ const PTV = {
             .replace('{platform_number}', platformNumber.toString())
             .replace('{date_utc}', date_utc);
         return _useMockData
-            ? '/mocks/departures.json'
+            ? 'mocks/departures.json'
             : endpoint;
     },
     //Stops on route
@@ -541,7 +541,7 @@ const PTV = {
             .replace('{route_id}', routeId.toString())
             .replace('{date_utc}', dateUtc);
         return _useMockData
-            ? '/mocks/stopsOnRoute.json'
+            ? 'mocks/stopsOnRoute.json'
             : endpoint;
     },
     //Stopping pattern
@@ -554,7 +554,7 @@ const PTV = {
             .replace('{run_id}', runId.toString())
             .replace('{date_utc}', date_utc);
         return _useMockData
-            ? '/mocks/stoppingPattern.json'
+            ? 'mocks/stoppingPattern.json'
             : endpoint;
     },
     //Disruptions
@@ -564,7 +564,7 @@ const PTV = {
             .replace('{route_type}', routeType.toString())
             .replace('{disruption_status}', 'current');
         return _useMockData
-            ? '/mocks/disruptions.json'
+            ? 'mocks/disruptions.json'
             : endpoint;
     }
 };
