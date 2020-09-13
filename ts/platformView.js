@@ -13,7 +13,6 @@ const _loadingElementId = "loading";
 const _refreshTimeElementId = 'refresh-time';
 const _errorElementId = 'error';
 const _stopElementId = 'stop';
-const _platformElementId = 'platform';
 const _followingDeparturesElementId = 'following-departures';
 const _nextStopsListElementId = 'next-stops-list';
 const _platformSelectElementId = 'platform-select';
@@ -24,17 +23,17 @@ let _stopsOnRouteCache = {
 };
 const PTV = {
     //Fields
-    //NOTE: Use of the developer ID and secret key contained in this site 
-    //is subject to the Terms of Use of the PTV API. Unauthorised use of 
-    //these credentials is prohibited. You can request your own key from 
+    //NOTE: Use of the developer ID and secret key contained in this site
+    //is subject to the Terms of Use of the PTV API. Unauthorised use of
+    //these credentials is prohibited. You can request your own key from
     //PTV via email.
-    // 
+    //
     //Methods
     generateSignature: function (request, secret) {
         const hash = CryptoJS.HmacSHA1(request, secret);
         return hash;
     },
-    doStuff: function (params) {
+    run: function (params) {
         const credentials = {
             id: params.dev_id,
             secret: params.dev_secret
@@ -90,13 +89,12 @@ const PTV = {
             return new Promise((resolve) => {
                 //Only modify the cache if the key is not already in there
                 //otherwise we'd just be overwriting with the same data
-                ///////cache.data = new Map(cache.data);
                 if (cache.data != undefined
                     && !cache.data.get(cacheKey)
                     && stopsOnRouteResponse != undefined) {
                     console.log("Adding 'stops on route' data to the cache");
                     cache.data.set(cacheKey, stopsOnRouteResponse);
-                    if (BrowserHelpers.hasLocalStorage()) {
+                    if (BrowserHelpers.hasLocalStorage() && !_useMockData) {
                         const cacheToSave = { date: cache.date, data: [...cache.data] };
                         console.log('Saving cache to local storage');
                         localStorage.setItem(PTV.localStorageCacheKey, JSON.stringify(cacheToSave));
@@ -133,8 +131,6 @@ const PTV = {
                 const stopsOnRoute = resolvedPromises[0].data.get(cacheKey);
                 const stoppingPattern = resolvedPromises[1];
                 const disruptions = resolvedPromises[2];
-                if (runs == undefined)
-                    throw new Error('Runs');
                 this.updatePage(stopId, routeId, disruptions, departures, runs, stoppingPattern, stopsOnRoute);
             });
         })
@@ -207,7 +203,7 @@ const PTV = {
             : endpoint;
         const sig = PTV.generateSignature(endpointWithCredentials, credentials.secret);
         const urlWithSignature = settings.baseUrl + endpointWithCredentials + "&signature=" + sig;
-        const url = settings.useCorsBypass == true
+        const url = settings.useCorsBypass == true && !_useMockData
             ? settings.proxyUrl + encodeURIComponent(urlWithSignature)
             : urlWithSignature;
         const result = PTV.fetchTyped(url);
@@ -230,7 +226,7 @@ const PTV = {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise(function (resolve) {
                 const key = PTV.getStopsOnRouteCacheKey(routeType, routeId);
-                if (stopsOnRouteCache.data != undefined && stopsOnRouteCache.data.get(key)) { //TODO date check?
+                if (stopsOnRouteCache.data != undefined && stopsOnRouteCache.data.get(key) && !_useMockData) { //TODO date check?
                     console.log("Using cached 'stops on route' data");
                     resolve(stopsOnRouteCache.data.get(key));
                 }
@@ -367,6 +363,18 @@ const PTV = {
             if (departures == null || departures.length == 0) {
                 reject('Update page error: No departures found.');
             }
+            // Set mock departure times if in mock mode
+            if (_useMockData) {
+                const now = new Date();
+                let accumulatedOffset = 0;
+                for (let i = 0; i < departures.length; i++) {
+                    accumulatedOffset += (Math.floor(Math.random() * 9) + 1) * 60000;
+                    console.log(accumulatedOffset);
+                    const date = new Date(now.getTime() + accumulatedOffset);
+                    departures[i].scheduled_departure_utc = date;
+                    departures[i].estimated_departure_utc = date;
+                }
+            }
             const nextDeparture = departures[0];
             const nextDepartureRouteId = nextDeparture.route_id;
             document.body.setAttribute('data-colour', PTV.getColourForRoute(nextDepartureRouteId));
@@ -387,8 +395,6 @@ const PTV = {
             }
             const shortStopName = stop_name.replace(' Station', '');
             document.getElementById(_stopElementId).innerHTML = shortStopName;
-            //Set platform number
-            document.getElementById(_platformElementId).innerHTML = 'Platform ' + nextDeparture.platform_number;
             //Set next departure
             if (nextDeparture.run_id == undefined)
                 reject('No runId returned for next departure');
@@ -504,7 +510,7 @@ const PTV = {
     /* Util functions */
     getGlobalSettings: function () {
         return {
-            baseUrl: 'http://timetableapi.ptv.vic.gov.au',
+            baseUrl: _useMockData ? '/ts' : 'http://timetableapi.ptv.vic.gov.au',
             useCorsBypass: true,
             proxyUrl: 'https://ptvproxy20170416075948.azurewebsites.net/api/proxy?url='
             //'https://cors-anywhere.herokuapp.com/'
@@ -521,17 +527,22 @@ const PTV = {
             .replace('{stop_id}', stopId.toString())
             .replace('{platform_number}', platformNumber.toString())
             .replace('{date_utc}', date_utc);
-        return endpoint;
+        return _useMockData
+            ? '/mocks/departures.json'
+            : endpoint;
     },
     //Stops on route
     buildStopsOnRouteEndpoint: function (routeType, routeId) {
         const dateUtc = DateTimeHelpers.getIsoDate();
         const template = '/v3/stops/route/{route_id}/route_type/{route_type}' +
             '?date_utc={date_utc}';
-        return template
+        const endpoint = template
             .replace('{route_type}', routeType.toString())
             .replace('{route_id}', routeId.toString())
             .replace('{date_utc}', dateUtc);
+        return _useMockData
+            ? '/mocks/stopsOnRoute.json'
+            : endpoint;
     },
     //Stopping pattern
     buildStoppingPatternEndpoint: function (routeType, runId) {
@@ -542,7 +553,9 @@ const PTV = {
             .replace('{route_type}', routeType.toString())
             .replace('{run_id}', runId.toString())
             .replace('{date_utc}', date_utc);
-        return endpoint;
+        return _useMockData
+            ? '/mocks/stoppingPattern.json'
+            : endpoint;
     },
     //Disruptions
     buildDisruptionsEndpoint: function (routeType) {
@@ -550,18 +563,25 @@ const PTV = {
         const endpoint = template
             .replace('{route_type}', routeType.toString())
             .replace('{disruption_status}', 'current');
-        return endpoint;
+        return _useMockData
+            ? '/mocks/disruptions.json'
+            : endpoint;
     }
 };
 let _devId = '';
 let _secret = '';
+let _useMockData = false;
 function init() {
     _devId = getQueryVariable('d');
     _secret = getQueryVariable('s');
     const platform_number = getQueryVariable('p');
     const e = document.getElementById(_platformSelectElementId);
     e.value = platform_number;
-    if (_devId == null || _devId == '' || _secret == null || _secret == '') {
+    if (getQueryVariable('mode') == 'mock') {
+        _useMockData = true;
+        console.log('Using mock data');
+    }
+    if (!_useMockData && (_devId == null || _devId == '' || _secret == null || _secret == '')) {
         return;
     }
     updateView();
@@ -596,9 +616,9 @@ function updateView() {
     const loading = document.getElementById(_loadingElementId);
     loading.innerHTML = 'Loading';
     document.getElementById(_refreshTimeElementId).innerHTML = '';
-    const stop_id = getQueryVariable('stop_id');
-    const route_type = getQueryVariable('route_type');
-    const route_id = getQueryVariable('route_id');
+    const stop_id = _useMockData ? 1071 : getQueryVariable('stop_id');
+    const route_type = _useMockData ? 0 : getQueryVariable('route_type');
+    const route_id = _useMockData ? 7 : getQueryVariable('route_id');
     const e = document.getElementById(_platformSelectElementId);
     const platform_number = e.options[e.selectedIndex].value;
     const new_url = window.location.pathname + updateQueryVariable('p', platform_number);
@@ -613,7 +633,7 @@ function updateView() {
         dev_id: Number(_devId),
         dev_secret: _secret
     };
-    PTV.doStuff(params);
+    PTV.run(params);
 }
 let timer;
 function updateTimer() {
@@ -862,7 +882,7 @@ class DateTimeHelpers {
         var date = estimated == null
             ? new Date(scheduled)
             : new Date(estimated);
-        
+
         var hrs = padSingleDigitWithZero(date.getHours());
         var mins = padSingleDigitWithZero(date.getMinutes());
         var result = hrs + ":" + mins;

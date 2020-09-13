@@ -1,0 +1,1516 @@
+{
+    "disruptions": {
+        "general": [],
+        "metro_train": [{
+            "disruption_id": 212662,
+            "title": "All trains will run direct to/from Flinders Street via Southern Cross, not via the City Loop to last service tonight, while maintenance works take place. Passengers are are advised to change trains at Southern Cross Station. ",
+            "url": "http://ptv.vic.gov.au/live-travel-updates/",
+            "description": "All trains will run direct to/from Flinders Street via Southern Cross, not via the City Loop to last service tonight, while maintenance works take place. Passengers are are advised to change trains at Southern Cross Station. ",
+            "disruption_status": "Current",
+            "disruption_type": "Planned Works",
+            "published_on": "2020-09-12T20:17:03Z",
+            "last_updated": "2020-09-12T20:17:09Z",
+            "from_date": "2020-09-12T20:13:00Z",
+            "to_date": null,
+            "routes": [{
+                "route_type": 0,
+                "route_id": 3,
+                "route_name": "Craigieburn",
+                "route_number": "",
+                "route_gtfs_id": "2-B31",
+                "direction": null
+            }, {
+                "route_type": 0,
+                "route_id": 15,
+                "route_name": "Upfield",
+                "route_number": "",
+                "route_gtfs_id": "2-UFD",
+                "direction": null
+            }, {
+                "route_type": 0,
+                "route_id": 16,
+                "route_name": "Werribee",
+                "route_number": "",
+                "route_gtfs_id": "2-WBE",
+                "direction": null
+            }, {
+                "route_type": 0,
+                "route_id": 17,
+                "route_name": "Williamstown",
+                "route_number": "",
+                "route_gtfs_id": "2-WMN",
+                "direction": null
+            }],
+            "stops": [],
+            "colour": "#ffd500",
+            "display_on_board": true,
+            "display_status": true
+        }, {
+            "disruption_id": 212643,
+            "title": "Pakenham line: Buses replace trains from Saturday 12 September to 13 Sunday September",
+            "url": "http://ptv.vic.gov.au/live-travel-updates/article/pakenham-line-buses-replace-trains-from-saturday-12-september-to-13-sunday-september",
+            "description": "Buses replace trains between Dandenong and Pakenham stations from 3.30am Saturday 12 September to last train Sunday 13 September. due to works.",
+            "disruption_status": "Current",
+            "disruption_type": "Planned Works",
+            "published_on": "2020-09-11T22:11:32Z",
+            "last_updated": "2020-09-11T23:07:20Z",
+            "from_date": "2020-09-11T21:58:00Z",
+            "to_date": "2020-09-13T17:00:00Z",
+            "routes": [{
+                "route_type": 0,
+                "route_id": 11,
+                "route_name": "Pakenham",
+                "route_number": "",
+                "route_gtfs_id": "2-PKM",
+                "direction": null
+            }],
+            "stops": [{
+                "stop_id": 1153,
+                "stop_name": "Pakenham "
+            }, {
+                "stop_id": 1223,
+                "stop_name": "Cardinia Road "
+            }, {
+                "stop_id": 1151,
+                "stop_name": "Officer "
+            }, {
+                "stop_id": 1017,
+                "stop_name": "Beaconsfield "
+            }, {
+                "stop_id": 1021,
+                "stop_name": "Berwick "
+            }, {
+                "stop_id": 1139,
+                "stop_name": "Narre Warren "
+            }, {
+                "stop_id": 1085,
+                "stop_name": "Hallam "
+            }, {
+                "stop_id": 1049,
+                "stop_name": "Dandenong "
+            }],
+            "colour": "#ffd500",
+            "display_on_board": true,
+            "display_status": true
+        }, {
+            "disruption_id": 212124,
+            "title": "Sunshine Station: Temporary car park closures from 3pm on Thursday 10 September to 2am on Monday 14 September 2020",
+            "url": "http://ptv.vic.gov.au/live-travel-updates/article/sunshine-station-temporary-car-park-closures-from-3pm-on-thursday-10-september-to-2am-on-monday-14-september-2020",
+            "description": "Sunshine Station will be affected by temporary car space closures from 3pm on Thursday 10 September to 2am on Monday 14 September 2020, due to works.",
+            "disruption_status": "Current",
+            "disruption_type": "Planned Closure",
+            "published_on": "2020-09-01T01:59:59Z",
+            "last_updated": "2020-09-10T05:00:04Z",
+            "from_date": "2020-09-10T05:00:00Z",
+            "to_date": "2020-09-13T16:00:00Z",
+            "routes": [{
+                "route_type": 0,
+                "route_id": 14,
+                "route_name": "Sunbury",
+                "route_number": "",
+                "route_gtfs_id": "2-SYM",
+                "direction": null
+            }],
+            "stops": [{
+                "stop_id": 1218,
+                "stop_name": "Sunshine "
+            }],
+            "colour": "#ffd500",
+            "display_on_board": false,
+            "display_status": false
+        }, {
+            "disruption_id": 212091,
+            "title": "Sunbury Line: Buses replace trains from 5am Saturday 12 September to last train Sunday 13 September 2020",
+            "url": "http://ptv.vic.gov.au/live-travel-updates/article/sunbury-line-buses-replace-trains-from-5am-saturday-12-september-to-last-train-sunday-13-september-2020",
+            "description": "Buses replace trains between North Melbourne and Sunbury stations from 5am Saturday 12 September to last train Sunday 13 September 2020, while Sunbury Line Upgrade works take place.",
+            "disruption_status": "Current",
+            "disruption_type": "Planned Works",
+            "published_on": "2020-08-31T04:48:36Z",
+            "last_updated": "2020-09-11T20:12:04Z",
+            "from_date": "2020-09-11T19:00:00Z",
+            "to_date": "2020-09-13T17:00:00Z",
+            "routes": [{
+                "route_type": 0,
+                "route_id": 14,
+                "route_name": "Sunbury",
+                "route_number": "",
+                "route_gtfs_id": "2-SYM",
+                "direction": null
+            }],
+            "stops": [],
+            "colour": "#ffd500",
+            "display_on_board": true,
+            "display_status": true
+        }, {
+            "disruption_id": 212089,
+            "title": "Pakenham Line: Buses replace evening trains in September 2020",
+            "url": "http://ptv.vic.gov.au/live-travel-updates/article/pakenham-line-buses-replace-evening-trains-in-september-2",
+            "description": "Buses replace evening trains between Dandenong and Pakenham on select dates in September 2020, due to project works.",
+            "disruption_status": "Current",
+            "disruption_type": "Planned Works",
+            "published_on": "2020-08-31T03:52:04Z",
+            "last_updated": "2020-09-10T19:42:30Z",
+            "from_date": "2020-09-01T10:30:00Z",
+            "to_date": "2020-09-30T17:00:00Z",
+            "routes": [{
+                "route_type": 0,
+                "route_id": 11,
+                "route_name": "Pakenham",
+                "route_number": "",
+                "route_gtfs_id": "2-PKM",
+                "direction": null
+            }],
+            "stops": [{
+                "stop_id": 1153,
+                "stop_name": "Pakenham "
+            }, {
+                "stop_id": 1223,
+                "stop_name": "Cardinia Road "
+            }, {
+                "stop_id": 1151,
+                "stop_name": "Officer "
+            }, {
+                "stop_id": 1017,
+                "stop_name": "Beaconsfield "
+            }, {
+                "stop_id": 1021,
+                "stop_name": "Berwick "
+            }, {
+                "stop_id": 1139,
+                "stop_name": "Narre Warren "
+            }, {
+                "stop_id": 1085,
+                "stop_name": "Hallam "
+            }, {
+                "stop_id": 1049,
+                "stop_name": "Dandenong "
+            }, {
+                "stop_id": 1215,
+                "stop_name": "Yarraman "
+            }, {
+                "stop_id": 1142,
+                "stop_name": "Noble Park "
+            }, {
+                "stop_id": 1172,
+                "stop_name": "Sandown Park "
+            }, {
+                "stop_id": 1183,
+                "stop_name": "Springvale "
+            }, {
+                "stop_id": 1208,
+                "stop_name": "Westall "
+            }, {
+                "stop_id": 1040,
+                "stop_name": "Clayton "
+            }, {
+                "stop_id": 1099,
+                "stop_name": "Huntingdale "
+            }, {
+                "stop_id": 1150,
+                "stop_name": "Oakleigh "
+            }, {
+                "stop_id": 1098,
+                "stop_name": "Hughesdale "
+            }, {
+                "stop_id": 1138,
+                "stop_name": "Murrumbeena "
+            }, {
+                "stop_id": 1034,
+                "stop_name": "Carnegie "
+            }, {
+                "stop_id": 1036,
+                "stop_name": "Caulfield "
+            }, {
+                "stop_id": 1030,
+                "stop_name": "Burnley "
+            }, {
+                "stop_id": 1118,
+                "stop_name": "Malvern "
+            }, {
+                "stop_id": 1008,
+                "stop_name": "Armadale "
+            }, {
+                "stop_id": 1194,
+                "stop_name": "Toorak "
+            }, {
+                "stop_id": 1089,
+                "stop_name": "Hawksburn "
+            }, {
+                "stop_id": 1180,
+                "stop_name": "South Yarra "
+            }, {
+                "stop_id": 1162,
+                "stop_name": "Richmond "
+            }, {
+                "stop_id": 1155,
+                "stop_name": "Parliament "
+            }, {
+                "stop_id": 1120,
+                "stop_name": "Melbourne Central "
+            }, {
+                "stop_id": 1068,
+                "stop_name": "Flagstaff "
+            }, {
+                "stop_id": 1181,
+                "stop_name": "Southern Cross "
+            }],
+            "colour": "#ffd500",
+            "display_on_board": true,
+            "display_status": false
+        }, {
+            "disruption_id": 211763,
+            "title": "Lilydale Station: Temporary car space closures from Monday 24 August to Monday 28 September 2020",
+            "url": "http://ptv.vic.gov.au/live-travel-updates/article/lilydale-station-temporary-car-space-closures-from-monday-24-august-to-monday-28-september-2020",
+            "description": "Sections of the eastern car park at Lilydale Station will be closed intermittently from Monday 24 August to Monday 28 September, while project works take place.",
+            "disruption_status": "Current",
+            "disruption_type": "Planned Closure",
+            "published_on": "2020-08-26T00:26:20Z",
+            "last_updated": "2020-08-26T01:28:33Z",
+            "from_date": "2020-08-26T00:22:00Z",
+            "to_date": "2020-09-28T17:00:00Z",
+            "routes": [{
+                "route_type": 0,
+                "route_id": 9,
+                "route_name": "Lilydale",
+                "route_number": "",
+                "route_gtfs_id": "2-LIL",
+                "direction": null
+            }],
+            "stops": [{
+                "stop_id": 1115,
+                "stop_name": "Lilydale "
+            }],
+            "colour": "#ffd500",
+            "display_on_board": false,
+            "display_status": false
+        }, {
+            "disruption_id": 211754,
+            "title": "Ringwood Station: Temporary car park closures from Saturday 29 August to Monday 21 September 2020",
+            "url": "http://ptv.vic.gov.au/live-travel-updates/article/ringwood-station-temporary-car-park-closures-from-saturday-29-august-to-monday-21-september-2020",
+            "description": "Ringwood Station will be affected by temporary car space closures from 3pm Saturday 29 August to 8am Monday 21 September, due to project works.",
+            "disruption_status": "Current",
+            "disruption_type": "Planned Closure",
+            "published_on": "2020-08-25T22:55:05Z",
+            "last_updated": "2020-08-29T05:00:04Z",
+            "from_date": "2020-08-29T05:00:00Z",
+            "to_date": "2020-09-20T22:00:00Z",
+            "routes": [{
+                "route_type": 0,
+                "route_id": 2,
+                "route_name": "Belgrave",
+                "route_number": "",
+                "route_gtfs_id": "2-BEL",
+                "direction": null
+            }, {
+                "route_type": 0,
+                "route_id": 9,
+                "route_name": "Lilydale",
+                "route_number": "",
+                "route_gtfs_id": "2-LIL",
+                "direction": null
+            }],
+            "stops": [{
+                "stop_id": 1163,
+                "stop_name": "Ringwood "
+            }],
+            "colour": "#ffd500",
+            "display_on_board": false,
+            "display_status": false
+        }, {
+            "disruption_id": 211718,
+            "title": "Oakleigh Station: Temporary car park closures from 6am Wednesday 2 September to 6pm Monday 2 November 2020",
+            "url": "http://ptv.vic.gov.au/live-travel-updates/article/oakleigh-station-temporary-car-park-closures-from-6am-wednesday-2-september-to-6pm-monday-2-november-2020",
+            "description": "Oakleigh Station will be affected by temporary car space closures from 6am Wednesday 2 September to 6pm Monday 2 November 2020, due to project works. ",
+            "disruption_status": "Current",
+            "disruption_type": "Planned Closure",
+            "published_on": "2020-08-25T06:11:57Z",
+            "last_updated": "2020-09-01T20:00:04Z",
+            "from_date": "2020-09-01T20:00:00Z",
+            "to_date": "2020-11-02T07:00:00Z",
+            "routes": [{
+                "route_type": 0,
+                "route_id": 4,
+                "route_name": "Cranbourne",
+                "route_number": "",
+                "route_gtfs_id": "2-CRB",
+                "direction": null
+            }, {
+                "route_type": 0,
+                "route_id": 11,
+                "route_name": "Pakenham",
+                "route_number": "",
+                "route_gtfs_id": "2-PKM",
+                "direction": null
+            }],
+            "stops": [{
+                "stop_id": 1150,
+                "stop_name": "Oakleigh "
+            }],
+            "colour": "#ffd500",
+            "display_on_board": false,
+            "display_status": false
+        }, {
+            "disruption_id": 211107,
+            "title": "Dandenong Station: Temporary car park closures from Tuesday 8 September to Monday 14 September 2020",
+            "url": "http://ptv.vic.gov.au/live-travel-updates/article/dandenong-station-temporary-car-park-closures-from-tuesday-8-september-to-monday-14-september-2020",
+            "description": "Dandenong Station will be affected by temporary car space closures from 4am Tuesday 8 September to 4am Monday 14 September, while project works take place.",
+            "disruption_status": "Current",
+            "disruption_type": "Planned Closure",
+            "published_on": "2020-08-20T01:35:18Z",
+            "last_updated": "2020-09-07T18:00:04Z",
+            "from_date": "2020-09-07T18:00:00Z",
+            "to_date": "2020-09-13T18:00:00Z",
+            "routes": [{
+                "route_type": 0,
+                "route_id": 4,
+                "route_name": "Cranbourne",
+                "route_number": "",
+                "route_gtfs_id": "2-CRB",
+                "direction": null
+            }, {
+                "route_type": 0,
+                "route_id": 11,
+                "route_name": "Pakenham",
+                "route_number": "",
+                "route_gtfs_id": "2-PKM",
+                "direction": null
+            }],
+            "stops": [{
+                "stop_id": 1049,
+                "stop_name": "Dandenong "
+            }],
+            "colour": "#ffd500",
+            "display_on_board": false,
+            "display_status": false
+        }, {
+            "disruption_id": 211106,
+            "title": "Cranbourne Line: Buses replace trains from Tuesday 8 September to Sunday 13 September 2020",
+            "url": "http://ptv.vic.gov.au/live-travel-updates/article/cranbourne-line-buses-replace-trains-from-tuesday-8-september-to-sunday-13-september-2020",
+            "description": "Buses replace trains between Dandenong and Cranbourne stations from 8.30pm Tuesday 8 September to last train Sunday 13 September, while project works take place.",
+            "disruption_status": "Current",
+            "disruption_type": "Planned Works",
+            "published_on": "2020-08-19T00:24:16Z",
+            "last_updated": "2020-09-08T08:40:17Z",
+            "from_date": "2020-09-08T10:30:00Z",
+            "to_date": "2020-09-13T17:00:00Z",
+            "routes": [{
+                "route_type": 0,
+                "route_id": 4,
+                "route_name": "Cranbourne",
+                "route_number": "",
+                "route_gtfs_id": "2-CRB",
+                "direction": null
+            }],
+            "stops": [{
+                "stop_id": 1045,
+                "stop_name": "Cranbourne "
+            }, {
+                "stop_id": 1123,
+                "stop_name": "Merinda Park "
+            }, {
+                "stop_id": 1222,
+                "stop_name": "Lynbrook "
+            }, {
+                "stop_id": 1049,
+                "stop_name": "Dandenong "
+            }, {
+                "stop_id": 1215,
+                "stop_name": "Yarraman "
+            }, {
+                "stop_id": 1142,
+                "stop_name": "Noble Park "
+            }, {
+                "stop_id": 1172,
+                "stop_name": "Sandown Park "
+            }, {
+                "stop_id": 1183,
+                "stop_name": "Springvale "
+            }, {
+                "stop_id": 1208,
+                "stop_name": "Westall "
+            }, {
+                "stop_id": 1040,
+                "stop_name": "Clayton "
+            }, {
+                "stop_id": 1099,
+                "stop_name": "Huntingdale "
+            }, {
+                "stop_id": 1150,
+                "stop_name": "Oakleigh "
+            }, {
+                "stop_id": 1098,
+                "stop_name": "Hughesdale "
+            }, {
+                "stop_id": 1138,
+                "stop_name": "Murrumbeena "
+            }, {
+                "stop_id": 1034,
+                "stop_name": "Carnegie "
+            }, {
+                "stop_id": 1036,
+                "stop_name": "Caulfield "
+            }, {
+                "stop_id": 1030,
+                "stop_name": "Burnley "
+            }, {
+                "stop_id": 1118,
+                "stop_name": "Malvern "
+            }, {
+                "stop_id": 1008,
+                "stop_name": "Armadale "
+            }, {
+                "stop_id": 1194,
+                "stop_name": "Toorak "
+            }, {
+                "stop_id": 1089,
+                "stop_name": "Hawksburn "
+            }, {
+                "stop_id": 1180,
+                "stop_name": "South Yarra "
+            }, {
+                "stop_id": 1162,
+                "stop_name": "Richmond "
+            }, {
+                "stop_id": 1155,
+                "stop_name": "Parliament "
+            }, {
+                "stop_id": 1120,
+                "stop_name": "Melbourne Central "
+            }, {
+                "stop_id": 1068,
+                "stop_name": "Flagstaff "
+            }, {
+                "stop_id": 1181,
+                "stop_name": "Southern Cross "
+            }, {
+                "stop_id": 1071,
+                "stop_name": "Flinders Street "
+            }],
+            "colour": "#ffd500",
+            "display_on_board": true,
+            "display_status": true
+        }, {
+            "disruption_id": 211407,
+            "title": "Werribee Line: Buses replace trains at select times from Monday 24 August to Thursday 17 September 2020",
+            "url": "http://ptv.vic.gov.au/live-travel-updates/article/werribee-line-buses-replace-trains-at-select-times-from-monday-24-august-to-sunday-13-september-2020",
+            "description": "Buses replace trains at select times on the Werribee line from Monday 24 August to Thursday 17 September, while project and maintenance works take place.",
+            "disruption_status": "Current",
+            "disruption_type": "Planned Works",
+            "published_on": "2020-08-18T23:04:04Z",
+            "last_updated": "2020-09-13T02:52:33Z",
+            "from_date": "2020-08-24T04:45:00Z",
+            "to_date": "2020-09-17T17:00:00Z",
+            "routes": [{
+                "route_type": 0,
+                "route_id": 16,
+                "route_name": "Werribee",
+                "route_number": "",
+                "route_gtfs_id": "2-WBE",
+                "direction": null
+            }],
+            "stops": [{
+                "stop_id": 1205,
+                "stop_name": "Werribee "
+            }, {
+                "stop_id": 1097,
+                "stop_name": "Hoppers Crossing "
+            }, {
+                "stop_id": 1225,
+                "stop_name": "Williams Landing "
+            }, {
+                "stop_id": 1220,
+                "stop_name": "Aircraft "
+            }, {
+                "stop_id": 1113,
+                "stop_name": "Laverton "
+            }, {
+                "stop_id": 1210,
+                "stop_name": "Westona "
+            }, {
+                "stop_id": 1005,
+                "stop_name": "Altona "
+            }, {
+                "stop_id": 1175,
+                "stop_name": "Seaholme "
+            }, {
+                "stop_id": 1141,
+                "stop_name": "Newport "
+            }, {
+                "stop_id": 1182,
+                "stop_name": "Spotswood "
+            }, {
+                "stop_id": 1216,
+                "stop_name": "Yarraville "
+            }, {
+                "stop_id": 1176,
+                "stop_name": "Seddon "
+            }, {
+                "stop_id": 1072,
+                "stop_name": "Footscray "
+            }, {
+                "stop_id": 1179,
+                "stop_name": "South Kensington "
+            }, {
+                "stop_id": 1144,
+                "stop_name": "North Melbourne "
+            }, {
+                "stop_id": 1068,
+                "stop_name": "Flagstaff "
+            }, {
+                "stop_id": 1120,
+                "stop_name": "Melbourne Central "
+            }, {
+                "stop_id": 1155,
+                "stop_name": "Parliament "
+            }, {
+                "stop_id": 1181,
+                "stop_name": "Southern Cross "
+            }, {
+                "stop_id": 1071,
+                "stop_name": "Flinders Street "
+            }],
+            "colour": "#ffd500",
+            "display_on_board": true,
+            "display_status": false
+        }, {
+            "disruption_id": 211278,
+            "title": "Westall Station: Temporary lift access changes from Tuesday 18 August to Monday 14 September 2020",
+            "url": "http://ptv.vic.gov.au/live-travel-updates/article/westall-station-temporary-lift-access-changes-from-tuesday-18-august-to-monday-14-september-2020",
+            "description": "Westall Station will have no lift access available between the overpass and platforms 2 and 3 from Tuesday 18 August to Monday 14 September, while upgrade works take place. ",
+            "disruption_status": "Current",
+            "disruption_type": "Planned Closure",
+            "published_on": "2020-08-16T23:02:27Z",
+            "last_updated": "2020-08-26T05:20:01Z",
+            "from_date": "2020-08-17T17:00:00Z",
+            "to_date": "2020-09-14T17:00:00Z",
+            "routes": [{
+                "route_type": 0,
+                "route_id": 4,
+                "route_name": "Cranbourne",
+                "route_number": "",
+                "route_gtfs_id": "2-CRB",
+                "direction": null
+            }, {
+                "route_type": 0,
+                "route_id": 11,
+                "route_name": "Pakenham",
+                "route_number": "",
+                "route_gtfs_id": "2-PKM",
+                "direction": null
+            }],
+            "stops": [{
+                "stop_id": 1208,
+                "stop_name": "Westall "
+            }],
+            "colour": "#ffd500",
+            "display_on_board": true,
+            "display_status": false
+        }, {
+            "disruption_id": 211248,
+            "title": "Routes 411 and 412: Temporary bus stop closures from 9pm on Friday 4 September to 5am on Monday 5 October 2020",
+            "url": "http://ptv.vic.gov.au/live-travel-updates/article/routes-411-and-412-temporary-bus-stop-closures-from-9pm-on-friday-4-september-to-5am-on-monday-5-october-2020",
+            "description": "Bus Routes 411 and 412 will not service selected bus stops from 9pm on Friday 4 September to 5am on Monday 5 October, due to works.",
+            "disruption_status": "Current",
+            "disruption_type": "Planned Closure",
+            "published_on": "2020-08-16T08:54:10Z",
+            "last_updated": "2020-09-04T11:00:14Z",
+            "from_date": "2020-09-04T11:00:00Z",
+            "to_date": "2020-10-04T18:05:00Z",
+            "routes": [{
+                "route_type": 2,
+                "route_id": 10900,
+                "route_name": "Laverton Station - Footscray via Altona Meadows & Altona & Millers Rd",
+                "route_number": "411",
+                "route_gtfs_id": "4-411",
+                "direction": null
+            }, {
+                "route_type": 2,
+                "route_id": 10903,
+                "route_name": "Laverton Station - Footscray via Altona Meadows & Altona & Mills St",
+                "route_number": "412",
+                "route_gtfs_id": "4-412",
+                "direction": null
+            }],
+            "stops": [],
+            "colour": "#ffd500",
+            "display_on_board": false,
+            "display_status": false
+        }, {
+            "disruption_id": 211104,
+            "title": "Mernda Line: Buses replace evening trains in September 2020",
+            "url": "http://ptv.vic.gov.au/live-travel-updates/article/mernda-line-buses-replace-evening-trains-in-september-2020",
+            "description": "Buses replace evening trains between Epping and Mernda on selected nights from Monday 31 August to late September, while project works take place.",
+            "disruption_status": "Current",
+            "disruption_type": "Planned Works",
+            "published_on": "2020-08-11T22:57:54Z",
+            "last_updated": "2020-09-10T19:43:36Z",
+            "from_date": "2020-08-31T10:50:00Z",
+            "to_date": "2020-09-30T17:00:00Z",
+            "routes": [{
+                "route_type": 0,
+                "route_id": 5,
+                "route_name": "Mernda",
+                "route_number": "",
+                "route_gtfs_id": "2-MER",
+                "direction": null
+            }],
+            "stops": [],
+            "colour": "#ffd500",
+            "display_on_board": true,
+            "display_status": false
+        }, {
+            "disruption_id": 211055,
+            "title": "Merinda Park Station: Temporary car park closures from Tuesday 11 August to Wednesday 25 November 2020",
+            "url": "http://ptv.vic.gov.au/live-travel-updates/article/merinda-park-station-temporary-car-park-closures-from-tuesday-11-august-to-wednesday-25-november-2020",
+            "description": "Merinda Park Station will be affected by temporary car space closures from Tuesday 11 August to Wednesday 25 November, due to works.",
+            "disruption_status": "Current",
+            "disruption_type": "Planned Closure",
+            "published_on": "2020-08-11T02:32:19Z",
+            "last_updated": "2020-08-11T02:34:04Z",
+            "from_date": "2020-08-11T02:27:00Z",
+            "to_date": "2020-11-25T16:00:00Z",
+            "routes": [{
+                "route_type": 0,
+                "route_id": 4,
+                "route_name": "Cranbourne",
+                "route_number": "",
+                "route_gtfs_id": "2-CRB",
+                "direction": null
+            }],
+            "stops": [],
+            "colour": "#ffd500",
+            "display_on_board": false,
+            "display_status": false
+        }, {
+            "disruption_id": 210454,
+            "title": "Lynbrook Station: Temporary car park closures from Tuesday 18 August to Saturday 31 October 2020",
+            "url": "http://ptv.vic.gov.au/live-travel-updates/article/lynbrook-station-temporary-car-park-closures-from-tuesday-18-august-to-saturday-31-october-2020",
+            "description": "Lynbrook Station will be affected by temporary car space closures from Tuesday 18 August to Saturday 31 October, due to works.",
+            "disruption_status": "Current",
+            "disruption_type": "Planned Closure",
+            "published_on": "2020-07-29T23:33:51Z",
+            "last_updated": "2020-09-02T02:31:14Z",
+            "from_date": "2020-08-17T17:00:00Z",
+            "to_date": "2020-10-31T16:00:00Z",
+            "routes": [{
+                "route_type": 0,
+                "route_id": 4,
+                "route_name": "Cranbourne",
+                "route_number": "",
+                "route_gtfs_id": "2-CRB",
+                "direction": null
+            }],
+            "stops": [{
+                "stop_id": 1222,
+                "stop_name": "Lynbrook "
+            }],
+            "colour": "#ffd500",
+            "display_on_board": false,
+            "display_status": false
+        }, {
+            "disruption_id": 210304,
+            "title": "Berwick Station: Temporary car park closures and pedestrian access changes from Monday 20 July to early 2022",
+            "url": "http://ptv.vic.gov.au/live-travel-updates/article/berwick-station-temporary-pedestrian-access-changes-from-monday-20-july-to-early-2022",
+            "description": "Berwick Station will be affected by temporary car park closures and pedestrian access changes Monday 20 July to early 2022, while Clyde Road level crossing removal project works take place.",
+            "disruption_status": "Current",
+            "disruption_type": "Planned Closure",
+            "published_on": "2020-07-27T01:44:12Z",
+            "last_updated": "2020-09-03T02:31:10Z",
+            "from_date": "2020-07-27T01:38:00Z",
+            "to_date": "2022-03-31T16:00:00Z",
+            "routes": [{
+                "route_type": 0,
+                "route_id": 11,
+                "route_name": "Pakenham",
+                "route_number": "",
+                "route_gtfs_id": "2-PKM",
+                "direction": null
+            }],
+            "stops": [{
+                "stop_id": 1021,
+                "stop_name": "Berwick "
+            }],
+            "colour": "#ffd500",
+            "display_on_board": false,
+            "display_status": false
+        }, {
+            "disruption_id": 210188,
+            "title": "Upfield Line Stations: Temporary car park closures from Monday 27 July to Monday 16 November 2020",
+            "url": "http://ptv.vic.gov.au/live-travel-updates/article/upfield-line-stations-temporary-car-park-closures-from-monday-27-july-to-monday-16-november-2020",
+            "description": "Stations on the Upfield Line will be affected by temporary car park closures at select times from Monday 27 July to Monday 16 November for Level Crossing Removal Project works.",
+            "disruption_status": "Current",
+            "disruption_type": "Planned Closure",
+            "published_on": "2020-07-23T22:40:11Z",
+            "last_updated": "2020-08-24T03:06:16Z",
+            "from_date": "2020-07-26T19:00:00Z",
+            "to_date": "2020-11-15T13:05:00Z",
+            "routes": [{
+                "route_type": 0,
+                "route_id": 15,
+                "route_name": "Upfield",
+                "route_number": "",
+                "route_gtfs_id": "2-UFD",
+                "direction": null
+            }],
+            "stops": [{
+                "stop_id": 1124,
+                "stop_name": "Merlynston "
+            }, {
+                "stop_id": 1135,
+                "stop_name": "Moreland "
+            }, {
+                "stop_id": 1006,
+                "stop_name": "Anstey "
+            }],
+            "colour": "#ffd500",
+            "display_on_board": false,
+            "display_status": false
+        }, {
+            "disruption_id": 210065,
+            "title": "Essendon Station: Temporary car space closures from  5am Monday 9 November to 12am Monday 16 November 2020",
+            "url": "http://ptv.vic.gov.au/live-travel-updates/article/essendon-station-temporary-car-space-closures-from-5am-monday-27-july-to-12am-monday-3-august-2020",
+            "description": "Essendon Station will be affected by temporary car space closures from  5am Monday 9 November to 12am Monday 16 November due to works.",
+            "disruption_status": "Current",
+            "disruption_type": "Planned Closure",
+            "published_on": "2020-07-22T02:33:49Z",
+            "last_updated": "2020-08-19T02:01:30Z",
+            "from_date": "2020-07-26T19:00:00Z",
+            "to_date": "2020-11-16T16:00:00Z",
+            "routes": [{
+                "route_type": 0,
+                "route_id": 3,
+                "route_name": "Craigieburn",
+                "route_number": "",
+                "route_gtfs_id": "2-B31",
+                "direction": null
+            }],
+            "stops": [{
+                "stop_id": 1064,
+                "stop_name": "Essendon "
+            }],
+            "colour": "#ffd500",
+            "display_on_board": false,
+            "display_status": false
+        }, {
+            "disruption_id": 210062,
+            "title": "Pascoe Vale Station: Temporary car space closures from 5am Monday 27 July to 12am Monday 16 November 2020",
+            "url": "http://ptv.vic.gov.au/live-travel-updates/article/pascoe-vale-station-temporary-car-space-closures-from-5am-monday-27-july-to-12am-monday-16-november-2020",
+            "description": "Pascoe Vale Station will be affected by temporary car space closures from 5am Monday 27 July to 12am Monday 16 November, due to works.",
+            "disruption_status": "Current",
+            "disruption_type": "Planned Closure",
+            "published_on": "2020-07-22T02:22:40Z",
+            "last_updated": "2020-07-26T19:00:10Z",
+            "from_date": "2020-07-26T19:00:00Z",
+            "to_date": "2020-11-16T12:55:00Z",
+            "routes": [{
+                "route_type": 0,
+                "route_id": 3,
+                "route_name": "Craigieburn",
+                "route_number": "",
+                "route_gtfs_id": "2-B31",
+                "direction": null
+            }],
+            "stops": [{
+                "stop_id": 1156,
+                "stop_name": "Pascoe Vale "
+            }],
+            "colour": "#ffd500",
+            "display_on_board": false,
+            "display_status": false
+        }, {
+            "disruption_id": 209809,
+            "title": "Routes 19 and 58: Increased service demand from 8.30pm on Monday 27 July to Sunday 15 November 2020",
+            "url": "http://ptv.vic.gov.au/live-travel-updates/article/routes-19-and-58-increased-service-demand-from-8-30pm-on-monday-27-july-to-sunday-15-november-2020",
+            "description": "Route 19 and 58 trams may experience higher than usual demand from 8.30pm on Monday 27 July to last tram on Sunday 15 November 2020, due to level crossing removal works on the Upfield line.",
+            "disruption_status": "Current",
+            "disruption_type": "Planned Works",
+            "published_on": "2020-07-16T03:47:20Z",
+            "last_updated": "2020-07-27T10:30:04Z",
+            "from_date": "2020-07-27T10:30:00Z",
+            "to_date": "2020-11-15T16:00:00Z",
+            "routes": [{
+                "route_type": 1,
+                "route_id": 11529,
+                "route_name": "West Coburg - Toorak",
+                "route_number": "58",
+                "route_gtfs_id": "3-058",
+                "direction": null
+            }, {
+                "route_type": 1,
+                "route_id": 725,
+                "route_name": "North Coburg - Flinders Street Station & City",
+                "route_number": "19",
+                "route_gtfs_id": "3-019",
+                "direction": null
+            }],
+            "stops": [{
+                "stop_id": 3108,
+                "stop_name": "William St/Flinders Lane #3 "
+            }, {
+                "stop_id": 3107,
+                "stop_name": "Collins St/William St #4 "
+            }, {
+                "stop_id": 3104,
+                "stop_name": "Flagstaff Railway Station/William St #7 "
+            }, {
+                "stop_id": 3102,
+                "stop_name": "Franklin St/William St #8 "
+            }, {
+                "stop_id": 3101,
+                "stop_name": "Queen Victoria Market/39 Peel St #9 "
+            }, {
+                "stop_id": 3100,
+                "stop_name": "Victoria St/Peel St #10 "
+            }, {
+                "stop_id": 3329,
+                "stop_name": "Queensberry St/Peel St #11 "
+            }, {
+                "stop_id": 3328,
+                "stop_name": "Flemington Rd/Peel St #12 "
+            }, {
+                "stop_id": 2712,
+                "stop_name": "Royal Melbourne Hospital/Flemington Rd #14 "
+            }, {
+                "stop_id": 3311,
+                "stop_name": "Murphy St/Flemington Rd #15 "
+            }, {
+                "stop_id": 2710,
+                "stop_name": "Harker St/Flemington Rd #16 "
+            }, {
+                "stop_id": 2707,
+                "stop_name": "Royal Childrens Hospital/Flemington Rd #19 "
+            }, {
+                "stop_id": 2706,
+                "stop_name": "Melrose St/Flemington Rd #20 "
+            }, {
+                "stop_id": 2703,
+                "stop_name": "Boundary Rd/Flemington Rd #22 "
+            }, {
+                "stop_id": 2702,
+                "stop_name": "Flemington Community Centre/Mt Alexander Rd #23 "
+            }, {
+                "stop_id": 2700,
+                "stop_name": "Mooltan St/Mt Alexander Rd #24 "
+            }, {
+                "stop_id": 3390,
+                "stop_name": "Mount Alexander College/Mt Alexander Rd #25 "
+            }, {
+                "stop_id": 2698,
+                "stop_name": "Wellington St/Mt Alexander Rd #26 "
+            }, {
+                "stop_id": 2689,
+                "stop_name": "Essendon Tram Depot/Mt Alexander Rd #27 "
+            }, {
+                "stop_id": 3306,
+                "stop_name": "Royal Park/Royal Park #23 "
+            }, {
+                "stop_id": 2556,
+                "stop_name": "Elliott Ave/Royal Park #24 "
+            }, {
+                "stop_id": 3097,
+                "stop_name": "State Netball Hockey Centre/Royal Park #25 "
+            }, {
+                "stop_id": 2697,
+                "stop_name": "Melbourne Zoo/Royal Park #26 "
+            }, {
+                "stop_id": 2146,
+                "stop_name": "Royal Park Station/Royal Park #27 "
+            }, {
+                "stop_id": 2170,
+                "stop_name": "Park St/Royal Park #28 "
+            }, {
+                "stop_id": 3094,
+                "stop_name": "Brunswick Rd/Royal Park #29 "
+            }, {
+                "stop_id": 3093,
+                "stop_name": "Union Square Shopping Centre/Grantham St #30 "
+            }, {
+                "stop_id": 3091,
+                "stop_name": "Dawson St/Grantham St #31 "
+            }, {
+                "stop_id": 3090,
+                "stop_name": "Foden St/Dawson St #32 "
+            }, {
+                "stop_id": 3089,
+                "stop_name": "Daly St/Dawson St #33 "
+            }, {
+                "stop_id": 3088,
+                "stop_name": "Smith St/Melville Rd #34 "
+            }, {
+                "stop_id": 3087,
+                "stop_name": "Victoria St/Melville Rd #35 "
+            }, {
+                "stop_id": 3086,
+                "stop_name": "Hope St/Melville Rd #36 "
+            }, {
+                "stop_id": 3085,
+                "stop_name": "Albion St/Melville Rd #37 "
+            }, {
+                "stop_id": 3084,
+                "stop_name": "Jacobs Reserve/Melville Rd #38 "
+            }, {
+                "stop_id": 3082,
+                "stop_name": "McGregor Ave/Melville Rd #39 "
+            }, {
+                "stop_id": 3081,
+                "stop_name": "Moreland Rd/Melville Rd #40 "
+            }, {
+                "stop_id": 3079,
+                "stop_name": "Woodlands Ave/Melville Rd #41 "
+            }, {
+                "stop_id": 3078,
+                "stop_name": "Reynard St/Melville Rd #42 "
+            }, {
+                "stop_id": 3077,
+                "stop_name": "Princes Tce/Melville Rd #43 "
+            }, {
+                "stop_id": 3076,
+                "stop_name": "Brearley Pde/Melville Rd #44 "
+            }, {
+                "stop_id": 3075,
+                "stop_name": "Bell St/Melville Rd #45 "
+            }, {
+                "stop_id": 2722,
+                "stop_name": "Flinders Street Railway Station/Elizabeth St #1 "
+            }, {
+                "stop_id": 2721,
+                "stop_name": "Collins St/Elizabeth St #2 "
+            }, {
+                "stop_id": 2720,
+                "stop_name": "Bourke Street Mall/Elizabeth St #3 "
+            }, {
+                "stop_id": 2718,
+                "stop_name": "Melbourne Central Station/Elizabeth St #5 "
+            }, {
+                "stop_id": 2258,
+                "stop_name": "Queen Victoria Market/Elizabeth St #7 "
+            }, {
+                "stop_id": 2714,
+                "stop_name": "Pelham St/Elizabeth St #9 "
+            }, {
+                "stop_id": 2822,
+                "stop_name": "Royal Melbourne Hospital/Royal Pde #10 "
+            }, {
+                "stop_id": 2245,
+                "stop_name": "University of Melbourne/Royal Pde #11 "
+            }, {
+                "stop_id": 2820,
+                "stop_name": "Morrah St/Royal Pde #12 "
+            }, {
+                "stop_id": 2819,
+                "stop_name": "Gatehouse St/Royal Pde #13 "
+            }, {
+                "stop_id": 2818,
+                "stop_name": "Macarthur Rd/Royal Pde #14 "
+            }, {
+                "stop_id": 2816,
+                "stop_name": "Leonard St/Royal Pde #15 "
+            }, {
+                "stop_id": 2815,
+                "stop_name": "Visy Park/Royal Pde #16 "
+            }, {
+                "stop_id": 2814,
+                "stop_name": "Ievers St/Royal Pde #17 "
+            }, {
+                "stop_id": 2813,
+                "stop_name": "Princes Park/Royal Pde #18 "
+            }, {
+                "stop_id": 2812,
+                "stop_name": "Brunswick Rd/Sydney Rd #19 "
+            }, {
+                "stop_id": 2400,
+                "stop_name": "Barkly Square/115 Sydney Rd #20 "
+            }, {
+                "stop_id": 2810,
+                "stop_name": "Brunswick Town Hall/Sydney Rd #21 "
+            }, {
+                "stop_id": 2808,
+                "stop_name": "Albert St/Sydney Rd #22 "
+            }, {
+                "stop_id": 2117,
+                "stop_name": "Victoria St/Sydney Rd #23 "
+            }, {
+                "stop_id": 2806,
+                "stop_name": "Brunswick Baptist Church/Sydney Rd #24 "
+            }, {
+                "stop_id": 2805,
+                "stop_name": "Stewart St/Sydney Rd #25 "
+            }, {
+                "stop_id": 2804,
+                "stop_name": "Albion St/Sydney Rd #26 "
+            }, {
+                "stop_id": 2119,
+                "stop_name": "Brunswick Tram Depot/Sydney Rd #27 "
+            }, {
+                "stop_id": 2236,
+                "stop_name": "Sydney Rd/Moreland Rd #132 "
+            }, {
+                "stop_id": 2237,
+                "stop_name": "Moreland Station/Moreland Rd #133 "
+            }, {
+                "stop_id": 2802,
+                "stop_name": "Moreland Rd/Sydney Rd #28 "
+            }, {
+                "stop_id": 2801,
+                "stop_name": "Moore St/Sydney Rd #29 "
+            }, {
+                "stop_id": 2002,
+                "stop_name": "The Avenue/Sydney Rd #30 "
+            }, {
+                "stop_id": 2798,
+                "stop_name": "Reynard St/Sydney Rd #31 "
+            }, {
+                "stop_id": 2797,
+                "stop_name": "Munro St/Sydney Rd #32 "
+            }, {
+                "stop_id": 2795,
+                "stop_name": "Coburg Market/Sydney Rd #33 "
+            }, {
+                "stop_id": 2794,
+                "stop_name": "Bell St/Sydney Rd #34 "
+            }, {
+                "stop_id": 2791,
+                "stop_name": "Rogers St/Sydney Rd #36 "
+            }, {
+                "stop_id": 2790,
+                "stop_name": "Gaffney St/Sydney Rd #37 "
+            }, {
+                "stop_id": 2789,
+                "stop_name": "Renown St/Sydney Rd #38 "
+            }, {
+                "stop_id": 2670,
+                "stop_name": "Mercy College/Sydney Rd #39 "
+            }, {
+                "stop_id": 2786,
+                "stop_name": "North Coburg Terminus/Sydney Rd #40 "
+            }],
+            "colour": "#ffd500",
+            "display_on_board": false,
+            "display_status": false
+        }, {
+            "disruption_id": 209397,
+            "title": "Greensborough Station: Temporary car space closures from Friday 24 July to late October 2020",
+            "url": "http://ptv.vic.gov.au/live-travel-updates/article/greensborough-station-temporary-car-space-closures-from-friday-24-july-to-friday-31-july-2020",
+            "description": "Greensborough Station will be affected by temporary car space closures from Friday 24 July to late October, due to project works.",
+            "disruption_status": "Current",
+            "disruption_type": "Planned Closure",
+            "published_on": "2020-07-07T23:26:43Z",
+            "last_updated": "2020-07-27T03:04:24Z",
+            "from_date": "2020-07-23T17:00:00Z",
+            "to_date": "2020-10-31T16:00:00Z",
+            "routes": [{
+                "route_type": 0,
+                "route_id": 8,
+                "route_name": "Hurstbridge",
+                "route_number": "",
+                "route_gtfs_id": "2-HBG",
+                "direction": null
+            }],
+            "stops": [{
+                "stop_id": 1084,
+                "stop_name": "Greensborough "
+            }],
+            "colour": "#ffd500",
+            "display_on_board": false,
+            "display_status": false
+        }, {
+            "disruption_id": 208185,
+            "title": "Glenroy Station: Temporary car park closure from Monday 31 August to early 2021",
+            "url": "http://ptv.vic.gov.au/live-travel-updates/article/glenroy-station-temporary-car-park-closure-from-wednesday-3-june-2020-to-mid-2022",
+            "description": "Glenroy Station will be affected by temporary car space closures from Monday 31 August to early 2021, while project works take place.",
+            "disruption_status": "Current",
+            "disruption_type": "Planned Closure",
+            "published_on": "2020-06-16T01:15:20Z",
+            "last_updated": "2020-08-31T01:14:04Z",
+            "from_date": "2020-08-31T01:13:00Z",
+            "to_date": "2022-06-30T17:00:00Z",
+            "routes": [{
+                "route_type": 0,
+                "route_id": 3,
+                "route_name": "Craigieburn",
+                "route_number": "",
+                "route_gtfs_id": "2-B31",
+                "direction": null
+            }],
+            "stops": [{
+                "stop_id": 1082,
+                "stop_name": "Glenroy "
+            }],
+            "colour": "#ffd500",
+            "display_on_board": false,
+            "display_status": false
+        }, {
+            "disruption_id": 207820,
+            "title": "Sandown Park Station: Temporary car park closures from Monday 15 June to Wednesday 30 September 2020",
+            "url": "http://ptv.vic.gov.au/live-travel-updates/article/sandown-park-station-temporary-car-park-closures-from-monday-15-june-to-wednesday-30-september-2020",
+            "description": "Sandown Park Station will be affected by temporary car space closures from 4am Monday 15 June to 6pm Wednesday 30 September, due to project works.",
+            "disruption_status": "Current",
+            "disruption_type": "Planned Closure",
+            "published_on": "2020-06-09T23:41:32Z",
+            "last_updated": "2020-06-14T18:00:04Z",
+            "from_date": "2020-06-14T18:00:00Z",
+            "to_date": "2020-09-30T08:00:00Z",
+            "routes": [{
+                "route_type": 0,
+                "route_id": 4,
+                "route_name": "Cranbourne",
+                "route_number": "",
+                "route_gtfs_id": "2-CRB",
+                "direction": null
+            }, {
+                "route_type": 0,
+                "route_id": 11,
+                "route_name": "Pakenham",
+                "route_number": "",
+                "route_gtfs_id": "2-PKM",
+                "direction": null
+            }],
+            "stops": [{
+                "stop_id": 1172,
+                "stop_name": "Sandown Park "
+            }],
+            "colour": "#ffd500",
+            "display_on_board": false,
+            "display_status": false
+        }, {
+            "disruption_id": 206940,
+            "title": "Upfield Line: Buses replace trains from Monday 27 July to Sunday 15 November 2020",
+            "url": "http://ptv.vic.gov.au/live-travel-updates/article/upfield-line-buses-replace-trains-from-tuesday-28-july-to-sunday-15-november-2020",
+            "description": "Buses replace trains on sections of the Upfield line from Monday 27 July to Sunday 15 November, due to level crossing removal works. Buses replace trains Flagstaff to Upfield from 8.30pm Monday 27 July to Sunday 2 August, then Anstey to Upfield from Monday 3 August.",
+            "disruption_status": "Current",
+            "disruption_type": "Planned Works",
+            "published_on": "2020-05-26T00:14:00Z",
+            "last_updated": "2020-09-12T20:17:22Z",
+            "from_date": "2020-07-27T10:30:00Z",
+            "to_date": "2020-11-15T16:00:00Z",
+            "routes": [{
+                "route_type": 0,
+                "route_id": 15,
+                "route_name": "Upfield",
+                "route_number": "",
+                "route_gtfs_id": "2-UFD",
+                "direction": null
+            }],
+            "stops": [{
+                "stop_id": 1198,
+                "stop_name": "Upfield "
+            }, {
+                "stop_id": 1083,
+                "stop_name": "Gowrie "
+            }, {
+                "stop_id": 1066,
+                "stop_name": "Fawkner "
+            }, {
+                "stop_id": 1124,
+                "stop_name": "Merlynston "
+            }, {
+                "stop_id": 1014,
+                "stop_name": "Batman "
+            }, {
+                "stop_id": 1042,
+                "stop_name": "Coburg "
+            }, {
+                "stop_id": 1135,
+                "stop_name": "Moreland "
+            }, {
+                "stop_id": 1006,
+                "stop_name": "Anstey "
+            }, {
+                "stop_id": 1029,
+                "stop_name": "Brunswick "
+            }, {
+                "stop_id": 1103,
+                "stop_name": "Jewell "
+            }, {
+                "stop_id": 1169,
+                "stop_name": "Royal Park "
+            }, {
+                "stop_id": 1069,
+                "stop_name": "Flemington Bridge "
+            }, {
+                "stop_id": 1116,
+                "stop_name": "Macaulay "
+            }, {
+                "stop_id": 1144,
+                "stop_name": "North Melbourne "
+            }, {
+                "stop_id": 1068,
+                "stop_name": "Flagstaff "
+            }, {
+                "stop_id": 1120,
+                "stop_name": "Melbourne Central "
+            }, {
+                "stop_id": 1155,
+                "stop_name": "Parliament "
+            }, {
+                "stop_id": 1181,
+                "stop_name": "Southern Cross "
+            }, {
+                "stop_id": 1071,
+                "stop_name": "Flinders Street "
+            }],
+            "colour": "#ffd500",
+            "display_on_board": true,
+            "display_status": false
+        }, {
+            "disruption_id": 206392,
+            "title": "Mooroolbark Station: Temporary car space closures from Friday 21 August 2020 to early 2022",
+            "url": "http://ptv.vic.gov.au/live-travel-updates/article/mooroolbark-station-temporary-car-space-closures-from-4am-monday-18-may-to-sunday-19-july-2020",
+            "description": "Mooroolbark Station will be affected by select temporary car space closures from Friday 21 August 2020 to early 2022, while project works take place.",
+            "disruption_status": "Current",
+            "disruption_type": "Planned Closure",
+            "published_on": "2020-05-13T22:23:17Z",
+            "last_updated": "2020-08-21T01:57:11Z",
+            "from_date": "2020-05-17T18:00:00Z",
+            "to_date": "2022-03-31T16:00:00Z",
+            "routes": [{
+                "route_type": 0,
+                "route_id": 9,
+                "route_name": "Lilydale",
+                "route_number": "",
+                "route_gtfs_id": "2-LIL",
+                "direction": null
+            }],
+            "stops": [{
+                "stop_id": 1133,
+                "stop_name": "Mooroolbark "
+            }],
+            "colour": "#ffd500",
+            "display_on_board": false,
+            "display_status": false
+        }, {
+            "disruption_id": 203018,
+            "title": "Sandringham Line stations: Temporary car park closures and pedestrian access changes from Friday 20 March to Monday 6 April 2020",
+            "url": "http://ptv.vic.gov.au/live-travel-updates/article/sandringham-line-stations-temporary-car-park-closures-and-pedestrian-access-changes-from-friday-20-march-to-monday-6-april-2020",
+            "description": "Stations on the Sandringham Line will be affected by temporary car park closures and changes to pedestrian access from Friday 20 March to Monday 6 April, due to major renewal works.",
+            "disruption_status": "Current",
+            "disruption_type": "Planned Closure",
+            "published_on": "2020-03-17T01:12:19Z",
+            "last_updated": "2020-03-25T01:55:19Z",
+            "from_date": "2020-03-20T07:00:00Z",
+            "to_date": "2020-04-05T18:00:00Z",
+            "routes": [{
+                "route_type": 0,
+                "route_id": 12,
+                "route_name": "Sandringham",
+                "route_number": "",
+                "route_gtfs_id": "2-SDM",
+                "direction": null
+            }],
+            "stops": [{
+                "stop_id": 1143,
+                "stop_name": "North Brighton "
+            }, {
+                "stop_id": 1086,
+                "stop_name": "Hampton "
+            }, {
+                "stop_id": 1027,
+                "stop_name": "Brighton Beach "
+            }, {
+                "stop_id": 1126,
+                "stop_name": "Middle Brighton "
+            }, {
+                "stop_id": 1074,
+                "stop_name": "Gardenvale "
+            }, {
+                "stop_id": 1173,
+                "stop_name": "Sandringham "
+            }, {
+                "stop_id": 1061,
+                "stop_name": "Elsternwick "
+            }, {
+                "stop_id": 1180,
+                "stop_name": "South Yarra "
+            }, {
+                "stop_id": 1214,
+                "stop_name": "Windsor "
+            }],
+            "colour": "#ffd500",
+            "display_on_board": false,
+            "display_status": false
+        }, {
+            "disruption_id": 197097,
+            "title": "Coburg Station: Station changes from Monday 3 February 2020 to mid-2021",
+            "url": "http://ptv.vic.gov.au/live-travel-updates/article/coburg-station-temporary-car-space-closures-and-pedestrian-access-changes-from-monday-3-february-2020-to-mid-2021",
+            "description": "Coburg Station will be affected by station changes including a station closure, temporary car space closures and pedestrian access changes from Monday 3 February to mid-2021, while level crossing removal works take place.",
+            "disruption_status": "Current",
+            "disruption_type": "Planned Closure",
+            "published_on": "2020-01-23T02:30:36Z",
+            "last_updated": "2020-07-23T22:58:09Z",
+            "from_date": "2020-01-23T02:03:00Z",
+            "to_date": "2020-06-30T17:00:00Z",
+            "routes": [{
+                "route_type": 0,
+                "route_id": 15,
+                "route_name": "Upfield",
+                "route_number": "",
+                "route_gtfs_id": "2-UFD",
+                "direction": null
+            }],
+            "stops": [{
+                "stop_id": 1042,
+                "stop_name": "Coburg "
+            }],
+            "colour": "#ffd500",
+            "display_on_board": false,
+            "display_status": false
+        }, {
+            "disruption_id": 190399,
+            "title": "Cardinia Road Station: Temporary pedestrian access changes from Sunday 24 November 2019 to 2021",
+            "url": "http://ptv.vic.gov.au/live-travel-updates/article/cardinia-road-station-temporary-pedestrian-access-changes-from-24-november-2019-to-2021",
+            "description": "Cardinia Road Station will be affected by temporary car space closures and pedestrian access changes from Sunday 24 November 2019 to 2021, while level crossing removal works take place.",
+            "disruption_status": "Current",
+            "disruption_type": "Planned Closure",
+            "published_on": "2019-11-14T01:30:31Z",
+            "last_updated": "2020-05-18T00:58:08Z",
+            "from_date": "2019-11-23T16:00:00Z",
+            "to_date": "2021-12-31T16:00:00Z",
+            "routes": [{
+                "route_type": 0,
+                "route_id": 11,
+                "route_name": "Pakenham",
+                "route_number": "",
+                "route_gtfs_id": "2-PKM",
+                "direction": null
+            }],
+            "stops": [{
+                "stop_id": 1223,
+                "stop_name": "Cardinia Road "
+            }],
+            "colour": "#ffd500",
+            "display_on_board": false,
+            "display_status": false
+        }, {
+            "disruption_id": 189345,
+            "title": "Moreland Station: Station changes from Thursday 7 November 2019 to mid-2021",
+            "url": "http://ptv.vic.gov.au/live-travel-updates/article/moreland-station-temporary-car-space-closures-and-pedestrian-access-changes-from-thursday-7-november-to-friday-20-december-2019",
+            "description": "Moreland Station will be affected by station changes including a station closure, temporary car space closures and pedestrian access changes from 7am Thursday 7 November 2019 to mid-2021, while level crossing removal works take place.",
+            "disruption_status": "Current",
+            "disruption_type": "Planned Closure",
+            "published_on": "2019-11-01T06:34:59Z",
+            "last_updated": "2020-08-19T02:49:15Z",
+            "from_date": "2019-11-06T16:00:00Z",
+            "to_date": "2020-07-01T08:00:00Z",
+            "routes": [{
+                "route_type": 0,
+                "route_id": 15,
+                "route_name": "Upfield",
+                "route_number": "",
+                "route_gtfs_id": "2-UFD",
+                "direction": null
+            }],
+            "stops": [{
+                "stop_id": 1135,
+                "stop_name": "Moreland "
+            }],
+            "colour": "#ffd500",
+            "display_on_board": false,
+            "display_status": false
+        }, {
+            "disruption_id": 183388,
+            "title": "Flinders Street Station: Temporary changes to pedestrian access from Monday 2 September 2019 until further notice",
+            "url": "http://ptv.vic.gov.au/live-travel-updates/article/flinders-street-station-temporary-changes-to-pedestrian-access-from-monday-2-sepember-2019-until-further-notice",
+            "description": "There will be changes to pedestrian access to Flinders Street station from Monday, 2 September 2019 until further notice, while Metro Tunnel Project works take place.",
+            "disruption_status": "Current",
+            "disruption_type": "Planned Closure",
+            "published_on": "2019-08-30T04:09:00Z",
+            "last_updated": "2020-03-10T23:05:59Z",
+            "from_date": "2019-08-30T03:23:00Z",
+            "to_date": "2021-02-11T16:00:00Z",
+            "routes": [],
+            "stops": [],
+            "colour": "#ffd500",
+            "display_on_board": false,
+            "display_status": false
+        }, {
+            "disruption_id": 165003,
+            "title": "West Footscray Station: Temporary car park closures from 7pm Friday 1 March 2019 to early 2021",
+            "url": "http://ptv.vic.gov.au/live-travel-updates/article/west-footscray-station-temporary-car-park-closures-from-7pm-friday-1-march-2019-to-early-2021",
+            "description": "West Footscray Station will be affected by temporary car space closures from 7pm Friday 1 March 2019 to Monday 30 November, while Metro Tunnel Project works take place.",
+            "disruption_status": "Current",
+            "disruption_type": "Planned Closure",
+            "published_on": "2019-02-22T02:39:05Z",
+            "last_updated": "2020-08-16T22:44:11Z",
+            "from_date": "2019-02-22T02:32:00Z",
+            "to_date": "2021-07-30T17:00:00Z",
+            "routes": [{
+                "route_type": 0,
+                "route_id": 14,
+                "route_name": "Sunbury",
+                "route_number": "",
+                "route_gtfs_id": "2-SYM",
+                "direction": null
+            }],
+            "stops": [{
+                "stop_id": 1206,
+                "stop_name": "West Footscray "
+            }],
+            "colour": "#ffd500",
+            "display_on_board": false,
+            "display_status": false
+        }, {
+            "disruption_id": 142498,
+            "title": "Frankston Line stations: Temporary car park closures and changes to pedestrian access until mid-2022",
+            "url": "http://ptv.vic.gov.au/live-travel-updates/article/frankston-line-stations-temporary-car-park-closures-and-changes-to-pedestrian-access-until-late-2018",
+            "description": "Stations on the Frankston Line will be affected by temporary car park closures and changes to pedestrian access at select times in late 2018 and mid 2022, due to works as part of the Level Crossing Removal Project as well as other maintenance works.",
+            "disruption_status": "Current",
+            "disruption_type": "Planned Closure",
+            "published_on": "2018-07-10T01:34:18Z",
+            "last_updated": "2020-09-07T21:09:12Z",
+            "from_date": "2018-07-10T01:16:00Z",
+            "to_date": "2020-12-31T16:00:00Z",
+            "routes": [{
+                "route_type": 0,
+                "route_id": 6,
+                "route_name": "Frankston",
+                "route_number": "",
+                "route_gtfs_id": "2-FKN",
+                "direction": null
+            }],
+            "stops": [{
+                "stop_id": 1081,
+                "stop_name": "Glenhuntly "
+            }, {
+                "stop_id": 1122,
+                "stop_name": "Mentone "
+            }, {
+                "stop_id": 1134,
+                "stop_name": "Mordialloc "
+            }, {
+                "stop_id": 1035,
+                "stop_name": "Carrum "
+            }, {
+                "stop_id": 1106,
+                "stop_name": "Kananook "
+            }, {
+                "stop_id": 1024,
+                "stop_name": "Bonbeach "
+            }, {
+                "stop_id": 1060,
+                "stop_name": "Edithvale "
+            }, {
+                "stop_id": 1038,
+                "stop_name": "Chelsea "
+            }],
+            "colour": "#ffd500",
+            "display_on_board": false,
+            "display_status": false
+        }],
+        "metro_tram": [],
+        "metro_bus": [],
+        "regional_train": [],
+        "regional_coach": [],
+        "regional_bus": [],
+        "school_bus": [],
+        "telebus": [],
+        "night_bus": [],
+        "ferry": [],
+        "interstate_train": [],
+        "skybus": [],
+        "taxi": []
+    },
+    "status": {
+        "version": "3.0",
+        "health": 1
+    }
+}

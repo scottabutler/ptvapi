@@ -1,0 +1,389 @@
+{
+    "stops": [{
+        "disruption_ids": [],
+        "stop_suburb": "Burnley",
+        "route_type": 0,
+        "stop_latitude": -37.8275566,
+        "stop_longitude": 145.007553,
+        "stop_sequence": 0,
+        "stop_ticket": {
+            "ticket_type": "",
+            "zone": "Zone 1",
+            "is_free_fare_zone": false,
+            "ticket_machine": true,
+            "ticket_checks": true,
+            "vline_reservation": false,
+            "ticket_zones": [1]
+        },
+        "stop_id": 1030,
+        "stop_name": "Burnley Station",
+        "stop_landmark": ""
+    }, {
+        "disruption_ids": [],
+        "stop_suburb": "Malvern East",
+        "route_type": 0,
+        "stop_latitude": -37.8689575,
+        "stop_longitude": 145.062943,
+        "stop_sequence": 0,
+        "stop_ticket": {
+            "ticket_type": "",
+            "zone": "Zone 1,Zone 2",
+            "is_free_fare_zone": false,
+            "ticket_machine": true,
+            "ticket_checks": false,
+            "vline_reservation": false,
+            "ticket_zones": [1, 2]
+        },
+        "stop_id": 1051,
+        "stop_name": "Darling Station",
+        "stop_landmark": ""
+    }, {
+        "disruption_ids": [],
+        "stop_suburb": "Malvern East",
+        "route_type": 0,
+        "stop_latitude": -37.87693,
+        "stop_longitude": 145.0694,
+        "stop_sequence": 0,
+        "stop_ticket": {
+            "ticket_type": "",
+            "zone": "Zone 1,Zone 2",
+            "is_free_fare_zone": false,
+            "ticket_machine": true,
+            "ticket_checks": false,
+            "vline_reservation": false,
+            "ticket_zones": [1, 2]
+        },
+        "stop_id": 1058,
+        "stop_name": "East Malvern Station",
+        "stop_landmark": ""
+    }, {
+        "disruption_ids": [],
+        "stop_suburb": "Richmond",
+        "route_type": 0,
+        "stop_latitude": -37.8264046,
+        "stop_longitude": 144.99707,
+        "stop_sequence": 0,
+        "stop_ticket": {
+            "ticket_type": "",
+            "zone": "Zone 1",
+            "is_free_fare_zone": false,
+            "ticket_machine": true,
+            "ticket_checks": false,
+            "vline_reservation": false,
+            "ticket_zones": [1]
+        },
+        "stop_id": 1059,
+        "stop_name": "East Richmond Station",
+        "stop_landmark": ""
+    }, {
+        "disruption_ids": [],
+        "stop_suburb": "Melbourne City",
+        "route_type": 0,
+        "stop_latitude": -37.8119774,
+        "stop_longitude": 144.955658,
+        "stop_sequence": 0,
+        "stop_ticket": {
+            "ticket_type": "",
+            "zone": "Zone 1",
+            "is_free_fare_zone": false,
+            "ticket_machine": true,
+            "ticket_checks": true,
+            "vline_reservation": true,
+            "ticket_zones": [1]
+        },
+        "stop_id": 1068,
+        "stop_name": "Flagstaff Station",
+        "stop_landmark": ""
+    }, {
+        "disruption_ids": [],
+        "stop_suburb": "Melbourne City",
+        "route_type": 0,
+        "stop_latitude": -37.81831,
+        "stop_longitude": 144.966965,
+        "stop_sequence": 0,
+        "stop_ticket": {
+            "ticket_type": "",
+            "zone": "Zone 1",
+            "is_free_fare_zone": false,
+            "ticket_machine": true,
+            "ticket_checks": true,
+            "vline_reservation": false,
+            "ticket_zones": [1]
+        },
+        "stop_id": 1071,
+        "stop_name": "Flinders Street Station",
+        "stop_landmark": ""
+    }, {
+        "disruption_ids": [],
+        "stop_suburb": "Glen Iris",
+        "route_type": 0,
+        "stop_latitude": -37.8532829,
+        "stop_longitude": 145.051666,
+        "stop_sequence": 0,
+        "stop_ticket": {
+            "ticket_type": "",
+            "zone": "Zone 1",
+            "is_free_fare_zone": false,
+            "ticket_machine": true,
+            "ticket_checks": false,
+            "vline_reservation": false,
+            "ticket_zones": [1]
+        },
+        "stop_id": 1075,
+        "stop_name": "Gardiner Station",
+        "stop_landmark": ""
+    }, {
+        "disruption_ids": [],
+        "stop_suburb": "Glen Iris",
+        "route_type": 0,
+        "stop_latitude": -37.8593063,
+        "stop_longitude": 145.058228,
+        "stop_sequence": 0,
+        "stop_ticket": {
+            "ticket_type": "",
+            "zone": "Zone 1",
+            "is_free_fare_zone": false,
+            "ticket_machine": true,
+            "ticket_checks": false,
+            "vline_reservation": false,
+            "ticket_zones": [1]
+        },
+        "stop_id": 1077,
+        "stop_name": "Glen Iris Station",
+        "stop_landmark": ""
+    }, {
+        "disruption_ids": [],
+        "stop_suburb": "Glen Waverley",
+        "route_type": 0,
+        "stop_latitude": -37.8795,
+        "stop_longitude": 145.162064,
+        "stop_sequence": 0,
+        "stop_ticket": {
+            "ticket_type": "",
+            "zone": "Zone 2",
+            "is_free_fare_zone": false,
+            "ticket_machine": true,
+            "ticket_checks": true,
+            "vline_reservation": true,
+            "ticket_zones": [2]
+        },
+        "stop_id": 1078,
+        "stop_name": "Glen Waverley Station",
+        "stop_landmark": ""
+    }, {
+        "disruption_ids": [],
+        "stop_suburb": "Toorak",
+        "route_type": 0,
+        "stop_latitude": -37.83467,
+        "stop_longitude": 145.022629,
+        "stop_sequence": 0,
+        "stop_ticket": {
+            "ticket_type": "",
+            "zone": "Zone 1",
+            "is_free_fare_zone": false,
+            "ticket_machine": true,
+            "ticket_checks": false,
+            "vline_reservation": false,
+            "ticket_zones": [1]
+        },
+        "stop_id": 1094,
+        "stop_name": "Heyington Station",
+        "stop_landmark": ""
+    }, {
+        "disruption_ids": [],
+        "stop_suburb": "Malvern East",
+        "route_type": 0,
+        "stop_latitude": -37.8744,
+        "stop_longitude": 145.090652,
+        "stop_sequence": 0,
+        "stop_ticket": {
+            "ticket_type": "",
+            "zone": "Zone 1,Zone 2",
+            "is_free_fare_zone": false,
+            "ticket_machine": true,
+            "ticket_checks": false,
+            "vline_reservation": false,
+            "ticket_zones": [1, 2]
+        },
+        "stop_id": 1096,
+        "stop_name": "Holmesglen Station",
+        "stop_landmark": ""
+    }, {
+        "disruption_ids": [],
+        "stop_suburb": "Mount Waverley",
+        "route_type": 0,
+        "stop_latitude": -37.8736,
+        "stop_longitude": 145.112091,
+        "stop_sequence": 0,
+        "stop_ticket": {
+            "ticket_type": "",
+            "zone": "Zone 2",
+            "is_free_fare_zone": false,
+            "ticket_machine": true,
+            "ticket_checks": false,
+            "vline_reservation": false,
+            "ticket_zones": [2]
+        },
+        "stop_id": 1105,
+        "stop_name": "Jordanville Station",
+        "stop_landmark": ""
+    }, {
+        "disruption_ids": [],
+        "stop_suburb": "Kooyong",
+        "route_type": 0,
+        "stop_latitude": -37.8399277,
+        "stop_longitude": 145.033554,
+        "stop_sequence": 0,
+        "stop_ticket": {
+            "ticket_type": "",
+            "zone": "Zone 1",
+            "is_free_fare_zone": false,
+            "ticket_machine": true,
+            "ticket_checks": false,
+            "vline_reservation": false,
+            "ticket_zones": [1]
+        },
+        "stop_id": 1110,
+        "stop_name": "Kooyong Station",
+        "stop_landmark": ""
+    }, {
+        "disruption_ids": [],
+        "stop_suburb": "Melbourne City",
+        "route_type": 0,
+        "stop_latitude": -37.8099365,
+        "stop_longitude": 144.9626,
+        "stop_sequence": 0,
+        "stop_ticket": {
+            "ticket_type": "",
+            "zone": "Zone 1",
+            "is_free_fare_zone": false,
+            "ticket_machine": true,
+            "ticket_checks": true,
+            "vline_reservation": true,
+            "ticket_zones": [1]
+        },
+        "stop_id": 1120,
+        "stop_name": "Melbourne Central Station",
+        "stop_landmark": ""
+    }, {
+        "disruption_ids": [],
+        "stop_suburb": "Mount Waverley",
+        "route_type": 0,
+        "stop_latitude": -37.87525,
+        "stop_longitude": 145.128052,
+        "stop_sequence": 0,
+        "stop_ticket": {
+            "ticket_type": "",
+            "zone": "Zone 2",
+            "is_free_fare_zone": false,
+            "ticket_machine": true,
+            "ticket_checks": true,
+            "vline_reservation": false,
+            "ticket_zones": [2]
+        },
+        "stop_id": 1137,
+        "stop_name": "Mount Waverley Station",
+        "stop_landmark": ""
+    }, {
+        "disruption_ids": [],
+        "stop_suburb": "Melbourne City",
+        "route_type": 0,
+        "stop_latitude": -37.8110542,
+        "stop_longitude": 144.9729,
+        "stop_sequence": 0,
+        "stop_ticket": {
+            "ticket_type": "",
+            "zone": "Zone 1",
+            "is_free_fare_zone": false,
+            "ticket_machine": true,
+            "ticket_checks": false,
+            "vline_reservation": true,
+            "ticket_zones": [1]
+        },
+        "stop_id": 1155,
+        "stop_name": "Parliament Station",
+        "stop_landmark": ""
+    }, {
+        "disruption_ids": [],
+        "stop_suburb": "Richmond",
+        "route_type": 0,
+        "stop_latitude": -37.8240738,
+        "stop_longitude": 144.990158,
+        "stop_sequence": 0,
+        "stop_ticket": {
+            "ticket_type": "",
+            "zone": "Zone 1",
+            "is_free_fare_zone": false,
+            "ticket_machine": true,
+            "ticket_checks": true,
+            "vline_reservation": true,
+            "ticket_zones": [1]
+        },
+        "stop_id": 1162,
+        "stop_name": "Richmond Station",
+        "stop_landmark": ""
+    }, {
+        "disruption_ids": [],
+        "stop_suburb": "Melbourne City",
+        "route_type": 0,
+        "stop_latitude": -37.8183327,
+        "stop_longitude": 144.95253,
+        "stop_sequence": 0,
+        "stop_ticket": {
+            "ticket_type": "",
+            "zone": "Zone 1",
+            "is_free_fare_zone": false,
+            "ticket_machine": true,
+            "ticket_checks": true,
+            "vline_reservation": true,
+            "ticket_zones": [1]
+        },
+        "stop_id": 1181,
+        "stop_name": "Southern Cross Station",
+        "stop_landmark": ""
+    }, {
+        "disruption_ids": [],
+        "stop_suburb": "Glen Waverley",
+        "route_type": 0,
+        "stop_latitude": -37.87623,
+        "stop_longitude": 145.14978,
+        "stop_sequence": 0,
+        "stop_ticket": {
+            "ticket_type": "",
+            "zone": "Zone 2",
+            "is_free_fare_zone": false,
+            "ticket_machine": true,
+            "ticket_checks": true,
+            "vline_reservation": false,
+            "ticket_zones": [2]
+        },
+        "stop_id": 1190,
+        "stop_name": "Syndal Station",
+        "stop_landmark": ""
+    }, {
+        "disruption_ids": [],
+        "stop_suburb": "Malvern",
+        "route_type": 0,
+        "stop_latitude": -37.84937,
+        "stop_longitude": 145.041733,
+        "stop_sequence": 0,
+        "stop_ticket": {
+            "ticket_type": "",
+            "zone": "Zone 1",
+            "is_free_fare_zone": false,
+            "ticket_machine": true,
+            "ticket_checks": false,
+            "vline_reservation": false,
+            "ticket_zones": [1]
+        },
+        "stop_id": 1195,
+        "stop_name": "Tooronga Station",
+        "stop_landmark": ""
+    }],
+    "disruptions": {},
+    "geopath": [],
+    "status": {
+        "version": "3.0",
+        "health": 1
+    }
+}
