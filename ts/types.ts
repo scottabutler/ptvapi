@@ -208,6 +208,10 @@
         'route_type'?: number;
     }
 
+    interface V3DisruptionsResponse {
+        disruptions: V3Disruptions;
+    }
+
     interface V3Disruptions {
         /**
         * Subset of disruption information applicable to multiple route_types

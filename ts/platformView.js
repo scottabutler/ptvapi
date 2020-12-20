@@ -131,7 +131,7 @@ const PTV = {
                 const stopsOnRoute = resolvedPromises[0].data.get(cacheKey);
                 const stoppingPattern = resolvedPromises[1];
                 const disruptions = resolvedPromises[2];
-                this.updatePage(stopId, routeId, disruptions, departures, runs, stoppingPattern, stopsOnRoute);
+                this.updatePage(stopId, routeId, disruptions.disruptions, departures, runs, stoppingPattern, stopsOnRoute);
             });
         })
             .catch(function (e) {

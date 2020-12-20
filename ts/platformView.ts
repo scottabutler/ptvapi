@@ -55,9 +55,9 @@ const PTV = {
             });
         };
 
-        let validateStopsOnRouteResponse = function(resolvedPromises:[StopsOnRouteCache, V3StoppingPatternResponse, V3Disruptions])
-            :Promise<[StopsOnRouteCache, V3StoppingPatternResponse, V3Disruptions]> {
-            return new Promise<[StopsOnRouteCache, V3StoppingPatternResponse, V3Disruptions]>((resolve, reject) => {
+        let validateStopsOnRouteResponse = function(resolvedPromises:[StopsOnRouteCache, V3StoppingPatternResponse, V3DisruptionsResponse])
+            :Promise<[StopsOnRouteCache, V3StoppingPatternResponse, V3DisruptionsResponse]> {
+            return new Promise<[StopsOnRouteCache, V3StoppingPatternResponse, V3DisruptionsResponse]>((resolve, reject) => {
                 const stopsOnRouteResponse = resolvedPromises[0];
                 if (stopsOnRouteResponse == undefined) {
                     reject('Stops on route cache is undefined.');
@@ -67,9 +67,9 @@ const PTV = {
             });
         };
 
-        let validateStoppingPatternResponse = function(resolvedPromises:[StopsOnRouteCache, V3StoppingPatternResponse, V3Disruptions])
-            :Promise<[StopsOnRouteCache, V3StoppingPatternResponse, V3Disruptions]> {
-            return new Promise<[StopsOnRouteCache, V3StoppingPatternResponse, V3Disruptions]>((resolve, reject) => {
+        let validateStoppingPatternResponse = function(resolvedPromises:[StopsOnRouteCache, V3StoppingPatternResponse, V3DisruptionsResponse])
+            :Promise<[StopsOnRouteCache, V3StoppingPatternResponse, V3DisruptionsResponse]> {
+            return new Promise<[StopsOnRouteCache, V3StoppingPatternResponse, V3DisruptionsResponse]>((resolve, reject) => {
                 const stoppingPatternResponse = resolvedPromises[1];
                 if (stoppingPatternResponse == undefined) {
                     reject('Stopping pattern response is undefined.');
@@ -82,9 +82,9 @@ const PTV = {
             });
         };
 
-        let validateDisruptionsResponse = function(resolvedPromises:[StopsOnRouteCache, V3StoppingPatternResponse, V3Disruptions])
-            :Promise<[StopsOnRouteCache, V3StoppingPatternResponse, V3Disruptions]> {
-            return new Promise<[StopsOnRouteCache, V3StoppingPatternResponse, V3Disruptions]>((resolve, reject) => {
+        let validateDisruptionsResponse = function(resolvedPromises:[StopsOnRouteCache, V3StoppingPatternResponse, V3DisruptionsResponse])
+            :Promise<[StopsOnRouteCache, V3StoppingPatternResponse, V3DisruptionsResponse]> {
+            return new Promise<[StopsOnRouteCache, V3StoppingPatternResponse, V3DisruptionsResponse]>((resolve, reject) => {
                 const disruptionsResponse = resolvedPromises[2];
                 if (disruptionsResponse == undefined) {
                     reject('Disruptions response is undefined.');
@@ -94,7 +94,7 @@ const PTV = {
             });
         };
 
-        let updateStopsOnRouteCache = function(stopsOnRouteResponse:V3StopsOnRouteResponse, cache:StopsOnRouteCache, cacheKey:string)
+        let updateStopsOnRouteCache = function(stopsOnRouteResponse:V3StopsOnRouteResponse | undefined, cache:StopsOnRouteCache, cacheKey:string)
             :Promise<StopsOnRouteCache> {
             return new Promise<StopsOnRouteCache>((resolve) => {
                 //Only modify the cache if the key is not already in there
@@ -151,7 +151,7 @@ const PTV = {
                 let disruptionsPromise =
                     this.requestDisruptions(routeType, credentials);
 
-                Promise.all<StopsOnRouteCache, V3StoppingPatternResponse, V3Disruptions>([stopsOnRoutePromise, stoppingPatternPromise, disruptionsPromise])
+                Promise.all<StopsOnRouteCache, V3StoppingPatternResponse, V3DisruptionsResponse>([stopsOnRoutePromise, stoppingPatternPromise, disruptionsPromise])
                     .then(validateStopsOnRouteResponse)
                     .then(validateStoppingPatternResponse)
                     .then(validateDisruptionsResponse)
@@ -160,7 +160,7 @@ const PTV = {
                         const stoppingPattern = resolvedPromises[1];
                         const disruptions = resolvedPromises[2];
 
-                        this.updatePage(stopId, routeId, disruptions,
+                        this.updatePage(stopId, routeId, disruptions.disruptions,
                             departures!, runs!, stoppingPattern!, stopsOnRoute!);
                     });
             })
@@ -265,7 +265,7 @@ On each request, check if global cache has expired
         routeType: number,
         routeId:number,
         credentials:Credentials,
-        stopsOnRouteCache:StopsOnRouteCache): Promise<V3StopsOnRouteResponse> {
+        stopsOnRouteCache:StopsOnRouteCache): Promise<V3StopsOnRouteResponse | undefined> {
         return new Promise(function(resolve) {
             const key = PTV.getStopsOnRouteCacheKey(routeType, routeId);
 
@@ -279,10 +279,10 @@ On each request, check if global cache has expired
         });
     },
 
-    requestDisruptions: function(routeType:number, credentials:Credentials): Promise<V3Disruptions> {
+    requestDisruptions: function(routeType:number, credentials:Credentials): Promise<V3DisruptionsResponse> {
         return new Promise(function(resolve) {
             const endpoint = PTV.buildDisruptionsEndpoint(routeType);
-            resolve(PTV.sendRequest<V3Disruptions>(endpoint, credentials));
+            resolve(PTV.sendRequest<V3DisruptionsResponse>(endpoint, credentials));
         });
     },
 
