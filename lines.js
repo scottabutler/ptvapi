@@ -1,4 +1,4 @@
-//Copyright (c) Scott Butler 2014
+//Copyright (c) Scott Butler 2014-2022
 var gw = [
     {"key": "0", "name": "Glen Waverley", "stop_id": "1078"},
     {"key": "1", "name": "Syndal", "stop_id": "1190"},
@@ -424,7 +424,7 @@ var wi = [
     {"key": "13", "name": "Southern Cross", "stop_id": "1181"},
     {"key": "14", "name": "Flinders Street", "stop_id": "1071"}
 ];
- 
+
 var Lines = [
     {"name": "Glen Waverley", "data": gw, "id": 7},
     {"name": "Lilydale", "data": ld, "id": 9},

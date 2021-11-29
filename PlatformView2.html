@@ -12,7 +12,7 @@
 			ul#disruption-list {
 				list-style-type: none;
 			}
-			
+
 			ul#next-stops-list {
 				list-style-type: square;
 			}
@@ -77,7 +77,7 @@
 			}
 
 		</style>
-		
+
 		<style>
 			.two-columns {
 				-moz-column-count: 2;
@@ -126,16 +126,16 @@
 				display: inline-block;
 				width: 8px;
 				height: 8px;
-				border-radius: 8px;	
+				border-radius: 8px;
 				border: 8px solid black;
 				position: relative;
-				top: -5px;			
+				top: -5px;
 			}
 
 			#following-departures .disruption {
 				top: 0;
-			}			
-			
+			}
+
 			#following-departures .disruption-message ul {
 				padding-left: 0;
 			}
@@ -166,10 +166,10 @@
 		<script src="ptv-hmac-sha1.js"></script>
 		<script src="lines.js"></script>
 		<script src="platformView2.js"></script>
-		<script type="text/javascript">	
-			
+		<script type="text/javascript">
+
 			/* CUSTOM RENDERING FUNCTIONS/VARIABLES */
-	
+
 			const _loadingElementId = 'loading';
 			const _refreshTimeElementId = 'refresh-time';
 			const _errorElementId = 'error';
@@ -178,9 +178,9 @@
 			const _followingDeparturesElementId = 'following-departures';
 			const _nextStopsListElementId = 'next-stops-list';
 			const _platformSelectElementId = 'platform-select'
-	
-			/* END CUSTOM */		
-			
+
+			/* END CUSTOM */
+
 			function getStoppingPatternWithSkippedStations(stopList, lineId, inbound, currentStopId) {
 				var allStops = getLine(lineId).data;
 				var stopListIds = stopList.map(x => x.id);
@@ -189,22 +189,22 @@
 
 				var foundCurrentStop = false;
 				var allStopsReduced = [];
-				
-				if (!inbound) 
+
+				if (!inbound)
 					allStops = reverseArray(allStops); //Don't use .reverse() here as it mutates my static source line data!
 
 				for (let i = 0; i < allStops.length; i++) {
-					if (!foundCurrentStop && allStops[i].stop_id * 1 == currentStopId) 
+					if (!foundCurrentStop && allStops[i].stop_id * 1 == currentStopId)
 						foundCurrentStop = true;
 
-					if (foundCurrentStop) 
+					if (foundCurrentStop)
 						allStopsReduced.push(allStops[i]);
-					
+
 					//Check if we've found the last stop in the stopping pattern for this run
 					if (allStops[i].stop_id * 1 == stopList[stopList.length-1].id)
 						break;
 				}
-				
+
 				var res = allStopsReduced.map(x =>
 					stopListIds.includes(x.stop_id * 1)
 					? {id: x.stop_id * 1, name: stopListNames.get(x.stop_id * 1), isSkipped: false}
@@ -233,9 +233,9 @@
 				//SUFFIX
 				//If stopping at Flagstaff, Melb Central or Parliament - 'via the city loop'
 				//If skipped all loop stops - 'via (stop after loop)'
-				
+
 				var result = '';
-				
+
 				var skipped = [];
 				var notSkipped = [];
 				stoppingPatternWithSkippedStations.map(x => {
@@ -271,8 +271,8 @@
 				//Direct or via loop
 				if (isStoppingAtAnyLoopStation) {
 					result += ' via the city loop';
-				} else if (isNotRunningViaLoop 
-					&& !inbound 
+				} else if (isNotRunningViaLoop
+					&& !inbound
 					&& isFlindersSt(currentStopId)
 					&& nextNonLoopStationName != '') {
 					result += ' via ' + nextNonLoopStationName;
@@ -284,23 +284,23 @@
 			//TODO Assign these render functions to PTV object
 			function addFollowingDeparture(state, index) {
 				var time = DateTimeHelpers.formatSingleTime(state.departures.departures[index].scheduled_departure_utc, true);
-				var diff = DateTimeHelpers.getDifferenceFromNow(state.departures.departures[index].estimated_departure_utc, state.departures.departures[index].scheduled_departure_utc); 
+				var diff = DateTimeHelpers.getDifferenceFromNow(state.departures.departures[index].estimated_departure_utc, state.departures.departures[index].scheduled_departure_utc);
 				var dest = state.departures.runs[state.departures.departures[index].run_id].destination_name;
 				var disruption_data = PTV.getDisruptionDataForDeparture(state.departures.departures[index], state.disruptions);
 				var route_id = state.departures.departures[index].route_id;
-				
+
 				if (diff >= 60) {
 					return;
 				}
-			
+
 				var wrapper = document.createElement('div');
 				wrapper.setAttribute('class', 'row ');
-				
+
 				//Time
 				var timeWrapper = createElementWithContent(
 					'div', 'col-6 col-md-3 col-lg-2 order-2 order-md-1 ml-4 ml-md-0',
 					'h4', 'font-weight-light', time);
-				
+
 				wrapper.appendChild(timeWrapper);
 
 				//Disruption
@@ -326,19 +326,19 @@
 					'h4', 'font-weight-light text-white bg-dark d-inline px-2', diff + ' min');
 
 				wrapper.appendChild(diffWrapper);
-				
+
 				//Disruption details
 				var disruption_list = document.createElement('ul');
 				var template = '<small><strong>{type}: </strong>{message}</small>';
 				for (var d of disruption_data.items) {
-					var item = document.createElement('li');                
+					var item = document.createElement('li');
 					item.innerHTML = template.replace('{type}', d.type).replace('{message}', d.message);
 					disruption_list.appendChild(item);
 				}
 
 				if (disruption_data.items.length > 0) {
 					var disruptionDetailWrapper = document.createElement('div');
-					disruptionDetailWrapper.setAttribute('class', 
+					disruptionDetailWrapper.setAttribute('class',
 							'disruption-message col-12 col-md-9 offset-md-3 col-lg-8 offset-lg-2 order-4');
 					disruptionDetailWrapper.appendChild(disruption_list);
 
@@ -359,80 +359,80 @@
 				wrapper.appendChild(child);
 				return wrapper;
 			}
-			
+
 			function clearFollowingDepartures() {
 				document.getElementById(_followingDeparturesElementId).innerHTML = '';
 			}
-			
+
 			function addStoppingPatternItem(name, isSkipped, isCurrentStop) {
 				var content = document.createElement('span');
 				content.setAttribute('class', 'px-1' + (isCurrentStop ? ' active-colour' : '') + (isSkipped ? ' skipped-colour' : ''));
 				content.innerText = name;
-				
+
 				var wrapper = document.createElement('li');
 				wrapper.appendChild(content);
 				document.getElementById(_nextStopsListElementId).appendChild(wrapper);
 			}
-			
+
 			function clearStoppingPattern() {
 				document.getElementById(_nextStopsListElementId).innerHTML = '';
 			}
-			
+
 			function clearDisruptionList() {
 				//TODO add const for this id
 				document.getElementById('disruption-list').innerHTML = '';
 				document.getElementById('next-dest-disruption').setAttribute('class', 'clearable');
 			}
-			
+
 			function init() {
 				PTV._devId = getQueryVariable('d');
 				PTV._secret = getQueryVariable('s');
 				var platform_number = getQueryVariable('p');
 				var e = document.getElementById(_platformSelectElementId);
 				e.value = platform_number;
-				
+
 				if (PTV._devId == null || PTV._devId == '' || PTV._secret == null || PTV._secret == '') {
 					return;
 				}
-				
+
 				updateView();
 			}
-			
+
 			function updateView() {
 				var loading = document.getElementById(_loadingElementId);
 				loading.innerHTML = 'Loading';
 				document.getElementById(_refreshTimeElementId).innerHTML = '';
-				
+
 				var stop_id = getQueryVariable('stop_id');
 				var route_type = getQueryVariable('route_type');
 				var route_id = getQueryVariable('route_id');
 				var e = document.getElementById(_platformSelectElementId);
 				var platform_number = e.options[e.selectedIndex].value;
-				
+
 				var new_url = window.location.pathname + updateQueryVariable('p', platform_number);
 				window.history.replaceState( {} , 'Platform View', new_url );
-				
+
 				//Set an auto-refresh timer
 				updateTimer();
-				
+
 				var params = {
 					route_type: route_type,
 					route_id: route_id,
 					stop_id: stop_id,
 					platform_number: platform_number
 				};
-				
+
 				PTV.doStuff(params);
 			}
-			
+
 			var timer;
-			function updateTimer() {			
+			function updateTimer() {
 				clearTimeout(timer);
 				if (document.getElementById('auto-refresh').checked) {
 					timer = setTimeout(function(){updateView()}, 30000);
 				}
-			}			
-			
+			}
+
 		</script>
 		<script type="text/javascript" src="utils.js"></script>
 	</head>
@@ -521,9 +521,9 @@
 			<div id="following-departures">
 			</div>
 			<small class="d-inline-block mt-3">
-				&copy Scott Butler 2019. Data sourced from <a href="https://www.ptv.vic.gov.au/about-ptv/data-and-reports/digital-products/ptv-timetable-api/" target="_blank">PTV.</a>
-				<br /><strong>Disclaimer:</strong> This project is not provided by, nor affiliated with, Public Transport Victoria. 
-				This has been built for learning purposes and is intended for use in accordance with the 
+				&copy Scott Butler 2019-2022. Data sourced from <a href="https://www.ptv.vic.gov.au/about-ptv/data-and-reports/digital-products/ptv-timetable-api/" target="_blank">PTV.</a>
+				<br /><strong>Disclaimer:</strong> This project is not provided by, nor affiliated with, Public Transport Victoria.
+				This has been built for learning purposes and is intended for use in accordance with the
 				<a href="https://www.ptv.vic.gov.au/footer/data-and-reporting/datasets/ptv-timetable-api/" target="_blank">License terms</a>.
 			</small>
 		</div>

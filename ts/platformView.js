@@ -146,7 +146,7 @@ const PTV = {
     - If it exists and has not expired, load into global cache object
     - If it exists and has expired, remove from local storage, initialise global cache with no data
     - If not exists, initialise global cache with no data
-    
+
     On each request, check if global cache has expired
     - If expired, remove from local storage (if exists), initialise global cache with no data
     - If not expired, check for specific key
@@ -914,7 +914,7 @@ class DateTimeHelpers {
         return result;
     }
 }
-//Copyright (c) Scott Butler 2014
+//Copyright (c) Scott Butler 2014-2022
 const gw = [
     { "key": "0", "name": "Glen Waverley", "stop_id": "1078" },
     { "key": "1", "name": "Syndal", "stop_id": "1190" },

@@ -1116,7 +1116,7 @@ class DateTimeHelpers {
 	}
 }
 
-//Copyright (c) Scott Butler 2014
+//Copyright (c) Scott Butler 2014-2022
 const gw = [
     {"key": "0", "name": "Glen Waverley", "stop_id": "1078"},
     {"key": "1", "name": "Syndal", "stop_id": "1190"},
