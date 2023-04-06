@@ -1,104 +1,141 @@
 <html>
-	<head>
-		<title>PTV Platform View</title>
-		<!-- Required meta tags -->
-		<meta charset="utf-8">
+    <head>
+        <title>PTV Platform View</title>
+        <!-- Required meta tags -->
+        <meta charset="utf-8" />
 
-		<!-- Bootstrap CSS -->
-		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-		<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito+Sans:200,600">
-		<link rel="stylesheet" type="text/css" href="./styles.css">
-		<script src="ptv-hmac-sha1.js"></script>
-		<script src="platformView.js"></script>
-	</head>
-	<body onload="init()" data-colour="dark-blue">
-		<div class="container">
-			<div class="row my-3">
-				<div class="col-4">
-					<span id="loading" class="text-muted"></span>
-				</div>
-				<div class="col-4">
-					<span id="refresh-time" class="text-muted"></span>
-				</div>
-				<div class="col-4">
-					<input type="checkbox" id="auto-refresh" name="auto-refresh" onchange="updateTimer()" />
-					<label id="auto-refresh-label" for="auto-refresh" class="text-muted">Auto &#8635;</label>
-				</div>
-			</div>
-			<div class="row my-3">
-				<div class="col-4">
-					<span id="stop"></span>
-				</div>
-				<div class="col-6">
-					<span id="platform-select-wrapper">
-						<select id="platform-select" onchange="updateView()">
-							<option value="1">Platform 1</option>
-							<option value="2">Platform 2</option>
-							<option value="3">Platform 3</option>
-							<option value="4">Platform 4</option>
-							<option value="5">Platform 5</option>
-							<option value="6">Platform 6</option>
-							<option value="7">Platform 7</option>
-							<option value="8">Platform 8</option>
-							<option value="9">Platform 9</option>
-							<option value="10">Platform 10</option>
-							<option value="11">Platform 11</option>
-							<option value="12">Platform 12</option>
-							<option value="13">Platform 13</option>
-							<option value="14">Platform 14</option>
-						</select>
-					</span>
-				</div>
-			</div>
-			<div class="row">
-				<div class="col-12">
-					<span id="error" class="text-danger"></span>
-				</div>
-			</div>
-			<div class="row">
-				<div class="col-12">
-					<span id="realtime" class="text-warning mt-2" style="display: none;">* Real-time data not available for this service.</span>
-				</div>
-			</div>
-			<div class="row mt-1 mb-3">
-				<div class="col-12 active-colour">
-					<p class="mb-0">&nbsp;</p>
-				</div>
-			</div>
-			<div class="row mt-2 pb-1">
-				<div class="col-6 col-md-3 col-lg-2 order-1">
-					<h1 id="next-time" class="font-weight-light clearable"></h1>
-				</div>
-				<div class="col-12 col-md-6 col-lg-7 order-3 order-md-2">
-					<span id="next-dest-disruption"></span><h1 id="next-dest" class="clearable d-inline"></h1>
-				</div>
-				<div class="col-6 col-md-3 col-lg-3 order-2 order-md-3 pr-0 text-right">
-					<h1 id="next-diff" class="mb-0 font-weight-light text-white text-right bg-dark px-2 d-inline-block clearable">
-						&nbsp;
-					</h1>
-				</div>
-			</div>
-			<div class="row border-bottom border-dark pb-1 mb-2">
-				<div class="col-12 col-md-6 col-lg-7 offset-md-3 offset-lg-2">
-					<div id="next-dest-description" class="clearable"></div>
-					<ul id="disruption-list" class="mb-0 pl-0 clearable"></ul>
-				</div>
-			</div>
-			<div class="row border-bottom border-dark pb-2 mb-3">
-				<div class="col-12">
-					<ul id="next-stops-list" class="two-columns pl-4 mb-1">
-					</ul>
-				</div>
-			</div>
-			<div id="following-departures">
-			</div>
-			<small class="d-inline-block mt-3">
-				&copy Scott Butler 2019-2022. Data sourced from <a href="https://www.ptv.vic.gov.au/about-ptv/data-and-reports/digital-products/ptv-timetable-api/" target="_blank">PTV.</a>
-				<br /><strong>Disclaimer:</strong> This project is not provided by, nor affiliated with, Public Transport Victoria.
-				This has been built for learning purposes and is intended for use in accordance with the
-				<a href="https://www.ptv.vic.gov.au/footer/data-and-reporting/datasets/ptv-timetable-api/" target="_blank">License terms</a>.
-			</small>
-		</div>
-	</body>
+        <!-- Bootstrap CSS -->
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link
+            rel="stylesheet"
+            href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        />
+        <link
+            rel="stylesheet"
+            href="https://fonts.googleapis.com/css?family=Nunito+Sans:200,600"
+        />
+        <link rel="stylesheet" type="text/css" href="./styles.css" />
+        <script src="ptv-hmac-sha1.js"></script>
+        <script src="platformView.js"></script>
+    </head>
+    <body onload="init()" data-colour="dark-blue">
+        <div class="container">
+            <div class="row my-3">
+                <div class="col-4">
+                    <span id="loading" class="text-muted"></span>
+                </div>
+                <div class="col-4">
+                    <span id="refresh-time" class="text-muted"></span>
+                </div>
+                <div class="col-4">
+                    <input
+                        type="checkbox"
+                        id="auto-refresh"
+                        name="auto-refresh"
+                        onchange="updateTimer()"
+                    />
+                    <label
+                        id="auto-refresh-label"
+                        for="auto-refresh"
+                        class="text-muted"
+                        >Auto &#8635;</label
+                    >
+                </div>
+            </div>
+            <div class="row my-3">
+                <div class="col-4">
+                    <span id="stop"></span>
+                </div>
+                <div class="col-6">
+                    <span id="platform-select-wrapper">
+                        <select id="platform-select" onchange="updateView()">
+                            <option value="1">Platform 1</option>
+                            <option value="2">Platform 2</option>
+                            <option value="3">Platform 3</option>
+                            <option value="4">Platform 4</option>
+                            <option value="5">Platform 5</option>
+                            <option value="6">Platform 6</option>
+                            <option value="7">Platform 7</option>
+                            <option value="8">Platform 8</option>
+                            <option value="9">Platform 9</option>
+                            <option value="10">Platform 10</option>
+                            <option value="11">Platform 11</option>
+                            <option value="12">Platform 12</option>
+                            <option value="13">Platform 13</option>
+                            <option value="14">Platform 14</option>
+                        </select>
+                    </span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    <span id="error" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    <span
+                        id="realtime"
+                        class="text-warning mt-2"
+                        style="display: none"
+                        >* Real-time data not available for this service.</span
+                    >
+                </div>
+            </div>
+            <div class="row mt-1 mb-3">
+                <div class="col-12 active-colour">
+                    <p class="mb-0">&nbsp;</p>
+                </div>
+            </div>
+            <div class="row mt-2 pb-1">
+                <div class="col-6 col-md-3 col-lg-2 order-1">
+                    <h1 id="next-time" class="font-weight-light clearable"></h1>
+                </div>
+                <div class="col-12 col-md-6 col-lg-7 order-3 order-md-2">
+                    <span id="next-dest-disruption"></span>
+                    <h1 id="next-dest" class="clearable d-inline"></h1>
+                </div>
+                <div
+                    class="col-6 col-md-3 col-lg-3 order-2 order-md-3 pr-0 text-right"
+                >
+                    <h1
+                        id="next-diff"
+                        class="mb-0 font-weight-light text-white text-right bg-dark px-2 d-inline-block clearable"
+                    >
+                        &nbsp;
+                    </h1>
+                </div>
+            </div>
+            <div class="row border-bottom border-dark pb-1 mb-2">
+                <div class="col-12 col-md-6 col-lg-7 offset-md-3 offset-lg-2">
+                    <div id="next-dest-description" class="clearable"></div>
+                    <ul id="disruption-list" class="mb-0 pl-0 clearable"></ul>
+                    <div id="run-description" class="clearable"></div>
+                </div>
+            </div>
+            <div class="row border-bottom border-dark pb-2 mb-3">
+                <div class="col-12">
+                    <ul id="next-stops-list" class="two-columns pl-4 mb-1"></ul>
+                </div>
+            </div>
+            <div id="following-departures"></div>
+            <small class="d-inline-block mt-3">
+                &copy Scott Butler 2019-2023. Data sourced from
+                <a
+                    href="https://www.ptv.vic.gov.au/about-ptv/data-and-reports/digital-products/ptv-timetable-api/"
+                    target="_blank"
+                    >PTV.</a
+                >
+                <br /><strong>Disclaimer:</strong> This project is not provided
+                by, nor affiliated with, Public Transport Victoria. This has
+                been built for learning purposes and is intended for use in
+                accordance with the
+                <a
+                    href="https://www.ptv.vic.gov.au/footer/data-and-reporting/datasets/ptv-timetable-api/"
+                    target="_blank"
+                    >License terms</a
+                >.
+            </small>
+        </div>
+    </body>
 </html>

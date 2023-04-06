@@ -151,7 +151,7 @@ const PTV = {
                 let disruptionsPromise =
                     this.requestDisruptions(routeType, credentials);
 
-                Promise.all<StopsOnRouteCache, V3StoppingPatternResponse, V3DisruptionsResponse>([stopsOnRoutePromise, stoppingPatternPromise, disruptionsPromise])
+                Promise.all([stopsOnRoutePromise, stoppingPatternPromise, disruptionsPromise])
                     .then(validateStopsOnRouteResponse)
                     .then(validateStoppingPatternResponse)
                     .then(validateDisruptionsResponse)
@@ -473,7 +473,7 @@ On each request, check if global cache has expired
             if (nextDeparture.run_id == undefined)
                 reject('No runId returned for next departure');
 
-            if (runs == undefined || runs.length == 0)
+            if (runs == undefined)
                 reject('No runs returned for run ' + nextDeparture.run_id + '.');
 
             const nextDepartureName = runs![nextDeparture.run_id!].destination_name;
@@ -577,6 +577,11 @@ On each request, check if global cache has expired
             const desc = getShortStoppingPatternDescription(fullList, inbound, stopId);
             document.getElementById("next-dest-description")!.innerText = desc; //TODO const for id
 
+            const runDesc = (runs![nextDeparture.run_id!].vehicle_descriptor?.description && runs![nextDeparture.run_id!].vehicle_descriptor?.id)
+                ? (runs![nextDeparture.run_id!].vehicle_descriptor?.description ?? '') + " (" + (runs![nextDeparture.run_id!].vehicle_descriptor?.id ?? '') + ")"
+                : '';
+            document.getElementById("run-description")!.innerText = runDesc; //TODO const for id
+
             fullList.map(x => {
                 addStoppingPatternItem(x.name, x.isSkipped, x.id == stopId)
             })
@@ -629,7 +634,8 @@ On each request, check if global cache has expired
     buildDeparturesEndpoint: function(routeType:number, stopId:number, platformNumber:number) {
         const date_utc = DateTimeHelpers.getIsoDate();
         const template = '/v3/departures/route_type/{route_type}/stop/{stop_id}' +
-                '?max_results=6&date_utc={date_utc}&platform_numbers={platform_number}&expand=stop&expand=run';
+                '?max_results=6&date_utc={date_utc}&platform_numbers={platform_number}&expand=stop&expand=Run&expand=VehiclePosition&expand=VehicleDescriptor';
+
         const endpoint = template
                             .replace('{route_type}', routeType.toString())
                             .replace('{stop_id}', stopId.toString())
@@ -833,7 +839,7 @@ function addFollowingDeparture(disruptionsMap: Map<number, V3Disruption>, depart
     const disruption_data = PTV.getDisruptionDataForDeparture(departure, disruptionsMap);
     const route_id = departure.route_id;
 
-    if (diff >= 60) {
+    if (diff != '--' && diff >= 60) {
         return;
     }
 
@@ -1116,7 +1122,7 @@ class DateTimeHelpers {
 	}
 }
 
-//Copyright (c) Scott Butler 2014-2022
+//Copyright (c) Scott Butler 2014-2023
 const gw = [
     {"key": "0", "name": "Glen Waverley", "stop_id": "1078"},
     {"key": "1", "name": "Syndal", "stop_id": "1190"},

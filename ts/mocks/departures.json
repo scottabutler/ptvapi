@@ -105,24 +105,24 @@
             "run_sequence": 0,
             "express_stop_count": 0,
             "vehicle_position": {
-                "latitude": null,
-                "longitude": null,
-                "easting": null,
-                "northing": null,
-                "direction": null,
-                "bearing": null,
+                "latitude": -37.826742126836955,
+                "longitude": 145.05865176081207,
+                "easting": 329146.40625,
+                "northing": 5811632.5,
+                "direction": "Inbound",
+                "bearing": -90,
                 "supplier": "CIS - Metro Trains Melbourne",
-                "datetime_utc": null,
-                "expiry_time": null
+                "datetime_utc": "2023-04-07T08:36:12",
+                "expiry_time": "2023-04-07T08:37:18"
             },
             "vehicle_descriptor": {
                 "operator": "Metro Trains Melbourne",
-                "id": "2651",
+                "id": "1344T-1630T-859M-860M-87M-88M",
                 "low_floor": null,
                 "air_conditioned": null,
                 "description": "6 Car Xtrapolis",
                 "supplier": "CIS - Metro Trains Melbourne",
-                "length": null
+                "length": "142"
             },
             "geopath": []
         },

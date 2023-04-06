@@ -1,9 +1,10 @@
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
         function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
@@ -146,7 +147,7 @@ const PTV = {
     - If it exists and has not expired, load into global cache object
     - If it exists and has expired, remove from local storage, initialise global cache with no data
     - If not exists, initialise global cache with no data
-
+    
     On each request, check if global cache has expired
     - If expired, remove from local storage (if exists), initialise global cache with no data
     - If not expired, check for specific key
@@ -349,6 +350,7 @@ const PTV = {
     },
     updatePage: function (stopId, routeId, disruptionsResponse, departures, runs, stoppingPattern, stopsOnRoute) {
         return new Promise(function (resolve, reject) {
+            var _a, _b, _c, _d, _e, _f;
             debug('updatePage');
             //Update the loading indicator and display the current time
             document.getElementById(_loadingElementId).innerHTML = 'Done.';
@@ -397,7 +399,7 @@ const PTV = {
             //Set next departure
             if (nextDeparture.run_id == undefined)
                 reject('No runId returned for next departure');
-            if (runs == undefined || runs.length == 0)
+            if (runs == undefined)
                 reject('No runs returned for run ' + nextDeparture.run_id + '.');
             const nextDepartureName = runs[nextDeparture.run_id].destination_name;
             document.getElementById('next-dest').innerHTML = nextDepartureName != undefined ? nextDepartureName : 'Unknown destination';
@@ -476,6 +478,10 @@ const PTV = {
             const fullList = getStoppingPatternWithSkippedStations(stopsFromCurrent, departures[0].route_id, inbound, stopId);
             const desc = getShortStoppingPatternDescription(fullList, inbound, stopId);
             document.getElementById("next-dest-description").innerText = desc; //TODO const for id
+            const runDesc = (((_a = runs[nextDeparture.run_id].vehicle_descriptor) === null || _a === void 0 ? void 0 : _a.description) && ((_b = runs[nextDeparture.run_id].vehicle_descriptor) === null || _b === void 0 ? void 0 : _b.id))
+                ? ((_d = (_c = runs[nextDeparture.run_id].vehicle_descriptor) === null || _c === void 0 ? void 0 : _c.description) !== null && _d !== void 0 ? _d : '') + " (" + ((_f = (_e = runs[nextDeparture.run_id].vehicle_descriptor) === null || _e === void 0 ? void 0 : _e.id) !== null && _f !== void 0 ? _f : '') + ")"
+                : '';
+            document.getElementById("run-description").innerText = runDesc; //TODO const for id
             fullList.map(x => {
                 addStoppingPatternItem(x.name, x.isSkipped, x.id == stopId);
             });
@@ -520,7 +526,7 @@ const PTV = {
     buildDeparturesEndpoint: function (routeType, stopId, platformNumber) {
         const date_utc = DateTimeHelpers.getIsoDate();
         const template = '/v3/departures/route_type/{route_type}/stop/{stop_id}' +
-            '?max_results=6&date_utc={date_utc}&platform_numbers={platform_number}&expand=stop&expand=run';
+            '?max_results=6&date_utc={date_utc}&platform_numbers={platform_number}&expand=stop&expand=Run&expand=VehiclePosition&expand=VehicleDescriptor';
         const endpoint = template
             .replace('{route_type}', routeType.toString())
             .replace('{stop_id}', stopId.toString())
@@ -703,7 +709,7 @@ function addFollowingDeparture(disruptionsMap, departure, destinationName) {
         : '--';
     const disruption_data = PTV.getDisruptionDataForDeparture(departure, disruptionsMap);
     const route_id = departure.route_id;
-    if (diff >= 60) {
+    if (diff != '--' && diff >= 60) {
         return;
     }
     const wrapper = document.createElement('div');
@@ -914,7 +920,7 @@ class DateTimeHelpers {
         return result;
     }
 }
-//Copyright (c) Scott Butler 2014-2022
+//Copyright (c) Scott Butler 2014-2023
 const gw = [
     { "key": "0", "name": "Glen Waverley", "stop_id": "1078" },
     { "key": "1", "name": "Syndal", "stop_id": "1190" },

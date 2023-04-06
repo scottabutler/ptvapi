@@ -1,0 +1,14 @@
+{
+  "name": "ptv-api",
+  "version": "1.0.0",
+  "description": "A site for experimenting with the PTV API",
+  "main": "./ts/platformView.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Scott Butler",
+  "license": "ISC",
+  "devDependencies": {
+    "typescript": "^5.0.3"
+  }
+}

@@ -59,7 +59,7 @@
         data: Map<string, V3StopsOnRouteResponse>
     }
 
-    /*interface Departure {   
+    /*interface Departure {
         stop_id: number,
         route_id: number,
         run_id: number,
@@ -382,6 +382,10 @@
         'stop_name'?: string;
     }
 
+    interface V3RunResponse {
+        run: V3Run;
+    }
+
     interface V3Run {
         /**
         * Trip/service run identifier
@@ -488,6 +492,10 @@
         * Trip/service run identifier
         */
         'run_id'?: number;
+        /**
+        * Alphanumeric trip/service run identifier
+        */
+        'run_ref'?: string;
         /**
         * Direction of travel identifier
         */
