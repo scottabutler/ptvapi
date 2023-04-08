@@ -577,10 +577,23 @@ On each request, check if global cache has expired
             const desc = getShortStoppingPatternDescription(fullList, inbound, stopId);
             document.getElementById("next-dest-description")!.innerText = desc; //TODO const for id
 
-            const runDesc = (runs![nextDeparture.run_id!].vehicle_descriptor?.description && runs![nextDeparture.run_id!].vehicle_descriptor?.id)
-                ? (runs![nextDeparture.run_id!].vehicle_descriptor?.description ?? '') + " (" + (runs![nextDeparture.run_id!].vehicle_descriptor?.id ?? '') + ")"
+            const nextRun = runs![nextDeparture.run_id!];
+            const directionText = nextRun.vehicle_position?.direction
+                ? nextRun.vehicle_position?.direction + " "
+                : '';
+            const runDesc = (nextRun.vehicle_descriptor?.description && nextRun.vehicle_descriptor?.id)
+                ? directionText + (nextRun.vehicle_descriptor?.description ?? '') + " (" + (nextRun.vehicle_descriptor?.id ?? '') + ")"
                 : '';
             document.getElementById("run-description")!.innerText = runDesc; //TODO const for id
+
+            const hasCoords = nextRun.vehicle_position?.latitude && nextRun.vehicle_position?.longitude;
+            const coords = hasCoords
+                ? nextRun.vehicle_position?.latitude + "," + nextRun.vehicle_position?.longitude
+                : '';
+            const mapLink = document.getElementById("map-link");
+            mapLink!.style.display = (hasCoords ? "inline-block" : "none");
+            mapLink!.setAttribute("href", hasCoords ? "https://www.google.com/maps/search/?api=1&query=" + coords : '#');
+            mapLink!.innerText = "Map";
 
             fullList.map(x => {
                 addStoppingPatternItem(x.name, x.isSkipped, x.id == stopId)

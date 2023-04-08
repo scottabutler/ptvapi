@@ -350,7 +350,7 @@ const PTV = {
     },
     updatePage: function (stopId, routeId, disruptionsResponse, departures, runs, stoppingPattern, stopsOnRoute) {
         return new Promise(function (resolve, reject) {
-            var _a, _b, _c, _d, _e, _f;
+            var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m;
             debug('updatePage');
             //Update the loading indicator and display the current time
             document.getElementById(_loadingElementId).innerHTML = 'Done.';
@@ -478,10 +478,22 @@ const PTV = {
             const fullList = getStoppingPatternWithSkippedStations(stopsFromCurrent, departures[0].route_id, inbound, stopId);
             const desc = getShortStoppingPatternDescription(fullList, inbound, stopId);
             document.getElementById("next-dest-description").innerText = desc; //TODO const for id
-            const runDesc = (((_a = runs[nextDeparture.run_id].vehicle_descriptor) === null || _a === void 0 ? void 0 : _a.description) && ((_b = runs[nextDeparture.run_id].vehicle_descriptor) === null || _b === void 0 ? void 0 : _b.id))
-                ? ((_d = (_c = runs[nextDeparture.run_id].vehicle_descriptor) === null || _c === void 0 ? void 0 : _c.description) !== null && _d !== void 0 ? _d : '') + " (" + ((_f = (_e = runs[nextDeparture.run_id].vehicle_descriptor) === null || _e === void 0 ? void 0 : _e.id) !== null && _f !== void 0 ? _f : '') + ")"
+            const nextRun = runs[nextDeparture.run_id];
+            const directionText = ((_a = nextRun.vehicle_position) === null || _a === void 0 ? void 0 : _a.direction)
+                ? ((_b = nextRun.vehicle_position) === null || _b === void 0 ? void 0 : _b.direction) + " "
+                : '';
+            const runDesc = (((_c = nextRun.vehicle_descriptor) === null || _c === void 0 ? void 0 : _c.description) && ((_d = nextRun.vehicle_descriptor) === null || _d === void 0 ? void 0 : _d.id))
+                ? directionText + ((_f = (_e = nextRun.vehicle_descriptor) === null || _e === void 0 ? void 0 : _e.description) !== null && _f !== void 0 ? _f : '') + " (" + ((_h = (_g = nextRun.vehicle_descriptor) === null || _g === void 0 ? void 0 : _g.id) !== null && _h !== void 0 ? _h : '') + ")"
                 : '';
             document.getElementById("run-description").innerText = runDesc; //TODO const for id
+            const hasCoords = ((_j = nextRun.vehicle_position) === null || _j === void 0 ? void 0 : _j.latitude) && ((_k = nextRun.vehicle_position) === null || _k === void 0 ? void 0 : _k.longitude);
+            const coords = hasCoords
+                ? ((_l = nextRun.vehicle_position) === null || _l === void 0 ? void 0 : _l.latitude) + "," + ((_m = nextRun.vehicle_position) === null || _m === void 0 ? void 0 : _m.longitude)
+                : '';
+            const mapLink = document.getElementById("map-link");
+            mapLink.style.display = (hasCoords ? "inline-block" : "none");
+            mapLink.setAttribute("href", hasCoords ? "https://www.google.com/maps/search/?api=1&query=" + coords : '#');
+            mapLink.innerText = "Map";
             fullList.map(x => {
                 addStoppingPatternItem(x.name, x.isSkipped, x.id == stopId);
             });

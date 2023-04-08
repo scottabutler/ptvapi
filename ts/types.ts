@@ -450,6 +450,7 @@
         * Supplier of vehicle position data.
         */
         'supplier'?: string;
+        'direction'?: string;
     }
 
     interface V3VehicleDescriptor {
