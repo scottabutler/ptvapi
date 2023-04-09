@@ -7,7 +7,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import { DateTimeHelpers } from "./dateTimeHelpers";
+import { DateTimeHelpers } from "./dateTimeHelpers.js";
 export class PTV_v2 {
     constructor(isMockMode) {
         this._isMockMode = isMockMode;

@@ -2,9 +2,9 @@
 /// <reference path="ptv.ts" />
 /// <reference path="browserHelpers.ts" />
 
-import { getQueryVariable, updateQueryVariable } from "./browserHelpers";
-import { DateTimeHelpers } from "./dateTimeHelpers";
-import { PTV_v2 } from "./ptv";
+import { getQueryVariable, updateQueryVariable } from "./browserHelpers.js";
+import { DateTimeHelpers } from "./dateTimeHelpers.js";
+import { PTV_v2 } from "./ptv.js";
 
 //export default {};
 

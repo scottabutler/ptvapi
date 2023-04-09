@@ -1,6 +1,6 @@
-import { getQueryVariable, updateQueryVariable } from "./browserHelpers";
-import { DateTimeHelpers } from "./dateTimeHelpers";
-import { PTV_v2 } from "./ptv";
+import { getQueryVariable, updateQueryVariable } from "./browserHelpers.js";
+import { DateTimeHelpers } from "./dateTimeHelpers.js";
+import { PTV_v2 } from "./ptv.js";
 const _loadingElementId = "loading";
 const _refreshTimeElementId = "refresh-time";
 const _errorElementId = "error";

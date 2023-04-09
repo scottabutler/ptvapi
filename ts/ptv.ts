@@ -1,5 +1,5 @@
 
-import { DateTimeHelpers } from "./dateTimeHelpers";
+import { DateTimeHelpers } from "./dateTimeHelpers.js";
 
 export class PTV_v2 {
     private _isMockMode: boolean;
