@@ -2,9 +2,11 @@
   "name": "ptv-api",
   "version": "1.0.0",
   "description": "A site for experimenting with the PTV API",
-  "main": "./ts/platformView.js",
+  "type": "module",
+  "main": "./ts/dist/platformView.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc"
   },
   "author": "Scott Butler",
   "license": "ISC",

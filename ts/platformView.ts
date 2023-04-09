@@ -1,4 +1,12 @@
 /// <reference path="types.ts" />
+/// <reference path="ptv.ts" />
+/// <reference path="browserHelpers.ts" />
+
+import { getQueryVariable, updateQueryVariable } from "./browserHelpers";
+import { DateTimeHelpers } from "./dateTimeHelpers";
+import { PTV_v2 } from "./ptv";
+
+//export default {};
 
 const _loadingElementId = "loading";
 const _refreshTimeElementId = "refresh-time";
@@ -8,11 +16,19 @@ const _followingDeparturesElementId = "following-departures";
 const _nextStopsListElementId = "next-stops-list";
 const _platformSelectElementId = "platform-select";
 const _disruptionListElementId = "disruption-list";
+const _nextDestDescriptionElementId = "next-dest-description";
+const _runDescriptionElementId = "run-description";
 
 let _stopsOnRouteCache: StopsOnRouteCache = {
     date: new Date().setDate(new Date().getDate() - 1),
     data: new Map<string, V3StopsOnRouteResponse>(),
 };
+
+let _devId: string = "";
+let _secret: string = "";
+const _useMockData: boolean = getQueryVariable("mode") == "mock";
+
+let _PTV_v2 = new PTV_v2(_useMockData);
 
 const PTV = {
     //Fields
@@ -22,10 +38,10 @@ const PTV = {
     //PTV via email.
     //
     //Methods
-    generateSignature: function (request: string, secret: string) {
-        const hash: string = CryptoJS.HmacSHA1(request, secret);
-        return hash;
-    },
+    // generateSignature: function (request: string, secret: string) {
+    //     const hash: string = CryptoJS.HmacSHA1(request, secret);
+    //     return hash;
+    // },
 
     run: function (params: StartParams) {
         const credentials: Credentials = {
@@ -45,13 +61,13 @@ const PTV = {
                     reject("Departures error: No departures found.");
                 }
 
-                if (departuresResponse.departures![0].route_id == undefined) {
+                if (departuresResponse.departures![0]!.route_id == undefined) {
                     reject(
                         "Departures error: No routeId returned for next departure."
                     );
                 }
 
-                if (departuresResponse.departures![0].run_id == undefined) {
+                if (departuresResponse.departures![0]!.run_id == undefined) {
                     reject(
                         "Departures error: No runId returned for next departure."
                     );
@@ -196,7 +212,7 @@ const PTV = {
         const stopId = params.stop_id;
         const platformNumber = params.platform_number;
 
-        let departuresPromise = this.requestDepartures(
+        let departuresPromise = _PTV_v2.requestDepartures(
             routeType,
             stopId,
             platformNumber,
@@ -213,15 +229,17 @@ const PTV = {
                 const departures: Array<V3Departure> =
                     departuresResponse.departures!;
                 const runs = departuresResponse.runs;
-                const routeId = departures![0].route_id!;
-                const runId = departures![0].run_id!;
 
-                const cacheKey = PTV.getStopsOnRouteCacheKey(
+                // TODO can departures[0] be falsey?
+                const routeId = departures![0]!.route_id!;
+                const runId = departures![0]!.run_id!;
+
+                const cacheKey = _PTV_v2.getStopsOnRouteCacheKey(
                     routeType,
                     routeId
                 );
 
-                let stopsOnRoutePromise = this.requestStopsOnRoute(
+                let stopsOnRoutePromise = _PTV_v2.requestStopsOnRoute(
                     routeType,
                     routeId,
                     credentials,
@@ -238,13 +256,13 @@ const PTV = {
                         (updatedCache) => (_stopsOnRouteCache = updatedCache)
                     );
 
-                let stoppingPatternPromise = this.requestStoppingPattern(
+                let stoppingPatternPromise = _PTV_v2.requestStoppingPattern(
                     routeType,
                     runId,
                     credentials
                 );
 
-                let disruptionsPromise = this.requestDisruptions(
+                let disruptionsPromise = _PTV_v2.requestDisruptions(
                     routeType,
                     credentials
                 );
@@ -355,126 +373,49 @@ On each request, check if global cache has expired
 
     localStorageCacheKey: "PTVAPI.stopsOnRouteCache",
 
-    getStopsOnRouteCacheKey: function (routeType: number, routeId: number) {
-        return routeType + "_" + routeId;
-    },
 
-    sendRequest: function <TResponse>(
-        endpoint: string,
-        credentials: Credentials
-    ): Promise<TResponse> {
-        document.getElementById(_loadingElementId)!.innerHTML += ".";
-        const settings = PTV.getGlobalSettings();
 
-        const qs = endpoint.indexOf("?") == -1 ? "?" : "&";
-        const endpointWithCredentials =
-            endpoint.indexOf("devId=") == -1
-                ? endpoint + qs + "devid=" + credentials.id
-                : endpoint;
-        const sig = PTV.generateSignature(
-            endpointWithCredentials,
-            credentials.secret
-        );
-        const urlWithSignature =
-            settings.baseUrl + endpointWithCredentials + "&signature=" + sig;
-        const url =
-            settings.useCorsBypass == true && !_useMockData
-                ? settings.proxyUrl + encodeURIComponent(urlWithSignature)
-                : urlWithSignature;
+    // sendRequest2: function <TResponse>(
+    //     endpoint: string,
+    //     credentials: Credentials
+    // ): Promise<TResponse> {
+    //     document.getElementById(_loadingElementId)!.innerHTML += ".";
+    //     const settings = PTV.getGlobalSettings();
 
-        const result: Promise<TResponse> = PTV.fetchTyped<TResponse>(url);
-        return result;
-    },
+    //     const qs = endpoint.indexOf("?") == -1 ? "?" : "&";
+    //     const endpointWithCredentials =
+    //         endpoint.indexOf("devId=") == -1
+    //             ? endpoint + qs + "devid=" + credentials.id
+    //             : endpoint;
+    //     const sig = PTV.generateSignature(
+    //         endpointWithCredentials,
+    //         credentials.secret
+    //     );
+    //     const urlWithSignature =
+    //         settings.baseUrl + endpointWithCredentials + "&signature=" + sig;
+    //     const url =
+    //         settings.useCorsBypass == true && !_useMockData
+    //             ? settings.proxyUrl + encodeURIComponent(urlWithSignature)
+    //             : urlWithSignature;
 
-    fetchTyped: async function <T>(request: RequestInfo): Promise<T> {
-        const response = await fetch(request);
-        const body = await response.json();
-        return body;
-    },
+    //     const result: Promise<TResponse> = PTV.fetchTyped<TResponse>(url);
+    //     return result;
+    // },
 
-    requestDepartures: async function (
-        routeType: number,
-        stopId: number,
-        platformNumber: number,
-        credentials: Credentials
-    ): Promise<V3DeparturesResponse> {
-        const endpoint = PTV.buildDeparturesEndpoint(
-            routeType,
-            stopId,
-            platformNumber
-        ); //TODO
-        return await PTV.sendRequest<V3DeparturesResponse>(
-            endpoint,
-            credentials
-        );
-    },
+    // fetchTyped: async function <T>(request: RequestInfo): Promise<T> {
+    //     const response = await fetch(request);
+    //     const body = await response.json();
+    //     return body;
+    // },
 
-    requestStopsOnRoute: async function (
-        routeType: number,
-        routeId: number,
-        credentials: Credentials,
-        stopsOnRouteCache: StopsOnRouteCache
-    ): Promise<V3StopsOnRouteResponse | undefined> {
-        return new Promise(function (resolve) {
-            const key = PTV.getStopsOnRouteCacheKey(routeType, routeId);
 
-            if (
-                stopsOnRouteCache.data != undefined &&
-                stopsOnRouteCache.data.get(key) &&
-                !_useMockData
-            ) {
-                //TODO date check?
-                console.log("Using cached 'stops on route' data");
-                resolve(stopsOnRouteCache.data.get(key));
-            } else {
-                const endpoint = PTV.buildStopsOnRouteEndpoint(
-                    routeType,
-                    routeId
-                );
-                resolve(
-                    PTV.sendRequest<V3StopsOnRouteResponse>(
-                        endpoint,
-                        credentials
-                    )
-                );
-            }
-        });
-    },
-
-    requestDisruptions: function (
-        routeType: number,
-        credentials: Credentials
-    ): Promise<V3DisruptionsResponse> {
-        return new Promise(function (resolve) {
-            const endpoint = PTV.buildDisruptionsEndpoint(routeType);
-            resolve(
-                PTV.sendRequest<V3DisruptionsResponse>(endpoint, credentials)
-            );
-        });
-    },
-
-    requestStoppingPattern: function (
-        routeType: number,
-        runId: number,
-        credentials: Credentials
-    ): Promise<V3StoppingPatternResponse> {
-        return new Promise(function (resolve) {
-            const endpoint = PTV.buildStoppingPatternEndpoint(routeType, runId);
-            resolve(
-                PTV.sendRequest<V3StoppingPatternResponse>(
-                    endpoint,
-                    credentials
-                )
-            );
-        });
-    },
 
     clearPage: function (): void {
         debug("clearPage");
 
-        const elementsToClear = document.getElementsByClassName("clearable")!;
+        const elementsToClear = (document.getElementsByClassName("clearable") ?? []);
         for (let i = 0; i < elementsToClear.length; i++) {
-            elementsToClear[i].innerHTML = "";
+            elementsToClear[i]!.innerHTML = "";
         }
 
         clearStoppingPattern();
@@ -515,7 +456,7 @@ On each request, check if global cache has expired
     ): Map<number, V3Disruption> {
         const map = new Map();
         for (let i = 0; i < items.length; i++) {
-            map.set(items[i].disruption_id, items[i]);
+            map.set(items[i]!.disruption_id, items[i]);
         }
         return map;
     },
@@ -552,7 +493,7 @@ On each request, check if global cache has expired
         if (departure.disruption_ids == undefined) return result;
 
         for (let i = 0; i < departure.disruption_ids.length; i++) {
-            const id = departure.disruption_ids[i];
+            const id = departure.disruption_ids[i]!;
             const data: V3Disruption | undefined = disruptionsMap.get(id);
 
             if (!data) continue;
@@ -603,11 +544,11 @@ On each request, check if global cache has expired
             document.getElementById(_loadingElementId)!.innerHTML = "Done.";
             const refresh_date = new Date();
             document.getElementById(_refreshTimeElementId)!.innerHTML =
-                padSingleDigitWithZero(refresh_date.getHours()) +
+                DateTimeHelpers.padSingleDigitWithZero(refresh_date.getHours()) +
                 ":" +
-                padSingleDigitWithZero(refresh_date.getMinutes()) +
+                DateTimeHelpers.padSingleDigitWithZero(refresh_date.getMinutes()) +
                 ":" +
-                padSingleDigitWithZero(refresh_date.getSeconds());
+                DateTimeHelpers.padSingleDigitWithZero(refresh_date.getSeconds());
 
             const metroTrainDisruptions: V3Disruption[] =
                 disruptionsResponse.metro_train != undefined
@@ -631,12 +572,12 @@ On each request, check if global cache has expired
                     accumulatedOffset +=
                         (Math.floor(Math.random() * 9) + 1) * 60000;
                     const date = new Date(now.getTime() + accumulatedOffset);
-                    departures[i].scheduled_departure_utc = date;
-                    departures[i].estimated_departure_utc = date;
+                    departures[i]!.scheduled_departure_utc = date;
+                    departures[i]!.estimated_departure_utc = date;
                 }
             }
 
-            const nextDeparture: V3Departure = departures![0];
+            const nextDeparture: V3Departure = departures![0]!;
 
             const nextDepartureRouteId = nextDeparture.route_id;
             document.body.setAttribute(
@@ -830,8 +771,9 @@ On each request, check if global cache has expired
                 inbound,
                 stopId
             );
-            document.getElementById("next-dest-description")!.innerText = desc; //TODO const for id
+            document.getElementById(_nextDestDescriptionElementId)!.innerText = desc;
 
+            // Build vehicle description for next run
             const nextRun = runs![nextDeparture.run_id!];
             const directionText = nextRun.vehicle_position?.direction
                 ? nextRun.vehicle_position?.direction + " "
@@ -845,8 +787,9 @@ On each request, check if global cache has expired
                       (nextRun.vehicle_descriptor?.id ?? "") +
                       ")"
                     : "";
-            document.getElementById("run-description")!.innerText = runDesc; //TODO const for id
+            document.getElementById(_runDescriptionElementId)!.innerText = runDesc;
 
+            // Build map link for next run
             const hasCoords =
                 nextRun.vehicle_position?.latitude &&
                 nextRun.vehicle_position?.longitude;
@@ -910,77 +853,12 @@ On each request, check if global cache has expired
     },
 
     /* Util functions */
-    getGlobalSettings: function () {
-        return {
-            baseUrl: _useMockData ? "" : "http://timetableapi.ptv.vic.gov.au",
-            useCorsBypass: true,
-            proxyUrl:
-                "https://ptvproxy20170416075948.azurewebsites.net/api/proxy?url=",
-            //'https://cors-anywhere.herokuapp.com/'
-        };
-    },
+
 
     /* Request functions */
 
-    //Departures
-    buildDeparturesEndpoint: function (
-        routeType: number,
-        stopId: number,
-        platformNumber: number
-    ) {
-        const date_utc = DateTimeHelpers.getIsoDate();
-        const template =
-            "/v3/departures/route_type/{route_type}/stop/{stop_id}" +
-            "?max_results=6&date_utc={date_utc}&platform_numbers={platform_number}&expand=stop&expand=Run&expand=VehiclePosition&expand=VehicleDescriptor";
 
-        const endpoint = template
-            .replace("{route_type}", routeType.toString())
-            .replace("{stop_id}", stopId.toString())
-            .replace("{platform_number}", platformNumber.toString())
-            .replace("{date_utc}", date_utc);
-        return _useMockData ? "mocks/departures.json" : endpoint;
-    },
-
-    //Stops on route
-    buildStopsOnRouteEndpoint: function (routeType: number, routeId: number) {
-        const dateUtc = DateTimeHelpers.getIsoDate();
-        const template =
-            "/v3/stops/route/{route_id}/route_type/{route_type}" +
-            "?date_utc={date_utc}";
-        const endpoint = template
-            .replace("{route_type}", routeType.toString())
-            .replace("{route_id}", routeId.toString())
-            .replace("{date_utc}", dateUtc);
-        return _useMockData ? "mocks/stopsOnRoute.json" : endpoint;
-    },
-
-    //Stopping pattern
-    buildStoppingPatternEndpoint: function (routeType: number, runId: number) {
-        const date_utc = DateTimeHelpers.getIsoDate();
-        const template =
-            "/v3/pattern/run/{run_id}/route_type/{route_type}" +
-            "?date_utc={date_utc}";
-        const endpoint = template
-            .replace("{route_type}", routeType.toString())
-            .replace("{run_id}", runId.toString())
-            .replace("{date_utc}", date_utc);
-        return _useMockData ? "mocks/stoppingPattern.json" : endpoint;
-    },
-
-    //Disruptions
-    buildDisruptionsEndpoint: function (routeType: number) {
-        const template =
-            "/v3/disruptions?route_types={route_type}&disruption_status={disruption_status}";
-        const endpoint = template
-            .replace("{route_type}", routeType.toString())
-            .replace("{disruption_status}", "current");
-        return _useMockData ? "mocks/disruptions.json" : endpoint;
-    },
 };
-
-let _devId: string = "";
-let _secret: string = "";
-let _useMockData: boolean = false;
 
 function init() {
     _devId = getQueryVariable("d");
@@ -989,8 +867,7 @@ function init() {
     const e: any = document.getElementById(_platformSelectElementId)!;
     e.value = platform_number;
 
-    if (getQueryVariable("mode") == "mock") {
-        _useMockData = true;
+    if (_useMockData) {
         console.log("Using mock data");
     }
 
@@ -1002,33 +879,6 @@ function init() {
     }
 
     updateView();
-}
-
-function getQueryVariable(variable: string): string {
-    const query = window.location.search.substring(1);
-    const vars = query.split("&");
-    for (var i = 0; i < vars.length; i++) {
-        const pair = vars[i].split("=");
-        if (pair[0] == variable) {
-            return pair[1];
-        }
-    }
-    return "";
-}
-
-function updateQueryVariable(key: string, value: string): string {
-    const query = window.location.search.substring(1);
-    const vars = query.split("&");
-    let result = "";
-    for (var i = 0; i < vars.length; i++) {
-        const pair = vars[i].split("=");
-        if (pair[0] == key) {
-            result = result + "&" + pair[0] + "=" + value;
-        } else {
-            result = result + "&" + pair[0] + "=" + pair[1];
-        }
-    }
-    return "?" + result.substring(1);
 }
 
 function updateView(): void {
@@ -1160,7 +1010,7 @@ function addFollowingDeparture(
         departure,
         disruptionsMap
     );
-    const route_id = departure.route_id;
+    // const route_id = departure.route_id;
 
     if (diff != "--" && diff >= 60) {
         return;
@@ -1415,9 +1265,7 @@ function clearDisruptionList(): void {
         .setAttribute("class", "clearable");
 }
 
-function padSingleDigitWithZero(input: number): string {
-    return input < 10 ? "0" + input : input.toString();
-}
+
 
 function isRealTime(estimated: Date | undefined) {
     return estimated != null && estimated != undefined;
@@ -1442,60 +1290,7 @@ function reverseArray(input: any[]): any[] {
 
 /* DATETIME HELPERS */
 
-class DateTimeHelpers {
-    static getIsoDate(): string {
-        return new Date().toISOString();
-    }
 
-    /*static formatTime(estimated, scheduled) {
-		var date = estimated == null
-			? new Date(scheduled)
-			: new Date(estimated);
-
-		var hrs = padSingleDigitWithZero(date.getHours());
-		var mins = padSingleDigitWithZero(date.getMinutes());
-		var result = hrs + ":" + mins;
-		return result;
-	}*/
-
-    static formatSingleTime(date: Date, includeDesignator: boolean): string {
-        const hours = new Date(date).getHours();
-        const isPm = hours > 12;
-        const hrs = isPm ? hours - 12 : hours;
-        const designator = isPm ? "pm" : "am";
-        const mins = padSingleDigitWithZero(new Date(date).getMinutes());
-
-        return includeDesignator
-            ? hrs + ":" + mins + designator
-            : hrs + ":" + mins;
-    }
-
-    static getDifferenceFromNow(
-        estimated: Date | undefined,
-        scheduled: Date
-    ): number {
-        const date = estimated == null ? scheduled : estimated;
-
-        const now = new Date();
-
-        return Math.floor(
-            DateTimeHelpers.getDifferenceFromNowSec(estimated, scheduled) / 60
-        );
-    }
-
-    static getDifferenceFromNowSec(
-        estimated: Date | undefined,
-        scheduled: Date
-    ): number {
-        const date = estimated == null ? scheduled : estimated;
-
-        const now = new Date();
-
-        const result = (new Date(date).getTime() - now.getTime()) / 1000;
-        //console.log(result);
-        return result;
-    }
-}
 
 //Copyright (c) Scott Butler 2014-2023
 const gw = [
@@ -1695,36 +1490,36 @@ const fr = [
     { key: "29", name: "Southern Cross", stop_id: "1181" },
     { key: "30", name: "Flinders Street", stop_id: "1071" },
 ];
-const hb2 = [
-    { key: "0", name: "Hurstbridge", stop_id: "1100" },
-    { key: "1", name: "Wattle Glen", stop_id: "1204" },
-    { key: "2", name: "Diamond Creek", stop_id: "1054" },
-    { key: "3", name: "Eltham", stop_id: "1062" },
-    { key: "4", name: "Montmorency", stop_id: "1130" },
-    { key: "5", name: "Greensborough", stop_id: "1084" },
-    { key: "6", name: "Watsonia", stop_id: "1203" },
-    { key: "7", name: "Macleod", stop_id: "1117" },
-    { key: "8", name: "Rosanna", stop_id: "1168" },
-    { key: "9", name: "Heidelberg", stop_id: "1093" },
-    { key: "10", name: "Eaglemont", stop_id: "1056" },
-    { key: "11", name: "Ivanhoe", stop_id: "1101" },
-    { key: "12", name: "Darebin", stop_id: "1050" },
-    { key: "13", name: "Alphington", stop_id: "1004" },
-    { key: "14", name: "Fairfield", stop_id: "1065" },
-    { key: "15", name: "Dennis", stop_id: "1053" },
-    { key: "16", name: "Westgarth", stop_id: "1209" },
-    { key: "17", name: "Clifton Hill", stop_id: "1041" },
-    { key: "18", name: "Victoria Park", stop_id: "1201" },
-    { key: "19", name: "Collingwood", stop_id: "1043" },
-    { key: "20", name: "North Richmond", stop_id: "1145" },
-    { key: "21", name: "West Richmond", stop_id: "1207" },
-    { key: "22", name: "Jolimont-MCG", stop_id: "1104" },
-    { key: "23", name: "Parliament", stop_id: "1155" },
-    { key: "24", name: "Melbourne Central", stop_id: "1120" },
-    { key: "25", name: "Flagstaff", stop_id: "1068" },
-    { key: "26", name: "Southern Cross", stop_id: "1181" },
-    { key: "27", name: "Flinders Street", stop_id: "1071" },
-];
+// const hb2 = [
+//     { key: "0", name: "Hurstbridge", stop_id: "1100" },
+//     { key: "1", name: "Wattle Glen", stop_id: "1204" },
+//     { key: "2", name: "Diamond Creek", stop_id: "1054" },
+//     { key: "3", name: "Eltham", stop_id: "1062" },
+//     { key: "4", name: "Montmorency", stop_id: "1130" },
+//     { key: "5", name: "Greensborough", stop_id: "1084" },
+//     { key: "6", name: "Watsonia", stop_id: "1203" },
+//     { key: "7", name: "Macleod", stop_id: "1117" },
+//     { key: "8", name: "Rosanna", stop_id: "1168" },
+//     { key: "9", name: "Heidelberg", stop_id: "1093" },
+//     { key: "10", name: "Eaglemont", stop_id: "1056" },
+//     { key: "11", name: "Ivanhoe", stop_id: "1101" },
+//     { key: "12", name: "Darebin", stop_id: "1050" },
+//     { key: "13", name: "Alphington", stop_id: "1004" },
+//     { key: "14", name: "Fairfield", stop_id: "1065" },
+//     { key: "15", name: "Dennis", stop_id: "1053" },
+//     { key: "16", name: "Westgarth", stop_id: "1209" },
+//     { key: "17", name: "Clifton Hill", stop_id: "1041" },
+//     { key: "18", name: "Victoria Park", stop_id: "1201" },
+//     { key: "19", name: "Collingwood", stop_id: "1043" },
+//     { key: "20", name: "North Richmond", stop_id: "1145" },
+//     { key: "21", name: "West Richmond", stop_id: "1207" },
+//     { key: "22", name: "Jolimont-MCG", stop_id: "1104" },
+//     { key: "23", name: "Parliament", stop_id: "1155" },
+//     { key: "24", name: "Melbourne Central", stop_id: "1120" },
+//     { key: "25", name: "Flagstaff", stop_id: "1068" },
+//     { key: "26", name: "Southern Cross", stop_id: "1181" },
+//     { key: "27", name: "Flinders Street", stop_id: "1071" },
+// ];
 const hb = [
     { key: "0", name: "Hurstbridge", stop_id: "1100" },
     { key: "1", name: "Wattle Glen", stop_id: "1204" },
