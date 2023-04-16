@@ -20,7 +20,7 @@ export class DateTimeHelpers {
 
     static formatSingleTime(date: Date, includeDesignator: boolean): string {
         const hours = new Date(date).getHours();
-        const isPm = hours > 12;
+        const isPm = hours >= 12;
         const hrs = isPm ? hours - 12 : hours;
         const designator = isPm ? "pm" : "am";
         const mins = this.padSingleDigitWithZero(new Date(date).getMinutes());

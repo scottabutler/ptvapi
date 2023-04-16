@@ -21,7 +21,7 @@
         <script type="module" src="dist/platformView.js"></script>
 
     </head>
-    <body onload="init()" data-colour="dark-blue"> <!-- TODO: Scott to fix ASAP 👉⌚-->
+    <body data-colour="dark-blue">
         <div class="container">
             <div class="row my-3">
                 <div class="col-4">
@@ -35,7 +35,6 @@
                         type="checkbox"
                         id="auto-refresh"
                         name="auto-refresh"
-                        onchange="updateTimer()"
                     />
                     <label
                         id="auto-refresh-label"
@@ -51,7 +50,7 @@
                 </div>
                 <div class="col-6">
                     <span id="platform-select-wrapper">
-                        <select id="platform-select" onchange="updateView()">
+                        <select id="platform-select">
                             <option value="1">Platform 1</option>
                             <option value="2">Platform 2</option>
                             <option value="3">Platform 3</option>

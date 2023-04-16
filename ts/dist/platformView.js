@@ -488,6 +488,21 @@ function init() {
     }
     updateView();
 }
+document.addEventListener("DOMContentLoaded", () => {
+    const selectElement = document.querySelector("#platform-select");
+    if (selectElement) {
+        selectElement.addEventListener("change", (_) => {
+            updateView();
+        });
+    }
+    const autoRefreshElement = document.querySelector("#auto-refresh");
+    if (autoRefreshElement) {
+        autoRefreshElement.addEventListener("change", (_) => {
+            updateTimer();
+        });
+    }
+    init();
+});
 function updateView() {
     const loading = document.getElementById(_loadingElementId);
     loading.innerHTML = "Loading";

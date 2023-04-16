@@ -8,7 +8,7 @@ export class PTV_v2 {
 
     constructor(isMockMode: boolean) {
         this._isMockMode = isMockMode;
-        this._baseUrl = isMockMode ? "" : "http://timetableapi.this.vic.gov.au";
+        this._baseUrl = isMockMode ? "" : "http://timetableapi.ptv.vic.gov.au";
         this._proxyUrl = "https://ptvproxy20170416075948.azurewebsites.net/api/proxy?url=";
     }
 
