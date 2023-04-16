@@ -1,6 +1,8 @@
 <html>
     <head>
         <title>PTV Platform View</title>
+        <link rel="icon" type="image/x-icon" href="./train-1045.svg">
+
         <!-- Required meta tags -->
         <meta charset="utf-8" />
 
@@ -15,10 +17,12 @@
             href="https://fonts.googleapis.com/css?family=Nunito+Sans:200,600"
         />
         <link rel="stylesheet" type="text/css" href="./styles.css" />
+        <script>var exports = {"__esModule": true};</script>
         <script src="ptv-hmac-sha1.js"></script>
-        <script src="platformView.js"></script>
+
+        <script type="module" src="dist/platformView.js"></script>
     </head>
-    <body onload="init()" data-colour="dark-blue">
+    <body data-colour="dark-blue">
         <div class="container">
             <div class="row my-3">
                 <div class="col-4">
@@ -32,7 +36,6 @@
                         type="checkbox"
                         id="auto-refresh"
                         name="auto-refresh"
-                        onchange="updateTimer()"
                     />
                     <label
                         id="auto-refresh-label"
@@ -48,7 +51,7 @@
                 </div>
                 <div class="col-6">
                     <span id="platform-select-wrapper">
-                        <select id="platform-select" onchange="updateView()">
+                        <select id="platform-select">
                             <option value="1">Platform 1</option>
                             <option value="2">Platform 2</option>
                             <option value="3">Platform 3</option>
