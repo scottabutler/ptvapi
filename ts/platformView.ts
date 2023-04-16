@@ -28,7 +28,11 @@ let _devId: string = "";
 let _secret: string = "";
 const _useMockData: boolean = getQueryVariable("mode") == "mock";
 
-let _PTV_v2 = new PTV_v2(_useMockData);
+const _onRequestStart = (description: string) => {
+    document.getElementById(_loadingElementId)!.innerHTML = `Loading ${description}`;
+}
+
+let _PTV_v2 = new PTV_v2(_useMockData, _onRequestStart);
 
 const PTV = {
     //Fields

@@ -9,15 +9,16 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 import { DateTimeHelpers } from "./dateTimeHelpers.js";
 export class PTV_v2 {
-    constructor(isMockMode) {
+    constructor(isMockMode, onRequestStart) {
         this._isMockMode = isMockMode;
         this._baseUrl = isMockMode ? "" : "http://timetableapi.ptv.vic.gov.au";
         this._proxyUrl = "https://ptvproxy20170416075948.azurewebsites.net/api/proxy?url=";
+        this._onRequestStart = onRequestStart;
     }
     requestDepartures(routeType, stopId, platformNumber, credentials) {
         return __awaiter(this, void 0, void 0, function* () {
             const endpoint = this.buildDeparturesEndpoint(routeType, stopId, platformNumber);
-            return yield this.sendRequest(endpoint, credentials);
+            return yield this.sendRequest(endpoint, credentials, 'departures');
         });
     }
     requestStopsOnRoute(routeType, routeId, credentials, stopsOnRouteCache) {
@@ -31,20 +32,20 @@ export class PTV_v2 {
             }
             else {
                 const endpoint = this.buildStopsOnRouteEndpoint(routeType, routeId);
-                return yield this.sendRequest(endpoint, credentials);
+                return yield this.sendRequest(endpoint, credentials, 'stops');
             }
         });
     }
     requestDisruptions(routeType, credentials) {
         return __awaiter(this, void 0, void 0, function* () {
             const endpoint = this.buildDisruptionsEndpoint(routeType);
-            return yield this.sendRequest(endpoint, credentials);
+            return yield this.sendRequest(endpoint, credentials, 'disruptions');
         });
     }
     requestStoppingPattern(routeType, runId, credentials) {
         return __awaiter(this, void 0, void 0, function* () {
             const endpoint = this.buildStoppingPatternEndpoint(routeType, runId);
-            return yield this.sendRequest(endpoint, credentials);
+            return yield this.sendRequest(endpoint, credentials, 'pattern');
         });
     }
     buildDeparturesEndpoint(routeType, stopId, platformNumber) {
@@ -88,7 +89,8 @@ export class PTV_v2 {
     getStopsOnRouteCacheKey(routeType, routeId) {
         return routeType + "_" + routeId;
     }
-    sendRequest(endpoint, credentials) {
+    sendRequest(endpoint, credentials, description) {
+        this._onRequestStart(description);
         if (this._isMockMode) {
             return this.fetchTyped(endpoint);
         }

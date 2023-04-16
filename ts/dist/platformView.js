@@ -18,7 +18,10 @@ let _stopsOnRouteCache = {
 let _devId = "";
 let _secret = "";
 const _useMockData = getQueryVariable("mode") == "mock";
-let _PTV_v2 = new PTV_v2(_useMockData);
+const _onRequestStart = (description) => {
+    document.getElementById(_loadingElementId).innerHTML = `Loading ${description}`;
+};
+let _PTV_v2 = new PTV_v2(_useMockData, _onRequestStart);
 const PTV = {
     run: function (params) {
         const credentials = {

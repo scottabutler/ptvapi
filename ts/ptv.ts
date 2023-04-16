@@ -5,11 +5,13 @@ export class PTV_v2 {
     private _isMockMode: boolean;
     private _baseUrl: string;
     private _proxyUrl: string;
+    private _onRequestStart: (description: string) => void;
 
-    constructor(isMockMode: boolean) {
+    constructor(isMockMode: boolean, onRequestStart: (description: string) => void) {
         this._isMockMode = isMockMode;
         this._baseUrl = isMockMode ? "" : "http://timetableapi.ptv.vic.gov.au";
         this._proxyUrl = "https://ptvproxy20170416075948.azurewebsites.net/api/proxy?url=";
+        this._onRequestStart = onRequestStart;
     }
 
     async requestDepartures(
@@ -25,7 +27,8 @@ export class PTV_v2 {
         ); //TODO
         return await this.sendRequest<V3DeparturesResponse>(
             endpoint,
-            credentials
+            credentials,
+            'departures'
         );
     }
 
@@ -53,7 +56,8 @@ export class PTV_v2 {
             return await
                 this.sendRequest<V3StopsOnRouteResponse>(
                     endpoint,
-                    credentials
+                    credentials,
+                    'stops'
                 );
         }
     }
@@ -63,7 +67,7 @@ export class PTV_v2 {
         credentials: Credentials
     ): Promise<V3DisruptionsResponse> {
         const endpoint = this.buildDisruptionsEndpoint(routeType);
-        return await this.sendRequest<V3DisruptionsResponse>(endpoint, credentials);
+        return await this.sendRequest<V3DisruptionsResponse>(endpoint, credentials, 'disruptions');
     }
 
     async requestStoppingPattern(
@@ -74,7 +78,8 @@ export class PTV_v2 {
         const endpoint = this.buildStoppingPatternEndpoint(routeType, runId);
         return await this.sendRequest<V3StoppingPatternResponse>(
             endpoint,
-            credentials
+            credentials,
+            'pattern'
         );
     }
 
@@ -140,10 +145,13 @@ export class PTV_v2 {
 
     private sendRequest<TResponse>(
         endpoint: string,
-        credentials: Credentials
+        credentials: Credentials,
+        description: string
     ): Promise<TResponse> {
         // TODO - move out
         //document.getElementById(_loadingElementId)!.innerHTML += ".";
+
+        this._onRequestStart(description);
 
         if (this._isMockMode) {
             return this.fetchTyped<TResponse>(endpoint);
