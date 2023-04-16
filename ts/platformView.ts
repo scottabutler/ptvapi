@@ -754,11 +754,6 @@ On each request, check if global cache has expired
                 }
             }
 
-            //TODO is this required?
-            if (departures == null || departures.length == 0) {
-                reject("No departures found.");
-            }
-
             if (departures![0].route_id == undefined) {
                 reject("No routeId returned for departure.");
             }

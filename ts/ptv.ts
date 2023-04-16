@@ -24,7 +24,7 @@ export class PTV_v2 {
             routeType,
             stopId,
             platformNumber
-        ); //TODO
+        );
         return await this.sendRequest<V3DeparturesResponse>(
             endpoint,
             credentials,
@@ -148,9 +148,6 @@ export class PTV_v2 {
         credentials: Credentials,
         description: string
     ): Promise<TResponse> {
-        // TODO - move out
-        //document.getElementById(_loadingElementId)!.innerHTML += ".";
-
         this._onRequestStart(description);
 
         if (this._isMockMode) {

@@ -7,17 +7,6 @@ export class DateTimeHelpers {
         return input < 10 ? "0" + input : input.toString();
     }
 
-    /*static formatTime(estimated, scheduled) {
-		var date = estimated == null
-			? new Date(scheduled)
-			: new Date(estimated);
-
-		var hrs = padSingleDigitWithZero(date.getHours());
-		var mins = padSingleDigitWithZero(date.getMinutes());
-		var result = hrs + ":" + mins;
-		return result;
-	}*/
-
     static formatSingleTime(date: Date, includeDesignator: boolean): string {
         const hours = new Date(date).getHours();
         const isPm = hours >= 12;
